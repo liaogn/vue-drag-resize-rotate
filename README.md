@@ -1,4 +1,4 @@
-# dressup
+# vue-drag-resize-rotate
 
 ## Project setup
 ```
