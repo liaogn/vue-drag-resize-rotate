@@ -1,13 +1,50 @@
 <template>
   <div @click="clickEmpty" id="app">
-    <div class="drawWrap">
+    <div @click.stop class="drawWrap">
       <p style="text-align:center;line-height:40px">click this blue box</p>
-      <VueDragResizeRotate :active="test.isActive" :activeable="true" :draggable="true" :h="test.h" :r="test.r" :resizeable="true" :rotateable="true" :w="test.w" :x="test.x" :y="test.y" @activated="activated" @dragging="dragging" @resizing="resizing" @rotating="rotating">
-        <p style="text-align:center">left: {{ posData.left }}</p>
+      <VueDragResizeRotate
+        :active="test.isActive"
+        :activeable="true"
+        :draggable="true"
+        :h="test.h"
+        :heightRange="[300,20]"
+        :lock="test.lock"
+        :r="test.r"
+        :resizeable="true"
+        :rotateable="true"
+        :w="test.w"
+        :widthRange="[300,20]"
+        :x="test.x"
+        :y="test.y"
+        @activated="activated"
+        @dragging="dragging"
+        @resizing="resizing"
+        @rotating="rotating"
+        class="test-vdr"
+      >
+        <!-- <p style="text-align:center">left: {{ posData.left }}</p>
         <p style="text-align:center">top: {{ posData.top }}</p>
         <p style="text-align:center">width: {{ posData.width }}</p>
         <p style="text-align:center">height: {{ posData.height }}</p>
-        <p style="text-align:center">rotate: {{ posData.rotate }}</p>
+        <p style="text-align:center">rotate: {{ posData.rotate }}</p>-->
+        <!-- <VueDragResizeRotate
+          :active="test2.isActive"
+          :activeable="true"
+          :draggable="true"
+          :h="test2.h"
+          :r="test2.r"
+          :resizeable="true"
+          :rotateable="true"
+          :w="test2.w"
+          :x="test2.x"
+          :y="test2.y"
+          @activated="activated"
+          @dragging="dragging"
+          @resizing="resizing"
+          @rotating="rotating"
+          class="test-vdr"
+        >
+        </VueDragResizeRotate>-->
       </VueDragResizeRotate>
     </div>
   </div>
@@ -17,15 +54,25 @@ export default {
   data() {
     return {
       test: {
-        id: '1',
-        w: 200,
+        id: "1",
+        w: 100,
         h: 200,
         x: 170,
-        y: 200,
+        y: 140,
         r: 0,
-        isActive: false,
+        lock: true,
+        isActive: true
       },
-      posData: {},
+      test2: {
+        id: "2",
+        w: 100,
+        h: 100,
+        x: 20,
+        y: 20,
+        r: 0,
+        isActive: true
+      },
+      posData: {}
     };
   },
   computed: {},
@@ -36,6 +83,14 @@ export default {
     this.posData.left = x;
     this.posData.top = y;
     this.posData.rotate = r;
+    setTimeout(() => {
+      this.test.lock = false;
+      console.log("解锁");
+    }, 3000);
+    setTimeout(() => {
+      this.test.lock = true;
+      console.log("上锁");
+    }, 6000);
   },
   methods: {
     dragging(pos) {
@@ -52,12 +107,12 @@ export default {
     },
     clickEmpty() {
       this.test.isActive = false;
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="css">
-@import './style/public.css';
+@import "./style/public.css";
 html,
 body,
 #app,
@@ -72,6 +127,9 @@ body,
   align-items: center;
 }
 
+.test-vdr {
+  /* border: 1px solid #000; */
+}
 .drawWrap {
   width: 540px;
   height: 700px;
