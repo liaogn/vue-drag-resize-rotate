@@ -1,3 +1,4 @@
+<style lang="css" src="./index.css"></style>
 <template>
   <div
     :class="{ 'vdr-active': active && activeable, 'vdr-not-active': !activeable }"
@@ -13,29 +14,26 @@
       <span
         :class="`vdr-stick-${stick}`"
         :key="stickIndex"
-        :style="{zIndex:activeStick==stickIndex?10:9}"
-        @mousedown.stop.prevent="stickDown($event, stick,stickIndex)"
+        :style="{ zIndex: activeStick == stickIndex ? 10 : 9 }"
+        @mousedown.stop.prevent="stickDown($event, stick, stickIndex)"
         class="vdr-stick"
-        v-for="(stick, stickIndex) in sticks"
+        v-for="(stick, stickIndex) in rotateSticks"
       ></span>
       <!-- 旋转控件 -->
-      <template v-if="rotateable">
+      <template v-if="sticks.indexOf('angle')>-1">
         <span class="vdr-stick-rotate-line"></span>
         <span @mousedown.stop.prevent="rotateDown($event)" class="vdr-stick vdr-rotate"></span>
       </template>
     </template>
 
     <!-- 插槽 -->
-    <div :bg="bg" class="vdr-slot">
+    <div :style="{ backgroundImage: `url(${bg})` }" class="vdr-slot">
       <slot></slot>
     </div>
   </div>
 </template>
 
 <script>
-// 宽高最小值
-const MINSIZE = 0;
-
 // 旋转坐标点缓存
 let pointA = {};
 let pointB = {};
@@ -44,9 +42,9 @@ let pointC = {};
 export default {
   name: "VueDragResizeRotate",
   props: {
-    d: {
+    hidden: {
       type: Boolean,
-      default: true
+      default: false
     },
     bg: {
       type: String,
@@ -95,12 +93,8 @@ export default {
     sticks: {
       type: Array,
       default: function() {
-        return ["tl", "tm", "tr", "mr", "br", "bm", "bl", "ml"];
+        return ["tl", "tm", "tr", "mr", "br", "bm", "bl", "ml", "angle"];
       }
-    },
-    stickSize: {
-      type: Number,
-      default: 10
     },
     active: {
       type: Boolean,
@@ -122,10 +116,7 @@ export default {
       type: Boolean,
       default: true
     },
-    borderSize: {
-      type: Number,
-      default: 2
-    },
+
     widthRange: {
       type: Array
     },
@@ -144,7 +135,8 @@ export default {
       bottom: 0,
       right: 0,
       rotate: this.r,
-      activeStick: -1
+      activeStick: -1,
+      currentStick: ""
     };
   },
   computed: {
@@ -155,8 +147,12 @@ export default {
         zIndex: this.zIndex,
         width: `${this.width}px`,
         height: `${this.height}px`,
-        transform: `${translate} ${rotate}`
+        transform: `${translate} ${rotate}`,
+        visibility: this.hidden ? "hidden" : "visible"
       };
+    },
+    rotateSticks() {
+      return this.sticks.filter(itme => itme !== "angle");
     },
     posData() {
       return {
@@ -164,7 +160,8 @@ export default {
         top: this.top,
         width: this.width,
         height: this.height,
-        rotate: Math.round(this.rotate)
+        rotate: Math.round(this.rotate),
+        stick: this.currentStick
       };
     },
     // x的最小偏移值
@@ -240,9 +237,6 @@ export default {
     },
     // 初始化
     init() {
-      // 缩放控件类型初始化
-      this.currentStick = "";
-
       // 元素宽高比例初始化
       this.whRatio = this.width / this.height;
 
@@ -274,14 +268,22 @@ export default {
     //元素本身的mousedown事件回调函数
     bodyDown(ev) {
       if (!this.activeable) return;
+
       this.bodyDrag = true;
+      this.currentStick = "";
+
       // 记录开始鼠标位置
       this.bodyStartPos.mx = ev.clientX;
       this.bodyStartPos.my = ev.clientY;
       // 记录开始元素位置
       this.bodyStartPos.left = this.left;
       this.bodyStartPos.top = this.top;
-      this.activeable && this.$emit("activated", this.posData);
+
+      // 触发事件
+      if (this.activeable) {
+        this.$emit("activated", this.posData);
+        this.$emit("dragStart", this.posData);
+      }
     },
     // 元素本身的mousemove事件回调函数
     bodyMove(ev) {
@@ -318,6 +320,9 @@ export default {
       this.bodyStartPos.top = this.top;
       this.bodyStartPos.bottom = this.bottom;
       this.bodyStartPos.right = this.right;
+
+      // 触发事件
+      this.$emit("resizeStart", this.posData);
     },
     // 缩放控件的mousemove事件回调函数
     stickMove(ev) {
@@ -348,17 +353,22 @@ export default {
     // 旋转控件的mousedown事件回调函数
     rotateDown(ev) {
       if (!this.activeable) return;
-      // 当前元素
+      // 获取当前元素位置大小信息，用于计算旋转元素的中心点
       const vdr = this.$refs.vdr;
-      // 当前元素位置大小信息，用于计算旋转元素的中心点
       const rect = vdr.getBoundingClientRect();
       const { left, top, width, height } = rect;
+
       this.rotateDrag = true;
+      this.currentStick = "angle";
+
       // 开始点
       pointB = { X: ev.clientX, Y: ev.clientY };
       // 中点
       pointA = { X: left + width / 2, Y: top + height / 2 };
+      // 触发事件
+      this.$emit("rotateStart", this.posData);
     },
+
     // 旋转控件的mousemove事件回调函数
     rotateMove(ev) {
       // 记录结束点

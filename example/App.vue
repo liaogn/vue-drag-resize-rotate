@@ -5,62 +5,46 @@
       <VueDragResizeRotate
         :active="test.isActive"
         :activeable="true"
+        :bg="testImage"
         :draggable="true"
         :h="test.h"
-        :heightRange="[300,20]"
+        :heightRange="[300, 20]"
         :lock="test.lock"
         :r="test.r"
         :resizeable="true"
         :rotateable="true"
+        :sticks="['tl', 'tm','angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
         :w="test.w"
-        :widthRange="[300,20]"
+        :widthRange="[300, 20]"
         :x="test.x"
         :y="test.y"
         @activated="activated"
         @dragging="dragging"
+        @dragStart="dragStart"
+        @resizeStart="resizeStart"
+        @resizeStop="resizeStop"
         @resizing="resizing"
+        @rotateStart="rotateStart"
         @rotating="rotating"
         class="test-vdr"
-      >
-        <!-- <p style="text-align:center">left: {{ posData.left }}</p>
-        <p style="text-align:center">top: {{ posData.top }}</p>
-        <p style="text-align:center">width: {{ posData.width }}</p>
-        <p style="text-align:center">height: {{ posData.height }}</p>
-        <p style="text-align:center">rotate: {{ posData.rotate }}</p>-->
-        <!-- <VueDragResizeRotate
-          :active="test2.isActive"
-          :activeable="true"
-          :draggable="true"
-          :h="test2.h"
-          :r="test2.r"
-          :resizeable="true"
-          :rotateable="true"
-          :w="test2.w"
-          :x="test2.x"
-          :y="test2.y"
-          @activated="activated"
-          @dragging="dragging"
-          @resizing="resizing"
-          @rotating="rotating"
-          class="test-vdr"
-        >
-        </VueDragResizeRotate>-->
-      </VueDragResizeRotate>
+      ></VueDragResizeRotate>
     </div>
   </div>
 </template>
 <script>
+import testImage from "./img/test.jpg";
 export default {
   data() {
     return {
+      testImage,
       test: {
         id: "1",
-        w: 100,
-        h: 200,
+        w: 192,
+        h: 156,
         x: 170,
         y: 140,
         r: 0,
-        lock: true,
+        lock: false,
         isActive: true
       },
       test2: {
@@ -83,28 +67,40 @@ export default {
     this.posData.left = x;
     this.posData.top = y;
     this.posData.rotate = r;
-    setTimeout(() => {
-      this.test.lock = false;
-      console.log("解锁");
-    }, 3000);
-    setTimeout(() => {
-      this.test.lock = true;
-      console.log("上锁");
-    }, 6000);
   },
   methods: {
-    dragging(pos) {
-      this.posData = pos;
-    },
-    resizing(pos) {
-      this.posData = pos;
-    },
-    rotating(pos) {
-      this.posData = pos;
-    },
     activated() {
       this.test.isActive = true;
     },
+    dragStart(pos) {
+      console.log("拖拽开始", pos);
+    },
+    resizeStart(pos) {
+      console.log("缩放开始", pos.stick);
+    },
+    rotateStart(pos) {
+      console.log("旋转开始", pos);
+    },
+
+    dragging(pos) {
+      // this.posData = pos;
+    },
+    resizing(pos) {
+      // this.posData = pos;
+    },
+    rotating(pos) {
+      // this.posData = pos;
+    },
+    dragStop(pos) {
+      // console.log("缩放结束", pos.stick);
+    },
+    resizeStop(pos) {
+      // console.log("缩放结束", pos.stick);
+    },
+    rotateStop(pos) {
+      // console.log("缩放结束", pos.stick);
+    },
+
     clickEmpty() {
       this.test.isActive = false;
     }

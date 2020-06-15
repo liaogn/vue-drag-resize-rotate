@@ -1,23 +1,9 @@
-import VueDragResizeRotate from './vdd/index.js';
+// 导入组件，组件必须声明 name
+import VueDragResizeRotate from './vdr/index.vue';
 
-export function install(Vue) {
-  if (install.installed) return;
-  install.installed = true;
+// 为组件添加 install 方法，用于按需引入
+VueDragResizeRotate.install = function(Vue) {
   Vue.component(VueDragResizeRotate.name, VueDragResizeRotate);
-}
-
-const plugin = {
-  install,
 };
-
-let GlobalVue = null;
-if (typeof window !== 'undefined') {
-  GlobalVue = window.Vue;
-} else if (typeof global !== 'undefined') {
-  GlobalVue = global.Vue;
-}
-if (GlobalVue) {
-  GlobalVue.use(plugin);
-}
 
 export default VueDragResizeRotate;
