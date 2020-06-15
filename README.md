@@ -172,16 +172,16 @@ export default {
 
 ## 事件（Event）
 
-1. **activated(pos)**       描述 ：**点击选中元素**        参数：pos [Object] 位置信息
-2. **dragStart(pos)**       描述 ：**拖拽开始**        参数：pos [Object] 位置信息
-3. **dragging(pos)**     描述 ：**拖拽中**        参数：pos [Object] 位置信息
-4. **dragStop(pos)**      描述 ：**拖拽停止**        参数：pos [Object] 位置信息
-5. **resizeStart(pos)**      描述 ：**缩放开始**        参数：pos [Object] 位置信息
-6. **resizing(pos)**      描述 ：**缩放中**        参数：pos [Object] 位置信息
-7. **resizeStop(pos)**       描述 ：**缩放结束**       参数：pos [Object] 位置信息
-8. **rotateStart(pos)**       描述 ：**旋转开始**        参数：pos [Object] 位置信息
-9. **rotating(pos)**     描述 ：**旋转中**        参数：pos [Object] 位置信息
-10. **rotateStop(pos)**       描述 ：**旋转停止**        参数：pos [Object] 位置信息
+1. **activated(pos) 点击选中元素**   参数：pos [Object] 位置信息
+2. **dragStart(pos) 拖拽开始**   参数：pos [Object] 位置信息
+3. **dragging(pos) 拖拽中**   参数：pos [Object] 位置信息
+4. **dragStop(pos) 拖拽停止**   参数：pos [Object] 位置信息
+5. **resizeStart(pos) 缩放开始**   参数：pos [Object] 位置信息
+6. **resizing(pos) 缩放中**   参数：pos [Object] 位置信息
+7. **resizeStop(pos) 缩放结束**  参数：pos [Object] 位置信息
+8. **rotateStart(pos) 旋转开始**   参数：pos [Object] 位置信息
+9. **rotating(pos) 旋转中**   参数：pos [Object] 位置信息
+10. **rotateStop(pos) 旋转停止**   参数：pos [Object] 位置信息
 
 ```javascript
 // pos参数详情
