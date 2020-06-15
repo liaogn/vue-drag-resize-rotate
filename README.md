@@ -13,7 +13,7 @@
 
 ## 版本 
 
-目前最新版本为1.0.9
+目前最新版本为1.0.9  GitHub地址：https://github.com/liaogn/vue-drag-resize-rotate
 
 ## 安装
 
