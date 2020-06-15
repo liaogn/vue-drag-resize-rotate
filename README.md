@@ -12,13 +12,15 @@
 
 ## 演示(Demo)
 
+[请点击 Demo](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html)
+
 ## 版本(Version)
 
 目前最新版本为 1.0.9
 
-gitHub 地址：https://github.com/liaogn/vue-drag-resize-rotate
+[gitHub 地址](https://github.com/liaogn/vue-drag-resize-rotate)
 
-npm 地址：https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate
+[npm 地址](https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate)
 
 ## 安装(Install)
 
