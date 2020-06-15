@@ -111,6 +111,7 @@ export default {
     rotating(pos) {
       console.log('旋转中'，pos)
     },
+  
     dragStop(pos){
       console.log('拖拽停止',pos)
     },
@@ -143,11 +144,11 @@ export default {
 14. **:activeable**  描述：是否可激活 ；类型：Boolean ； 默认：true
 15. **:widthRange**
 
-        描述：宽度范围 ；
+       描述：宽度范围 ；
 
-        类型：Array ； 
+       类型：Array ； 
 
-        默认：[0,Infinity];
+       默认：[0,Infinity]；
 
        说明：取参数array[0],与array[0]的最小最大值，与顺无关，如果为其中存在无效值或超出参数w的值，则取0作为最小值、取Infinity作为最大值
 
@@ -171,18 +172,16 @@ export default {
 
 ## 事件（Event）
 
-1. **activated(pos)**     描述 ：点击选中元素      参数：pos [Object] 位置信息
-2. **dragStart(pos)**     描述 ：拖拽开始      参数：pos [Object] 位置信息
-3. **dragging(pos)  **   描述 ：拖拽中      参数：pos [Object] 位置信息
-4. **dragStop(pos) **    描述 ：拖拽停止      参数：pos [Object] 位置信息
-5. **resizeStart(pos) **    描述 ：缩放开始      参数：pos [Object] 位置信息
-6. **resizing(pos) **    描述 ：缩放中      参数：pos [Object] 位置信息
-7. **resizeStop(pos)**     描述 ：缩放结束     参数：pos [Object] 位置信息
-8. **rotateStart(pos)**     描述 ：旋转开始      参数：pos [Object] 位置信息
-9. **rotating(pos)  **   描述 ：旋转中      参数：pos [Object] 位置信息
-10. **rotateStop(pos)**     描述 ：旋转停止      参数：pos [Object] 位置信息
-
-  
+1. **activated(pos)**     描述 ：**点击选中元素**      参数：pos [Object] 位置信息
+2. **dragStart(pos)**     描述 ：**拖拽开始**      参数：pos [Object] 位置信息
+3. **dragging(pos)**   描述 ：**拖拽中**      参数：pos [Object] 位置信息
+4. **dragStop(pos)**    描述 ：**拖拽停止**      参数：pos [Object] 位置信息
+5. **resizeStart(pos)**    描述 ：**缩放开始**      参数：pos [Object] 位置信息
+6. **resizing(pos)**    描述 ：**缩放中**      参数：pos [Object] 位置信息
+7. **resizeStop(pos)**     描述 ：**缩放结束**     参数：pos [Object] 位置信息
+8. **rotateStart(pos)**     描述 ：**旋转开始**      参数：pos [Object] 位置信息
+9. **rotating(pos)**   描述 ：**旋转中**      参数：pos [Object] 位置信息
+10. **rotateStop(pos)**     描述 ：**旋转停止**      参数：pos [Object] 位置信息
 
 ```javascript
 // pos参数详情
