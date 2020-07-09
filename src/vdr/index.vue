@@ -20,14 +20,21 @@
         v-for="(stick, stickIndex) in rotateSticks"
       ></span>
       <!-- 旋转控件 -->
-      <template v-if="sticks.indexOf('angle')>-1">
+      <template v-if="sticks.indexOf('angle') > -1">
         <span class="vdr-stick-rotate-line"></span>
-        <span @mousedown.stop.prevent="rotateDown($event)" class="vdr-stick vdr-rotate"></span>
+        <span
+          @mousedown.stop.prevent="rotateDown($event)"
+          class="vdr-stick vdr-rotate"
+        ></span>
       </template>
     </template>
 
     <!-- 插槽 -->
-    <div :style="{ backgroundImage: `url(${bg})` }" class="vdr-slot">
+    <!-- 插槽 -->
+    <div
+      :style="{ backgroundImage: `url(${bg})` }"
+      class="vdr-slot"
+    >
       <slot></slot>
     </div>
   </div>
@@ -147,6 +154,7 @@ export default {
         zIndex: this.zIndex,
         width: `${this.width}px`,
         height: `${this.height}px`,
+        // backgroundImage: `url(${this.bg})`,
         transform: `${translate} ${rotate}`,
         visibility: this.hidden ? "hidden" : "visible"
       };
@@ -166,11 +174,9 @@ export default {
     },
     // x的最小偏移值
     minOffsetLeft() {
-      // console.log(this.minWidth);
       return this.parentWidth - this.right - this.minWidth;
     },
     maxOffsetLeft() {
-      // console.log(this.minWidth);
       return this.parentWidth - this.right - this.maxWidth;
     },
     // y的最小偏移值
@@ -235,6 +241,45 @@ export default {
       this.minHeight = this.calcMinHeight();
       this.maxHeight = this.calcMaxHeight();
     },
+    // 获取所有父旋转角的叠加状态角
+    getParentsRotate(ev) {
+      let rotate = 0;
+      let path = ev.path || (ev.composedPath && ev.composedPath()) || [];
+      path = path.filter(
+        element =>
+          element.className && element.className.match("vdr-slot") == null
+      );
+      const len = path.length || 0;
+      if (len < 1) return 0;
+      //自身index为0， >0 过滤掉自身
+      for (let i = len - 1; i > 0; i--) {
+        const element = path[i];
+        // 过滤掉window和document
+        if (element === window || element === document) continue;
+        rotate += this.getElementRotate(element);
+      }
+      return rotate;
+    },
+    // 获取元素旋转角度(矩阵转换)
+    getElementRotate(element) {
+      if (element == null) return 0;
+      const parentStyle = window.getComputedStyle(element, null);
+      const matrixInfo =
+        parentStyle["-webkit-transform"] ||
+        parentStyle["-moz-transform"] ||
+        parentStyle["-ms-transform"] ||
+        parentStyle["-o-transform"] ||
+        parentStyle["transform"];
+
+      if (matrixInfo.match("matrix") == null) return 0;
+
+      const matrix = matrixInfo.replace(/matrix\(|\)|\s/gi, "");
+      const matrixArray = matrix.split(",") || [];
+      const a = Number(matrixArray[0]);
+      const b = Number(matrixArray[1]);
+      const angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+      return angle || 0;
+    },
     // 初始化
     init() {
       // 元素宽高比例初始化
@@ -262,6 +307,7 @@ export default {
         bottom: 0
       };
 
+      // 元素的mousemove、mouseup事件委托到document.documentElement
       document.documentElement.addEventListener("mousemove", this.move);
       document.documentElement.addEventListener("mouseup", this.up);
     },
@@ -279,6 +325,8 @@ export default {
       this.bodyStartPos.left = this.left;
       this.bodyStartPos.top = this.top;
 
+      this.parentsRotate = this.getParentsRotate(ev);
+
       // 触发事件
       if (this.activeable) {
         this.$emit("activated", this.posData);
@@ -291,9 +339,17 @@ export default {
       const { mx, my, left, top } = this.bodyStartPos;
       // 位移向量
       const vector = { x: ev.clientX - mx, y: ev.clientY - my };
+      // 父元素旋转后的坐标系转换，获取新的坐标点公式如下：
+      // x'=x·cos(θ)+y·sin(θ)
+      // y'=y·cos(θ)-x·sin(θ)
+
+      const rad = this.parentsRotate * (Math.PI / 180);
+      const x = vector.x * Math.cos(rad) + vector.y * Math.sin(rad);
+      const y = vector.y * Math.cos(rad) - vector.x * Math.sin(rad);
+
       // 更新位置信息
-      this.left = left + vector.x;
-      this.top = top + vector.y;
+      this.left = left + x;
+      this.top = top + y;
       // 触发拖拽事件
       this.$emit("dragging", this.posData);
     },
@@ -338,13 +394,15 @@ export default {
       if (this.lock && !currentStick.match("m")) {
         currentStick = `${currentStick[0]}m`;
       }
+      const rad = this.rotate * (Math.PI / 180);
+      const x = vector.x * Math.cos(rad) + vector.y * Math.sin(rad);
+      const y = vector.y * Math.cos(rad) - vector.x * Math.sin(rad);
 
       // 根据当前控件类型更新位置信息
-      currentStick[0] == "t" && (this.top = top + vector.y);
-      currentStick[0] == "b" && (this.bottom = bottom - vector.y);
-
-      currentStick[1] == "l" && (this.left = left + vector.x);
-      currentStick[1] == "r" && (this.right = right - vector.x);
+      currentStick[0] == "t" && (this.top = top + y);
+      currentStick[0] == "b" && (this.bottom = bottom - y);
+      currentStick[1] == "l" && (this.left = left + x);
+      currentStick[1] == "r" && (this.right = right - x);
 
       // 触发缩放事件
       this.$emit("resizing", this.posData);
@@ -410,6 +468,8 @@ export default {
     // mousemove事件回调函数
     move(ev) {
       if (this.draggable && this.bodyDrag) {
+        // const { clientX, clientY } = ev;
+
         this.bodyMove(ev);
       }
       if (this.resizeable && this.stickDrag) {

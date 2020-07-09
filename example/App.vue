@@ -1,8 +1,21 @@
 <template>
-  <div @click="clickEmpty" id="app">
-    <div @click.stop class="drawWrap">
+  <div
+    @click="clickEmpty"
+    id="app"
+  >
+    <div
+      @click.stop
+      class="drawWrap"
+    >
       <p style="text-align:center;line-height:40px">click this blue box</p>
-      <VueDragResizeRotate
+      <p>left:{{ posData.left }}</p>
+      <p>top:{{ posData.top }}</p>
+      <p>width:{{ posData.width }}</p>
+      <p>height:{{ posData.height }}</p>
+      <p>stick:{{ posData.stick }}</p>
+      <p>rotate:{{ posData.rotate }}</p>
+
+      <vdr
         :active="test.isActive"
         :activeable="true"
         :bg="testImage"
@@ -13,7 +26,7 @@
         :r="test.r"
         :resizeable="true"
         :rotateable="true"
-        :sticks="['tl', 'tm','angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
+        :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
         :w="test.w"
         :widthRange="[300, 20]"
         :x="test.x"
@@ -27,7 +40,27 @@
         @rotateStart="rotateStart"
         @rotating="rotating"
         class="test-vdr"
-      ></VueDragResizeRotate>
+      ></vdr>
+
+      <vdr
+        :h="test2.h"
+        :w="test2.w"
+        :x="test2.x"
+        :y="test2.y"
+        :r="test2.r"
+      >
+        <vdr
+          :h="test3.h"
+          :w="test3.w"
+          :x="test3.x"
+          :y="test3.y"
+        >
+          <vdr
+            :x="30"
+            :y="50"
+          ></vdr>
+        </vdr>
+      </vdr>
     </div>
   </div>
 </template>
@@ -49,10 +82,19 @@ export default {
       },
       test2: {
         id: "2",
-        w: 100,
-        h: 100,
-        x: 20,
-        y: 20,
+        w: 300,
+        h: 300,
+        x: 100,
+        y: 350,
+        r: 0,
+        isActive: true
+      },
+      test3: {
+        id: "3",
+        w: 180,
+        h: 180,
+        x: 40,
+        y: 60,
         r: 0,
         isActive: true
       },
@@ -71,38 +113,40 @@ export default {
   methods: {
     activated() {
       this.test.isActive = true;
+      // console.log('active设为true:选中状态');
     },
     dragStart(pos) {
-      console.log("拖拽开始", pos);
+      // console.log('拖拽开始', pos);
     },
     resizeStart(pos) {
-      console.log("缩放开始", pos.stick);
+      // console.log('缩放开始', pos);
     },
     rotateStart(pos) {
-      console.log("旋转开始", pos);
+      // console.log('旋转开始', pos);
     },
 
     dragging(pos) {
-      // this.posData = pos;
+      this.posData = pos;
     },
     resizing(pos) {
-      // this.posData = pos;
+      this.posData = pos;
     },
     rotating(pos) {
-      // this.posData = pos;
+      this.posData = pos;
     },
     dragStop(pos) {
-      // console.log("缩放结束", pos.stick);
+      // console.log('缩放结束', pos);
     },
     resizeStop(pos) {
-      // console.log("缩放结束", pos.stick);
+      // console.log('缩放结束', pos);
     },
     rotateStop(pos) {
-      // console.log("缩放结束", pos.stick);
+      // console.log('缩放结束', pos);
     },
 
     clickEmpty() {
       this.test.isActive = false;
+      console.log("active设为false:移除选中状态");
     }
   }
 };
@@ -123,9 +167,6 @@ body,
   align-items: center;
 }
 
-.test-vdr {
-  /* border: 1px solid #000; */
-}
 .drawWrap {
   width: 540px;
   height: 700px;
@@ -144,5 +185,13 @@ body,
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.parentBox {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  top: 100px;
+  left: 80px;
+  border: 1px solid skyblue;
 }
 </style>
