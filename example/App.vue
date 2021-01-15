@@ -1,12 +1,6 @@
 <template>
-  <div
-    @click="clickEmpty"
-    id="app"
-  >
-    <div
-      @click.stop
-      class="drawWrap"
-    >
+  <div @click="clickEmpty" id="app">
+    <div @click.stop class="drawWrap">
       <p style="text-align:center;line-height:40px">click this blue box</p>
       <p>left:{{ posData.left }}</p>
       <p>top:{{ posData.top }}</p>
@@ -18,7 +12,6 @@
       <vdr
         :active="test.isActive"
         :activeable="true"
-        :bg="testImage"
         :draggable="true"
         :h="test.h"
         :heightRange="[300, 20]"
@@ -31,128 +24,100 @@
         :widthRange="[300, 20]"
         :x="test.x"
         :y="test.y"
-        @activated="activated"
-        @dragging="dragging"
-        @dragStart="dragStart"
-        @resizeStart="resizeStart"
-        @resizeStop="resizeStop"
-        @resizing="resizing"
-        @rotateStart="rotateStart"
-        @rotating="rotating"
         class="test-vdr"
       ></vdr>
-
-      <vdr
-        :h="test2.h"
-        :w="test2.w"
-        :x="test2.x"
-        :y="test2.y"
-        :r="test2.r"
-      >
-        <vdr
-          :h="test3.h"
-          :w="test3.w"
-          :x="test3.x"
-          :y="test3.y"
-        >
-          <vdr
-            :x="30"
-            :y="50"
-          ></vdr>
-        </vdr>
-      </vdr>
     </div>
   </div>
 </template>
 <script>
-import testImage from "./img/test.jpg";
+import testImage from './img/test.jpg'
 export default {
   data() {
     return {
       testImage,
       test: {
-        id: "1",
+        id: '1',
         w: 192,
         h: 156,
         x: 170,
         y: 140,
-        r: 0,
+        r: 90,
         lock: false,
-        isActive: true
+        isActive: true,
       },
       test2: {
-        id: "2",
+        id: '2',
         w: 300,
         h: 300,
         x: 100,
         y: 350,
         r: 0,
-        isActive: true
+        isActive: true,
       },
       test3: {
-        id: "3",
+        id: '3',
         w: 180,
         h: 180,
         x: 40,
         y: 60,
         r: 0,
-        isActive: true
+        isActive: true,
       },
-      posData: {}
-    };
+      posData: {},
+    }
   },
   computed: {},
   created() {
-    let { w, h, x, y, r } = this.test;
-    this.posData.width = w;
-    this.posData.height = h;
-    this.posData.left = x;
-    this.posData.top = y;
-    this.posData.rotate = r;
+    let {w, h, x, y, r} = this.test
+    this.posData.width = w
+    this.posData.height = h
+    this.posData.left = x
+    this.posData.top = y
+    this.posData.rotate = r
   },
   methods: {
     activated() {
-      this.test.isActive = true;
+      this.test.isActive = true
       // console.log('active设为true:选中状态');
     },
-    dragStart(pos) {
-      // console.log('拖拽开始', pos);
-    },
-    resizeStart(pos) {
-      // console.log('缩放开始', pos);
-    },
-    rotateStart(pos) {
-      // console.log('旋转开始', pos);
-    },
+    // dragStart(pos) {
+    //   // console.log('拖拽开始', pos);
+    // },
+    // resizeStart(pos) {
+    //   // console.log('缩放开始', pos);
+    // },
+    // rotateStart(pos) {
+    //   // console.log('旋转开始', pos);
+    // },
 
     dragging(pos) {
-      this.posData = pos;
+      this.posData = pos
     },
     resizing(pos) {
-      this.posData = pos;
+      this.posData = pos
     },
     rotating(pos) {
-      this.posData = pos;
+      this.posData = pos
     },
-    dragStop(pos) {
-      // console.log('缩放结束', pos);
-    },
-    resizeStop(pos) {
-      // console.log('缩放结束', pos);
-    },
-    rotateStop(pos) {
-      // console.log('缩放结束', pos);
-    },
+    // dragStop(pos) {
+    //   // console.log('缩放结束', pos);
+    // },
+    // resizeStop(pos) {
+    //   // console.log('缩放结束', pos);
+    // },
+    // rotateStop(pos) {
+    //   // console.log('缩放结束', pos);
+    // },
 
     clickEmpty() {
-      this.test.isActive = false;
-      console.log("active设为false:移除选中状态");
-    }
-  }
-};
+      this.test.isActive = false
+      console.log('active设为false:移除选中状态')
+    },
+  },
+}
 </script>
 <style lang="css">
-@import "./style/public.css";
+@import './style/public.css';
 html,
 body,
 #app,

@@ -20,7 +20,7 @@
 }
 
 .vdr-stick {
-  display: block;
+  display: flex;
   width: 12px;
   height: 12px;
   border: 2px solid #2db7f5;
@@ -31,6 +31,8 @@
   font-size: 1px;
   background: #ffffff;
   transition: box-shadow 0.1s;
+  justify-content: center;
+  align-items: center;
 }
 
 .vdr-stick:hover {
@@ -41,10 +43,25 @@
 .vdr-stick-tl {
   top: 0px;
   left: 0px;
-  transform: translate(-50%, -50%);
-  /* margin-top: -6px; */
-  /* margin-left: -6px; */
+  /* transform: translate(-50%, -50%); */
+  margin-top: -6px;
+  margin-left: -6px;
   cursor: nwse-resize;
+  transform: rotateZ(-90deg);
+}
+.harr {
+  font-size: 18px;
+  font-weight: bold;
+
+  /* width: 8.6px;
+  height: 21.6px;
+  display: block; */
+  /* position: absolute;
+
+  background-size: contain;
+  background-position: center;
+
+  background-image: url(./harr.png); */
 }
 
 .vdr-stick-tm {
