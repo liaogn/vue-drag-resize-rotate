@@ -8,20 +8,19 @@
       <p>height:{{ posData.height }}</p>
       <p>stick:{{ posData.stick }}</p>
       <p>rotate:{{ posData.rotate }}</p>
-
+      <div class="test_canzhao1" v-if="0"></div>
+      <div class="test_canzhao2" v-if="1"></div>
       <vdr
         :active="test.isActive"
         :activeable="true"
         :draggable="true"
         :h="test.h"
-        :heightRange="[300, 20]"
         :lock="test.lock"
         :r="test.r"
         :resizeable="true"
         :rotateable="true"
         :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
         :w="test.w"
-        :widthRange="[300, 20]"
         :x="test.x"
         :y="test.y"
         class="test-vdr"
@@ -37,11 +36,11 @@ export default {
       testImage,
       test: {
         id: '1',
-        w: 192,
-        h: 156,
+        w: 300,
+        h: 150,
         x: 170,
         y: 140,
-        r: 90,
+        r: 180,
         lock: false,
         isActive: true,
       },
@@ -158,5 +157,23 @@ body,
   top: 100px;
   left: 80px;
   border: 1px solid skyblue;
+}
+
+.test_canzhao1 {
+  width: 300px;
+  height: 150px;
+  position: absolute;
+  left: 170px;
+  top: 140px;
+  background: red;
+}
+.test_canzhao2 {
+  width: 300px;
+  height: 150px;
+  position: absolute;
+  left: 170px;
+  top: 140px;
+  background: skyblue;
+  transform: rotateZ(90deg);
 }
 </style>

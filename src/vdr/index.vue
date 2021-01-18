@@ -15,13 +15,10 @@
         :class="`vdr-stick-${stick}`"
         :key="stickIndex"
         :style="{zIndex: activeStick == stickIndex ? 10 : 9}"
-        style="font-size:20px"
         @mousedown.stop.prevent="stickDown($event, stick, stickIndex)"
         class="vdr-stick"
         v-for="(stick, stickIndex) in rotateSticks"
-      >
-        <!-- <span class="harr">&harr;</span> -->
-      </span>
+      ></span>
       <!-- 旋转控件 -->
       <template v-if="sticks.indexOf('angle') > -1">
         <span class="vdr-stick-rotate-line"></span>
@@ -34,9 +31,9 @@
 
     <!-- 插槽 -->
     <!-- 插槽 -->
-    <div :style="{backgroundImage: `url(${bg})`}" class="vdr-slot">
+    <!-- <div :style="{backgroundImage: `url(${bg})`}" class="vdr-slot">
       <slot></slot>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -150,6 +147,7 @@ export default {
     style() {
       const rotate = `rotateZ(${Math.round(this.rotate)}deg)`
       const translate = `translateX(${this.left}px) translateY(${this.top}px)`
+
       return {
         zIndex: this.zIndex,
         width: `${this.width}px`,
@@ -307,6 +305,10 @@ export default {
         bottom: 0,
       }
 
+      const rad = this.rotate * Math.PI / 180
+      const sin = Math.sin(rad)
+      console.log(sin,'rad');
+
       // 元素的mousemove、mouseup事件委托到document.documentElement
       document.documentElement.addEventListener('mousemove', this.move)
       document.documentElement.addEventListener('mouseup', this.up)
@@ -372,6 +374,7 @@ export default {
       this.bottom = this.parentHeight - this.height - this.top
 
       // 记录开始时元素位置
+      // this.bodyStartPos.height = this.height
       this.bodyStartPos.left = this.left
       this.bodyStartPos.top = this.top
       this.bodyStartPos.bottom = this.bottom
@@ -385,20 +388,34 @@ export default {
       // 当前空间类型
       let currentStick = this.currentStick
       // 起始位置信息
-      const {mx, my, top, left, bottom, right} = this.bodyStartPos
+      const {mx, my, top, left, bottom, right,height} = this.bodyStartPos
 
       // 位移向量
       const vector = {x: ev.clientX - mx, y: ev.clientY - my}
-
-      // 如果比例锁定，将非m控件替代为m控件计算
-      if (this.lock && !currentStick.match('m')) {
-        currentStick = `${currentStick[0]}m`
-      }
-      const rad = this.rotate * (Math.PI / 180)
+      
+      // 角度转弧度公式 rad = deg * PI / 180
+      const rad = this.rotate * Math.PI / 180
+      // console.log(vector.x);
+      // x,y的变动
       const x = vector.x * Math.cos(rad) + vector.y * Math.sin(rad)
-      const y = vector.y * Math.cos(rad) - vector.x * Math.sin(rad)
+      const y = -vector.x * Math.sin(rad) + vector.y * Math.cos(rad)
 
-      // 根据当前控件类型更新位置信息
+      //  const x = vector.x * Math.cos(rad) + vector.y * Math.sin(rad);
+      // const y = vector.y * Math.cos(rad) - vector.x * Math.sin(rad);
+      console.log(x,y);
+      // if(currentStick[0] == 'b'){
+      //   this.top = top - x* Math.sin(rad)+y* Math.cos(rad)
+                 
+        
+      //   if(Math.sin(rad)>=0){
+      //     this.left = left+vector.x*Math.sin(rad)/2
+      //   }else{
+      //     this.left = left-vector.x*Math.sin(rad)/2
+      //   }
+
+      // }
+      // this.height = height+y
+      // // 根据当前控件类型更新位置信息
       currentStick[0] == 't' && (this.top = top + y)
       currentStick[0] == 'b' && (this.bottom = bottom - y)
       currentStick[1] == 'l' && (this.left = left + x)
@@ -503,113 +520,21 @@ export default {
     },
   },
   watch: {
-    left(value) {
-      // body处于拖动状态时，不重新计算宽高
+    left() {
       if (this.bodyDrag) return
-
-      // 更新宽度、宽度范围校验
-      if (value > this.minOffsetLeft) this.left = this.minOffsetLeft
-      if (value < this.maxOffsetLeft) this.left = this.maxOffsetLeft
       this.width = this.parentWidth - this.left - this.right
-
-      // 处理锁定状态
-      if (this.lock) {
-        this.height = this.width / this.whRatio
-      }
     },
-    top(value) {
-      // body处于拖动状态时，不重新计算宽高
+    top() {
       if (this.bodyDrag) return
-
-      // 更新高度、最小高度检测
-      if (value > this.minOffsetTop) this.top = this.minOffsetTop
-      if (value < this.maxOffsetTop) this.top = this.maxOffsetTop
       this.height = this.parentHeight - this.top - this.bottom
-
-      // 处理锁定状态
-      if (this.lock) {
-        this.width = this.height * this.whRatio
-        // 如果操作的是左边缩放控件，则重新计算left，以右边为参照
-        if (this.currentStick.match('l')) {
-          this.left = this.parentWidth - this.right - this.width
-        }
-      }
     },
     right(value) {
-      // body处于拖动状态时，不重新计算宽高
       if (this.bodyDrag) return
-
-      // 更新宽度、宽度范围校验
-      let width = this.parentWidth - value - this.left
-      width = width < this.minWidth ? this.minWidth : width
-      width = width > this.maxWidth ? this.maxWidth : width
-      this.width = width
-
-      if (this.lock) {
-        this.height = this.width / this.whRatio
-      }
+      this.width = this.parentWidth - value - this.left
     },
     bottom(value) {
-      // body处于拖动状态时，不重新计算宽高
       if (this.bodyDrag) return
-
-      // 更新高度、最小高度检测
-      let height = this.parentHeight - value - this.top
-      height = height < this.minHeight ? this.minHeight : height
-      height = height > this.maxHeight ? this.maxHeight : height
-      this.height = height
-      // 处理锁定状态
-      if (this.lock) {
-        this.width = this.height * this.whRatio
-        // 如果操作的是左边缩放控件，则重新计算left，以右边为参照
-        if (this.currentStick.match('l')) {
-          this.left = this.parentWidth - this.right - this.width
-        }
-      }
-    },
-    w(value) {
-      if (value <= 0 || isNaN(value) || value == null) {
-        this.width = 0
-        this.height = 0
-        return
-      }
-      this.width = value
-      if (this.lock) {
-        this.height = Math.round(value / (this.w / this.h))
-      }
-      this.whRatio = this.width / this.height
-    },
-    h(value) {
-      if (value <= 0 || isNaN(value) || value == null) {
-        this.width = 0
-        this.height = 0
-        return
-      }
-      this.height = value
-      if (this.lock) {
-        this.width = Math.round(value * (this.w / this.h))
-      }
-      this.whRatio = this.width / this.height
-    },
-    x(value) {
-      this.left = value
-      this.right = this.parentWidth - this.w - value
-    },
-    y(value) {
-      this.top = value
-      this.bottom = this.parentHeight - this.h - value
-    },
-    z(value) {
-      this.zIndex = value
-    },
-    r(value) {
-      this.rotate = value
-    },
-    lock(value) {
-      if (value) {
-        this.whRatio = this.width / this.height
-        this.setLimitValue()
-      }
+      this.height = this.parentHeight - value - this.top
     },
   },
 }
