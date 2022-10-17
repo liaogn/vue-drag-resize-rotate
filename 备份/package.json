@@ -1,0 +1,53 @@
+{
+  "name": "@liaogn/vue-drag-resize-rotate",
+  "version": "1.0.9",
+  "description": "Vue drag resize & rotate,Simple source code!",
+  "private": false,
+  "main": "./src/index.js",
+  "keywords": [
+    "vue",
+    "drag",
+    "resize",
+    "rotate"
+  ],
+  "author": "liaogn",
+  "license": "ISC",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "lib": "vue-cli-service build --target lib --name VueDragResizeRotate --dest lib src/index.js"
+  },
+  "dependencies": {
+    "core-js": "^2.6.5",
+    "vue": "^2.6.10"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.9.0",
+    "@vue/cli-plugin-eslint": "^3.9.0",
+    "@vue/cli-service": "^3.9.0",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-component": "^1.1.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "node-sass": "^4.9.0",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "off"
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 <template>
   <div @click="clickEmpty" id="app">
-    <div @click.stop class="drawWrap">
+    <div @click.stop class="drawWrap" id="drawWrap">
       <p style="text-align:center;line-height:40px">click this blue box</p>
       <p>left:{{ posData.left }}</p>
       <p>top:{{ posData.top }}</p>
@@ -9,38 +9,93 @@
       <p>stick:{{ posData.stick }}</p>
       <p>rotate:{{ posData.rotate }}</p>
       <div class="test_canzhao1" v-if="0"></div>
-      <div class="test_canzhao2" v-if="1"></div>
+      <div class="test_canzhao2" v-if="0"></div>
+      <span class="aux_dot" :style="{left: `${0}px`, top: `${0}px`}"></span>
+      <div class="myTest" v-if="0" ref="myTest" :style="myTestStyle"></div>
+            <!-- <vdr
+          :active="test.isActive"
+          :activeable="true"
+          :draggable="true"
+          :h="500"
+          :r="45"
+          :lock="false"
+          :resizeable="true"
+          :rotateable="true"
+          :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
+          :w="500"
+          :x="100"
+          :y="100"
+          class="test-vdr"
+        > -->
       <vdr
+          :active="test.isActive"
+          :activeable="true"
+          :draggable="true"
+          :h="300"
+          :r="45"
+          :lock="false"
+          :resizeable="true"
+          :rotateable="true"
+          :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
+          :w="300"
+          :x="100"
+          :y="100"
+          class="test-vdr"
+        >
+      <vdr
+        v-if="1"
         :active="test.isActive"
         :activeable="true"
         :draggable="true"
         :h="test.h"
-        :lock="test.lock"
-        :r="test.r"
+        :lock="true"
+        :r="30"
         :resizeable="true"
         :rotateable="true"
+        :widthRange="[0,200]"
+        :heightRange="[0,200]"
         :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
         :w="test.w"
         :x="test.x"
         :y="test.y"
-        class="test-vdr"
-      ></vdr>
+        class="test-vdr">
+              <vdr
+              v-if="0"
+          :active="test.isActive"
+          :activeable="true"
+          :draggable="true"
+          :h="40"
+          :r="-45"
+          :lock="false"
+          :resizeable="true"
+          :rotateable="true"
+          :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
+          :w="40"
+          :x="10"
+          :y="10"
+          class="test-vdr"
+        />
+        </vdr>
+      </vdr>
+            <!-- </vdr> -->
     </div>
   </div>
 </template>
 <script>
 import testImage from './img/test.jpg'
 export default {
+  name: 'app',
   data() {
     return {
       testImage,
+      myTestStyle: {},
       test: {
         id: '1',
-        w: 300,
-        h: 150,
-        x: 170,
-        y: 140,
-        r: 180,
+        w:100,
+        h: 100,
+        x: 100,
+        y: 100,
+        r: 0,
         lock: false,
         isActive: true,
       },
@@ -48,15 +103,16 @@ export default {
         id: '2',
         w: 300,
         h: 300,
-        x: 100,
-        y: 350,
+        x: 40,
+        y: 100,
         r: 0,
+        lock: true,
         isActive: true,
       },
       test3: {
         id: '3',
-        w: 180,
-        h: 180,
+        w: 200,
+        h: 200,
         x: 40,
         y: 60,
         r: 0,
@@ -66,48 +122,17 @@ export default {
     }
   },
   computed: {},
-  created() {
-    let {w, h, x, y, r} = this.test
-    this.posData.width = w
-    this.posData.height = h
-    this.posData.left = x
-    this.posData.top = y
-    this.posData.rotate = r
+  created() {},
+  mounted() {
+
+    /**
+     * 数据结构
+     *  
+     */
+
+
   },
   methods: {
-    activated() {
-      this.test.isActive = true
-      // console.log('active设为true:选中状态');
-    },
-    // dragStart(pos) {
-    //   // console.log('拖拽开始', pos);
-    // },
-    // resizeStart(pos) {
-    //   // console.log('缩放开始', pos);
-    // },
-    // rotateStart(pos) {
-    //   // console.log('旋转开始', pos);
-    // },
-
-    dragging(pos) {
-      this.posData = pos
-    },
-    resizing(pos) {
-      this.posData = pos
-    },
-    rotating(pos) {
-      this.posData = pos
-    },
-    // dragStop(pos) {
-    //   // console.log('缩放结束', pos);
-    // },
-    // resizeStop(pos) {
-    //   // console.log('缩放结束', pos);
-    // },
-    // rotateStop(pos) {
-    //   // console.log('缩放结束', pos);
-    // },
-
     clickEmpty() {
       this.test.isActive = false
       console.log('active设为false:移除选中状态')
@@ -125,10 +150,13 @@ body,
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: hidden;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  /* justify-content: center; */
+  /* align-items: center; */
+}
+body {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .drawWrap {
@@ -161,19 +189,50 @@ body,
 
 .test_canzhao1 {
   width: 300px;
-  height: 150px;
+  height: 300px;
   position: absolute;
   left: 170px;
-  top: 140px;
+  top: 240px;
   background: red;
 }
 .test_canzhao2 {
   width: 300px;
-  height: 150px;
+  height: 300px;
   position: absolute;
   left: 170px;
-  top: 140px;
+  top: 240px;
   background: skyblue;
-  transform: rotateZ(90deg);
+  transform: rotateZ(30deg);
+}
+.aux_dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background-color: red;
+  position: absolute;
+  z-index: 9999;
+}
+
+.myTest {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(100px, 200px);
+  border: 1px solid darkcyan;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.test_box{
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  transform: rotate(45deg);
+  left: 100px;
+  top: 100px;
+  border: 1px solid red;
 }
 </style>

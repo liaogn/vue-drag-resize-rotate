@@ -1,0 +1,69 @@
+.box {
+  background: orange;
+  position: absolute;
+  user-select: none;
+}
+.box .draggable {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+.box .rotate {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  margin-left: -15px;
+}
+.box .rotate img{
+  width: 100%;
+  height: 100%;
+}
+.box .resizable > span {
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  border: 1px solid #f00;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.tl {
+  top: -5px;
+  left: -5px;
+}
+.t {
+  top: -5px;
+  left: 50%;
+  margin-left: -5px;
+}
+.tr {
+  top: -5px;
+  right: -5px;
+}
+.r {
+  top: 50%;
+  margin-top: -5px;
+  right: -5px;
+}
+.br {
+  bottom: -5px;
+  right: -5px;
+}
+.b {
+  bottom: -5px;
+  left: 50%;
+  margin-left: -5px;
+}
+.bl {
+  bottom: -5px;
+  left: -5px;
+}
+.l {
+  left: -5px;
+  top: 50%;
+  margin-top: -5px;
+}
