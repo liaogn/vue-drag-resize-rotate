@@ -32,9 +32,10 @@ function stickMouseenter(ev, stick) {
   const parentsRotate = getParentsRotate(ev)
   const cursorRotate = getCursorIconRotate(parentsRotate, stick)
   const iconUrl = `data:image/svg+xml;base64,${svgTobase64(
-    createSvgIcon(cursorRotate)
+    createSvgIcon(cursorRotate,)
   )}`
-  ev.target.style.cursor = `url(${iconUrl}) 16 16,auto`
+  const cursor = this.resizeable ? `url(${iconUrl}) 16 16,auto`:'no-drop'
+  ev.target.style.cursor = cursor
 }
 function stickMouseout(ev,stick){
   if(stick==='angle') return

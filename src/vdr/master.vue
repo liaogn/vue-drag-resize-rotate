@@ -1,4 +1,4 @@
-<style lang="css" src="./index.css"></style>
+<style lang="css" src="./style/index.css"></style>
 <template>
   <div
     :class="{'vdr-active': active && activeable, 'vdr-not-active': !activeable}"

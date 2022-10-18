@@ -1,10 +1,10 @@
 <template>
   <div
-    :class="{'vdr-active': active && activeable, 'vdr-not-active': !activeable}"
-    :style="style"
+    class="vdr"
+    :class="_class"
+    :style="_style"
     @click.stop
     @mousedown.stop.prevent="bodyDown($event)"
-    class="vdr"
     ref="vdr"
   >
     <!-- 控件 -->
@@ -14,7 +14,7 @@
         :class="`vdr-stick-${stick}`"
         :key="stickIndex"
         :style="{zIndex: activeStickIndex == stickIndex ? 10 : 9}"
-        @mousedown.stop.prevent="stickDown(stick, stickIndex)"
+        @mousedown.stop.prevent="stickDown($event,stick, stickIndex)"
         @mouseenter="stickMouseenter($event, stick)"
         @mouseout="stickMouseout($event, stick)"
         class="vdr-stick"
@@ -27,19 +27,30 @@
         <span class="vdr-stick-rotate-line"></span>
         <span
           @mousedown.stop.prevent="rotateDown($event)"
+          :style="{cursor:!this.rotateable?'no-drop':''}"
           class="vdr-stick vdr-angle"
           :ref="`stick_angle`"
         ></span>
       </template>
     </template>
-    <!-- 插槽 -->
-    <slot class="child-vdr"></slot>
+    <div class="childWrap" v-if="childrens && _childWrapAttr" v-bind="_childWrapAttr">
+        <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+        <slot class="child-vdr">
+        </slot>
+    </div>
+    <template v-if="childrens && !_childWrapAttr">
+      <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+      <!-- 插槽 -->
+      <slot class="child-vdr">
+      </slot>
+    </template>
+
   </div>
 </template>
 
 <script>
 import {getSymStick} from './func/maps'
-import RectMover from './func/move'
+import RectDrager from './func/drag'
 import {RectRotator} from './func/rotate'
 import RectFliper from './func/flip'
 import {getElementGeometricInfo} from './func/dom'
@@ -52,11 +63,15 @@ import {
 } from './func/calc'
 
 export default {
-  name: 'VueDragResizeRotate',
+  name: 'vdr',
   props: {
-    hidden: {
-      type: Boolean,
-      default: false,
+    overflow:{
+      type: String,
+      default: '',
+    },
+    uuid:{
+      type: [String, Number],
+      default: '',
     },
     bg: {
       type: String,
@@ -96,7 +111,7 @@ export default {
     },
     z: {
       type: [String, Number],
-      default: 'auto',
+      default: '',
     },
     r: {
       type: Number,
@@ -107,6 +122,14 @@ export default {
       default: function() {
         return ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'angle']
       },
+    },
+    myStyle:{
+      type:Object,
+      default:()=>({})
+    },
+    myClass:{
+      type:Object,
+      default:()=>({})
     },
     active: {
       type: Boolean,
@@ -128,51 +151,83 @@ export default {
       type: Boolean,
       default: true,
     },
+    childrens:{
+      type: Array,
+      default: undefined,
+    },
+    childWrapAttr:{
+      type:Object,
+      default:undefined
+    }
   },
   data() {
     return {
-      whRatio: 0,
       width: this.w,
       height: this.h,
-      zIndex: this.z,
       left: this.x,
       top: this.y,
+      zIndex: this.z,
       rotate: this.r,
-      bottom: 0,
-      right: 0,
+      whRatio: this.w/this.h,
       currentStick: '',
       activeStickIndex: -1,
     }
   },
   computed: {
-    style() {
+    _class(){
+     const outClass = this.myClass
+     const inClass= {'vdr-active':this.active && this.activeable, 'vdr-not-active': !this.activeable}
+     return [outClass,inClass]
+    },
+    _style() {
       const rotate = `rotateZ(${this.rotate}deg)`
       const translate = `translate3d(${this.left}px,${this.top}px,0)`
-      return {
+      let cursor = 'pointer'
+      if(this.active){
+        cursor = this.draggable ? 'move' : 'no-drop'
+      }
+      if(!this.activeable) cursor = 'no-drop'
+      const rectStyle= {
         zIndex: this.zIndex,
         width: `${this.width}px`,
         height: `${this.height}px`,
         backgroundImage: `url(${this.bg})`,
         transform: `${translate} ${rotate}`,
-        visibility: this.hidden ? 'hidden' : 'visible',
+        cursor: cursor
       }
+      return Object.assign({}, this.myStyle, rectStyle)
+    },
+    _childWrapAttr(){
+      if(this.overflow){
+        const childWrapAttr = this.childWrapAttr||{}
+        const style = Object.assign(childWrapAttr.style||{}, {overflow:this.overflow})
+        return Object.assign(childWrapAttr,{style})
+      }else{
+        return this.childWrapAttr  
+      }
+       
     },
     rotateSticks() {
       return this.sticks.filter((itme) => itme !== 'angle')
     },
     posData() {
       return {
-        left: this.left,
-        top: this.top,
-        width: this.width,
-        height: this.height,
-        rotate: Math.round(this.rotate),
+        x: this.left,
+        y: this.top,
+        w: this.width,
+        h: this.height,
+        r: this.rotate,
+        z:this.zIndex,
         stick: this.currentStick,
+        lock:this.lock,
+        active:this.active,
+        uuid:this.uuid
       }
     },
   },
   mounted() {
     this.init()
+    console.log(this.childWrapAttr);
   },
   beforeDestroy() {
     // 销毁前移除事件
@@ -184,21 +239,18 @@ export default {
     stickMouseenter,
     // 初始化
     init() {
-      // 元素宽高比例初始化
-      this.whRatio = this.width / this.height
-
       this.cacheRectDomInfo(this.$el)
 
-      this.RectMover = new RectMover()
+      this.RectDrager = new RectDrager()
       this.RectRotator = new RectRotator()
-
+      
       // 将元素的mousemove、mouseup事件委托到document.documentElement
       document.documentElement.addEventListener('mousemove', this.move)
       document.documentElement.addEventListener('mouseup', this.up)
     },
     // mousemove事件回调函数
     move(ev) {
-      if (this.draggable && this.RectMover.isDrag && !this.stickDrag) {
+      if (this.draggable && this.RectDrager.isDrag && !this.stickDrag) {
         this.bodyMove(ev)
       }
       if (this.resizeable && this.stickDrag) {
@@ -209,21 +261,21 @@ export default {
       }
     },
     // mousemup事件回调函数
-    up() {
+    up(ev) {
       // 拖拽停止
-      if (this.draggable && this.RectMover.isDrag) {
-        this.RectMover.upHandle()
-        this.$emit('dragStop', this.posData)
+      if (this.draggable && this.RectDrager.isDrag) {
+        this.RectDrager.upHandle()
+        this.$emit('dragStop', this.posData, ev)
       }
       // 缩放停止
       if (this.resizeable && this.stickDrag) {
         this.stickDrag = false
-        this.$emit('resizeStop', this.posData)
+        this.$emit('resizeStop', this.posData, ev)
       }
       // 旋转停止
       if (this.rotateable && this.RectRotator.isDrag) {
         this.RectRotator.upHandle()
-        this.$emit('rotateStop', this.posData)
+        this.$emit('rotateStop', this.posData, ev)
       }
       // 更新宽高比例，当宽高其中一个为0时，不更新比例
       if (this.width > 0 && this.height > 0) {
@@ -234,35 +286,35 @@ export default {
     bodyDown(ev) {
       if (!this.activeable) return
       this.currentStick = ''
-      this.RectMover.downHandle(ev, [this.left, this.top])
+      this.RectDrager.downHandle(ev, [this.left, this.top])
       // 触发事件
       if (this.activeable) {
-        this.$emit('activated', this.posData)
-        this.$emit('dragStart', this.posData)
+        this.$emit('activated', this.posData, ev)
+        this.$emit('dragStart', this.posData, ev)
       }
     },
     //元素（拖动）mousemove 事件回调函数
     bodyMove(ev) {
       // 起始位置信息
-      const moveInfo = this.RectMover.moveHandle(ev)
+      const moveInfo = this.RectDrager.moveHandle(ev)
 
       // 更新位置信息
       this.left = moveInfo[0]
       this.top = moveInfo[1]
       // 触发拖拽事件
-      this.$emit('dragging', this.posData)
+      this.$emit('dragging', this.posData, ev)
     },
     // 元素（旋转）mousedown 事件回调函数
     rotateDown(ev) {
       if (!this.activeable) return
       this.currentStick = 'angle'
       this.RectRotator.downHandle(ev, this.$el, this.rotate)
-      this.$emit('rotateStart', this.posData)
+      this.$emit('rotateStart', this.posData, ev)
     },
     // 元素（旋转）mousemove 事件回调函数
     rotateMove(ev) {
       this.rotate = this.RectRotator.moveHandle(ev)
-      this.$emit('rotating', this.posData)
+      this.$emit('rotating', this.posData, ev)
     },
     // 缓存矩形dom相关信息
     cacheRectDomInfo(element) {
@@ -274,15 +326,16 @@ export default {
       this.parentInfo = getElementGeometricInfo(this.parentElement)
     },
     //缩放控件的mousedown事件回调函数
-    stickDown(stick, index) {
-      if (!this.activeable) return
+    stickDown(ev, stick, index) {
+      if (!this.activeable || !this.resizeable) return
       // 记录当前活跃控件
       this.activeStickIndex = index
       // 记录宽高比
       this.whRatio = this.width / this.height
-
       // 缩放前数据初始化
       this.stickDownHandle(stick)
+      this.stickDrag = true
+      this.$emit('resizeStart', this.posData, ev)
     },
     // 点击初始化
     stickDownHandle(stick) {
@@ -296,7 +349,7 @@ export default {
 
       // 鼠标点击后固定对称点、边界，直至下一次拖拽再更新
       if (this.stickDrag) return
-      this.stickDrag = true
+      
       // 计算当前拖拽点的坐标（相对文档左上角,已旋转时的实际坐标）
       this.absoluteContactor = calcRotatedContactor(
         this.elementInfo,
@@ -357,6 +410,7 @@ export default {
         if (isDegFlip) this.rotate += sign === '-' ? -180 : 180
         this.stickDownHandle(this.RectFliper.getFlipStick(this.currentStick))
       })
+      this.$emit('resizing', this.posData, ev)
     },
     // 计算矩形旋转复位后的信息
     caclRectResetRotated(mousePoint, symRelativeContactor, parentInfo, rotate) {
@@ -401,12 +455,12 @@ export default {
           this.top = point[1]
           this.width = Math.abs(point[0] - symPoint[0])
           this.height = lock
-            ? this.width * this.whRatio
+            ? this.width / this.whRatio
             : Math.abs(point[1] - symPoint[1])
         },
         tm(point, symPoint, lock) {
           this.height = Math.abs(point[1] - symPoint[1])
-          this.width = lock ? this.height / this.whRatio : this.width
+          this.width = lock ? this.height * this.whRatio : this.width
           this.top = point[1]
           this.left = symPoint[0] - this.width / 2
         },
@@ -415,12 +469,12 @@ export default {
           this.top = point[1]
           this.width = Math.abs(point[0] - symPoint[0])
           this.height = lock
-            ? this.width * this.whRatio
+            ? this.width / this.whRatio
             : Math.abs(point[1] - symPoint[1])
         },
         mr(point, symPoint, lock) {
           this.width = Math.abs(point[0] - symPoint[0])
-          this.height = lock ? this.width * this.whRatio : this.height
+          this.height = lock ? this.width / this.whRatio : this.height
           this.left = symPoint[0]
           this.top = symPoint[1] - this.height / 2
         },
@@ -429,12 +483,12 @@ export default {
           this.top = symPoint[1]
           this.width = Math.abs(point[0] - symPoint[0])
           this.height = lock
-            ? this.width * this.whRatio
+            ? this.width / this.whRatio
             : Math.abs(point[1] - symPoint[1])
         },
         bm(point, symPoint, lock) {
           this.height = Math.abs(point[1] - symPoint[1])
-          this.width = lock ? this.height / this.whRatio : this.width
+          this.width = lock ? this.height * this.whRatio : this.width
           this.left = symPoint[0] - this.width / 2
           this.top = symPoint[1]
         },
@@ -443,12 +497,12 @@ export default {
           this.top = symPoint[1]
           this.width = Math.abs(point[0] - symPoint[0])
           this.height = lock
-            ? this.width * this.whRatio
+            ? this.width / this.whRatio
             : Math.abs(point[1] - symPoint[1])
         },
         ml(point, symPoint, lock) {
           this.width = Math.abs(point[0] - symPoint[0])
-          this.height = lock ? this.width * this.whRatio : this.height
+          this.height = lock ? this.width / this.whRatio : this.height
           this.left = point[0]
           this.top = symPoint[1] - this.height / 2
         },

@@ -6,7 +6,22 @@
   box-sizing: border-box;
   background-repeat: no-repeat;
 }
-
+html,
+body,
+#app {
+  width: 100%;
+  /* height: 100%; */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 50px;
+  /* align-items: center; */
+}
+body {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
 ol,
 ul,
 li {
@@ -68,4 +83,54 @@ i {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+.drawWrap {
+  width: 800px;
+  height: 700px;
+  position: relative;
+  background-color: #fff;
+  overflow: hidden;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.2);
+}
+.codeBox{
+  width: 90%;
+  position: absolute;
+  /* bottom: 20px; */
+  left: 50%;
+  transform: translateX(-50%);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 0;
+}
+.hljs{
+  padding-top:0;
+  padding-bottom:0;
+  background-color: #f1f1f1f1;
+}
+.myHljs{
+ position: relative;
+ z-index: 0;
+ /* font-size: 13PX; */
+}
+.vdr{
+  z-index: 1;
+}
+.rectDesc{
+  margin-top: 10px;
+  margin-left: 10px;
+}
+.drawTitle{
+  font-size: 18px;
+  color: #24292f;
+  /* margin-top: 10px;
+  margin-left: 10px; */
+  font-weight: bold;
+  padding: 5px 10px;
+  background-color: #eeeeee;
+}
+.rectDesc_label{
+  margin:3px 0px;
+  color: #1d72f0;
 }

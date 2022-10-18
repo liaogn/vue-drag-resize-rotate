@@ -1,6 +1,6 @@
 {
   "name": "@liaogn/vue-drag-resize-rotate",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Vue drag resize & rotate,Simple source code!",
   "private": false,
   "main": "./src/index.js",
@@ -19,7 +19,9 @@
     "lib": "vue-cli-service build --target lib --name VueDragResizeRotate --dest lib src/index.js"
   },
   "dependencies": {
+    "@highlightjs/vue-plugin": "^1.0.2",
     "core-js": "^2.6.5",
+    "highlight.js": "^11.6.0",
     "vue": "^2.6.10"
   },
   "devDependencies": {

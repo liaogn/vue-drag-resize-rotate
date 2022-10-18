@@ -101,7 +101,6 @@ class RectFliper {
         const breakingSign = this.borderSigns[index].find((sign,index)=>sign!==curSigns[index])
         if(breakingSign){
           // isDegFlip:像对边翻转，需要180度翻转
-           console.log(breakingSign,'突破边界')
            const isDegFlip = index===1
            this.flipRecting = true
            callback(isDegFlip, breakingSign)
