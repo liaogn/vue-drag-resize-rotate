@@ -33,18 +33,20 @@
         ></span>
       </template>
     </template>
-    <div class="childWrap" v-if="childrens && _childWrapAttr" v-bind="_childWrapAttr">
-        <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
-        <slot class="child-vdr">
-        </slot>
+    <div class="childWrap" v-if="_childWrapAttr" v-bind="_childWrapAttr">
+        <template v-if="childrens">
+          <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+        </template>
+        <!-- 插槽 -->
+        <slot class="child-vdr"></slot>
     </div>
-    <template v-if="childrens && !_childWrapAttr">
-      <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+    <template v-else>
+      <template v-if="childrens">
+        <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+      </template>
       <!-- 插槽 -->
-      <slot class="child-vdr">
-      </slot>
+      <slot class="child-vdr"></slot>
     </template>
-
   </div>
 </template>
 
