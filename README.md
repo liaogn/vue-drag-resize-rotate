@@ -139,38 +139,32 @@ export default {
 ## 参数（Props）
 
 1. **:w** 描述：宽 ；类型：Number ； 默认：100，要求：大于 0。
+
 2. **:h** 描述：高 ；类型：Number ； 默认：100，要求：大于 0。
+
 3. **:x** 描述：left ；类型：Number ； 默认：0
+
 4. **:y** 描述：top ；类型：Number ； 默认：0
+
 5. **:r** 描述：旋转角度 ；类型：Number ； 默认：0
+
 6. **:z** 描述：层级 ；类型：Number | String ； 默认：auto
+
 7. **:bg** 描述：背景图片 ；类型：String ； 默认：''"
+
 8. **:lock** 描述：锁定宽高比例 ；类型：Boolean ； 默认：false
+
 9. **:hidden** 描述：隐藏/显示 ；类型：Boolean ； 默认：false
+
 10. **:active** 描述：激活状态 ；类型：Boolean ； 默认：true
+
 11. **:draggable** 描述：是否可拖动 ；类型：Boolean ； 默认：true
+
 12. **:resizeable** 描述：是否可缩放 ；类型：Boolean ； 默认：true
+
 13. **:rotateable** 描述：是否可旋转 ；类型：Boolean ； 默认：true
+
 14. **:activeable** 描述：是否可激活 ；类型：Boolean ； 默认：true
-15. **:widthRange**
-
-    描述：宽度范围 ；
-
-    类型：Array ；
-
-    默认：[0,Infinity]；
-
-    说明：取参数 array[0],与 array[0]的最小最大值，与顺无关，如果为其中存在无效值或超出参数 w 的值，则取 0 作为最小值、取 Infinity 作为最大值
-
-16. **:heightRange**
-
-    描述：高度范围 ；
-
-    类型：Array ；
-
-    默认：[0,Infinity]；
-
-    说明：取参数 array[0],与 array[0]的最小最大值，与顺无关，如果为其中存在无效值或超出参数 h 的值，则取 0 作为最小值、取 Infinity 作为最大值；
 
 17. **:sticks**
 
