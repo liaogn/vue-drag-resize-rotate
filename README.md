@@ -2,13 +2,13 @@
 
 基于 vue2.6 的一个 dom 元素拖拽、缩放和旋转的组件;
 
-支持基本的触点控制、宽高位置范围值、子父级嵌套、锁定定比例和层级等；
+支持基本的触点控制、子父级(递归)嵌套、锁定比例、层级等；
 
-支持基本的事件回调，提供元素实时宽高位置信息数据；
+支持基本的事件回调，提供元素实时宽高位置等数据；
 
-目前仅支持 pc 端、px 的 css 单位；后续添加移动端和 rem 自适应；
+目前仅支持 pc 端、px 的 css 单位；
 
-组件仅实现最基本的拖拽、缩放和旋转核心功能，源码简单清晰可解耦，有较高的扩展性
+组件仅实现最基本的拖拽、缩放和旋转核心功能，源码简单清晰，功能函数封装度较高，可扩展性较强、方便自行修改扩展
 
 ## 演示(Demo)
 
@@ -16,7 +16,7 @@
 
 ## 版本(Version)
 
-目前最新版本为 1.0.12
+目前最新版本为 1.1.0
 
 [gitHub 地址](https://github.com/liaogn/vue-drag-resize-rotate)
 
@@ -35,10 +35,9 @@ cnpm i @liaogn/vue-drag-resize-rotate -S
 1、main.js 全局引入
 
 ```javascript
-import vueDragResizeRotate from '@liaogn/vue-drag-resize-rotate';
+import vdr from '@liaogn/vue-drag-resize-rotate';
 // 如果嫌组件名过长可以自行修改组件名称。如下：使用时直接<vdr>...</vdr>
-// vueDragResizeRotate.name='vdr'
-Vue.use(vueDragResizeRotate);
+Vue.use(vdr);
 ```
 
 2、局部引入
