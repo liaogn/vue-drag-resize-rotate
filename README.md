@@ -12,7 +12,7 @@
 
 ## 演示(Demo)
 
-[请点击 Demo](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html)
+[请点击 Demo](https://liaogn.github.io/vue-drag-resize-rotate/dist/demo.html)
 
 ## 版本(Version)
 
