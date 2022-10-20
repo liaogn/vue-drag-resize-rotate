@@ -82,7 +82,7 @@ data() {
 
 `
 export default {
-  name: 'test_1',
+  name: 'test_4',
   data() {
     return {
       rect: {
@@ -100,8 +100,8 @@ export default {
             w: 250,
             h: 250,
             x: 70,
-            y: 60,
-            r: 0,
+            y: 53,
+            r: 30,
             lock: true,
             active: true,
             uuid:'2_1',

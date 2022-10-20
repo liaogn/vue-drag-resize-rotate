@@ -109,6 +109,10 @@ i {
   padding-bottom:0;
   background-color: #f1f1f1f1;
 }
+.hljs-comment, .hljs-quote{
+ font-style: normal;
+ color: #565656;
+}
 .myHljs{
  position: relative;
  z-index: 0;

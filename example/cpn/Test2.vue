@@ -46,7 +46,7 @@ let codeJS = `
 
 `
 export default {
-name: 'test_1',
+name: 'test_2',
 data() {
   return {
     testImage,

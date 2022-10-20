@@ -71,7 +71,7 @@ let codeHTML = `
 
  <!--这里自己加的outline为了演示，当active为false未选中时，是没有触点和outline的-->
 
- <!--这里的选中逻辑在demo里，通过控制每个vdr的ative值实现，并在点击空白是控制全部active设为false-->
+ <!--这里的选中逻辑在demo里，通过控制每个vdr的ative值来、实现-->
 
  <vdr draggable="true" :active="xxx" style="outline:1px solid #999"/>
 
@@ -79,9 +79,10 @@ let codeHTML = `
 
  <vdr resizeable="true" :active="xxx" style="outline:1px solid #999"/>
 
- <vdr activeable="true" :active="xxx" style="outline:1px solid #999"/>`
+ <vdr activeable="true" :active="xxx" style="outline:1px solid #999"/>
+ `
 export default {
-name: 'test_1',
+name: 'test_3',
 data() {
   return {
     testImage,
@@ -108,15 +109,16 @@ created(){
   this.showData = this.rect
 },
 mounted() {
-  document.documentElement.addEventListener('mousedown', ()=>{
-      this.active1 = false;
-      this.active2 = false;
-      this.active3 = false;
-      this.active4 = false;
-  })
+  // document.documentElement.addEventListener('mousedown', ()=>{
+  //     this.active1 = false;
+  //     this.active2 = false;
+  //     this.active3 = false;
+  //     this.active4 = false;
+  // })
   const vdrs =  this.$refs.drawWrap.querySelectorAll('.vdr')
   vdrs.forEach((vdr,index)=>{
     vdr.addEventListener('click',()=>{
+      if(index===3) return
       this.active1 = false;
       this.active2 = false;
       this.active3 = false;
@@ -169,7 +171,7 @@ methods: {
 </script>
 <style>
 .drawWrap_test3{
-  height: 500px !important;
+  height: 540px !important;
 }
 .drawWrap_test3 .vdr {
   background-size: cover;
