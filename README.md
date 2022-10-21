@@ -6,11 +6,11 @@
 
 最新版本：1.10
 
-## 资源地址（source address）
+## 资源地址(source address)
 
 - [gitHub 地址](https://github.com/liaogn/vue-drag-resize-rotate) 
 - [npm 地址](https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate) 
-- [Demo演示  地址](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html)
+- [Demo演示  地址](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html?v=20221021)
 
 ## 安装(Install)
 
@@ -26,7 +26,7 @@ cnpm i @liaogn/vue-drag-resize-rotate -S
 
 ```javascript
 import vdr from '@liaogn/vue-drag-resize-rotate';
-// 如果嫌组件名过长可以自行修改组件名称。如下：使用时直接<vdr>...</vdr>
+// 使用时直接<vdr>...</vdr>
 Vue.use(vdr);
 ```
 
@@ -55,20 +55,20 @@ export default {
 ```vue
 <template>
     <vdr
-         :activeable="true"
-         :draggable="true"
-         :resizeable="true"
-         :rotateable="true"
-         :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
-         :w="rect.w"
-         :h="rect.h"
-         :r="rect.r"
-         :x="rect.x"
-         :y="rect.y"
-         :z="rect.z"
-         :bg="rect.bg"
-         :lock="rect.lock"
-         :active="rect.active"
+      :activeable="true"
+      :draggable="true"
+      :resizeable="true"
+      :rotateable="true"
+      :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
+      :w="rect.w"
+      :h="rect.h"
+      :r="rect.r"
+      :x="rect.x"
+      :y="rect.y"
+      :z="rect.z"
+      :bg="rect.bg"
+      :lock="rect.lock"
+      :active="rect.active"
     />
 <template>
 <script>
@@ -96,7 +96,7 @@ export default {
 
 
 
-## 参数详情（Props）
+## 参数详情(Props)
 
 1. **:w** 描述：宽 ；类型：Number ； 默认：100
 
@@ -147,7 +147,7 @@ export default {
 
     
 
-## 事件（Event）
+## 事件(Event)
 
 1. **activated(pos, event) 点击选中元素** 参数：pos [Object] 位置信息；event  [Object]  原生事件；
 2. **dragStart(pos, event) 拖拽开始** 参数：pos [Object] 位置信息；event [Object]   原生事件；
@@ -179,7 +179,7 @@ export default {
 
 
 
-## 组件嵌套
+## 组件嵌套(Recursion)
 
 组件实现了通过传入childrens参数进行组件递归嵌套。嵌套层级是否需要overflow:hidden的效果，可以通过传入参数overflow或childWrapAttr控制样式，若有这两个参数之一，会给子组件包裹一层div，来实现overflow:hidden效果
 
@@ -227,7 +227,7 @@ export default {
 
 
 
-## 插槽
+## 插槽(Slot)
 
 组件提供了一个默认插槽
 
@@ -244,7 +244,7 @@ export default {
 
 
 
-## 控件样式
+## 控件样式(Style)
 
 1、可通过在组件上定义class、style、或选取组件内部class定义css，来修改组件内部控件样式，例如：
 
