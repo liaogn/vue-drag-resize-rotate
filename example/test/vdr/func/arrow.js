@@ -1,8 +1,12 @@
 import {getParentsRotate} from './rotate'
-function createSvgIcon(cursorRotate) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" >
-            <path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(${cursorRotate}deg);transform-origin: 16px 16px"></path>
-          </svg>`
+function createIcon(cursorRotate) {
+  return {
+    x:16,
+    y:16,
+    htmlText:`<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" >
+    <path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(${cursorRotate}deg);transform-origin: 16px 16px"></path>
+  </svg>`
+  }
 }
 // svg转base64
 function svgTobase64(svgString) {
@@ -31,10 +35,11 @@ function stickMouseenter(ev, stick, options={}) {
   }
   const parentsRotate = getParentsRotate(ev)
   const cursorRotate = getCursorIconRotate(parentsRotate, stick)
-  const createSvgIconFunc = options.hoverRender||createSvgIcon
-  const iconBase64 = svgTobase64(createSvgIconFunc(cursorRotate))
+  const createIconOptionFunc = options.hoverRender||createIcon
+  const {htmlText,x,y} = createIconOptionFunc(cursorRotate)
+  const iconBase64 = svgTobase64(htmlText)
   const iconUrl = `data:image/svg+xml;base64,${iconBase64}`
-  const cursor = this.resizeable ? `url(${iconUrl}) 16 16,auto`:'no-drop'
+  const cursor = this.resizeable ? `url(${iconUrl}) ${x} ${y},auto`:'no-drop'
   ev.target.style.cursor = cursor
 }
 function stickMouseout(ev,stick){

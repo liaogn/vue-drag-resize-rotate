@@ -17,6 +17,7 @@
       :lock="rect.lock"
       :active="rect.active"
       @activated="activated"
+      @fliped="fliped"
 
       @dragStart="dragStart"
       @dragging="dragging"
@@ -128,6 +129,9 @@ let codeJS = `
     activated(res){
       this.showData = res
       this.rect.active = true
+    },
+    fliped(res){
+      this.showData = res
     }
   },
 
@@ -194,6 +198,9 @@ export default {
     activated(res){
       this.showData = res
       this.rect.active = true
+    },
+    fliped(res){
+      this.showData = res
     }
   },
 }
