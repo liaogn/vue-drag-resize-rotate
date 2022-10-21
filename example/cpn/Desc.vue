@@ -12,6 +12,7 @@
         <p>lock: {{ showData.lock }}</p>
         <p>zIndex: {{showData.z}}</p>
         <p>active: {{showData.active}}</p>
+        <p>flipSign: {{showData.flipSign}}</p>
       </div>
   </div>
 </template>

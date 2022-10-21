@@ -21,7 +21,7 @@ function getElementRotate(element) {
   return angle || 0
 }
 
-// 获取所有父旋转角的叠加状态角#待解决：插槽元素存在旋转角，会出现角度技术偏差。
+// 获取所有父旋转角的叠加状态角#待解决：插槽元素存在旋转角，会出现角度计算偏差。
 function getParentsRotate(ev, isStick) {
   let rotate = 0
   let path = ev.path || (ev.composedPath && ev.composedPath()) || []

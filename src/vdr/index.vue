@@ -35,14 +35,14 @@
     </template>
     <div class="childWrap" v-if="_childWrapAttr" v-bind="_childWrapAttr">
         <template v-if="childrens">
-          <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+          <vdr v-for="(child,index) in childrens" v-bind="child" v-on="$listeners" :key="child.uuid||`child_${index}`"></vdr>
         </template>
         <!-- 插槽 -->
         <slot class="child-vdr"></slot>
     </div>
     <template v-else>
       <template v-if="childrens">
-        <vdr v-for="child in childrens" v-bind="child" v-on="$listeners"  :key="child.key||child.id"></vdr>
+        <vdr v-for="(child,index) in childrens" v-bind="child" v-on="$listeners" :key="child.uuid||`child_${index}`"></vdr>
       </template>
       <!-- 插槽 -->
       <slot class="child-vdr"></slot>
@@ -122,14 +122,6 @@ export default {
     sticks: {
       type: Array,
     },
-    myStyle:{
-      type:Object,
-      default:()=>({})
-    },
-    myClass:{
-      type:Object,
-      default:()=>({})
-    },
     active: {
       type: Boolean,
       default: true,
@@ -170,7 +162,8 @@ export default {
       whRatio: this.w/this.h,
       currentStick: '',
       activeStickIndex: -1,
-      hoverRender:undefined
+      hoverRender:undefined,
+      flipSign:'',
     }
   },
   computed: {
@@ -181,9 +174,8 @@ export default {
      return this.sticks
     },
     _class(){
-     const outClass = this.myClass
      const inClass= {'vdr-active':this.active && this.activeable, 'vdr-not-active': !this.activeable}
-     return [outClass,inClass]
+     return [inClass]
     },
     _style() {
       const rotate = `rotateZ(${this.rotate}deg)`
@@ -201,7 +193,7 @@ export default {
         transform: `${translate} ${rotate}`,
         cursor: cursor
       }
-      return Object.assign({}, this.myStyle, rectStyle)
+      return Object.assign({}, rectStyle)
     },
     _childWrapAttr(){
       if(this.overflow){
@@ -227,7 +219,8 @@ export default {
         stick: this.currentStick,
         lock:this.lock,
         active:this.active,
-        uuid:this.uuid
+        uuid:this.uuid,
+        flipSign:this.flipSign
       }
     },
   },
@@ -416,7 +409,9 @@ export default {
       )
       // 监听是否翻转，若翻转则执行回调：更新旋转角、初始化矩形状态
       this.RectFliper.borderSignsWatcher(mousePoint, (isDegFlip, sign) => {
-        if (isDegFlip) this.rotate += sign === '-' ? -180 : 180
+        this.flipSign = sign
+        if (isDegFlip) this.rotate += this.flipSign === '-' ? -180 : 180
+        this.$emit('fliped',this.posData, ev)
         this.stickDownHandle(this.RectFliper.getFlipStick(this.currentStick))
       })
       this.$emit('resizing', this.posData, ev)
