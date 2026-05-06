@@ -187,7 +187,7 @@ export default {
       top: this.y,
       zIndex: this.z,
       rotate: this.r,
-      whRatio: this.w/this.h,
+      whRatio: 1,
       currentStick: '',
       activeStickIndex: -1,
       hoverRender:undefined,
@@ -257,6 +257,7 @@ export default {
     this.hoverRender = this.stickHoverRender || this.$stickHoverRender
   },
   mounted() {
+    this.syncWhRatio()
     this.limitCurrentSize()
     this.$nextTick(() => {
       this.init()
@@ -311,15 +312,13 @@ export default {
         this.$emit('rotateStop', this.posData, ev)
       }
       // 更新宽高比例，当宽高其中一个为0时，不更新比例
-      if (this.width > 0 && this.height > 0) {
-        this.whRatio = this.width / this.height
-      }
+      this.syncWhRatio()
     },
     //元素（拖动）mousedown 事件回调函数
     bodyDown(ev) {
       if (!this.activeable) return
       this.currentStick = ''
-      this.RectDrager.downHandle(ev, [this.left, this.top])
+      this.RectDrager.downHandle(ev, [this.left, this.top], this.$el)
       // 触发事件
       if (this.activeable) {
         this.$emit('activated', this.posData, ev)
@@ -364,7 +363,7 @@ export default {
       // 记录当前活跃控件
       this.activeStickIndex = index
       // 记录宽高比
-      this.whRatio = this.width / this.height
+      this.syncWhRatio()
       // 缩放前数据初始化
       this.stickDownHandle(stick)
       this.stickDrag = true
@@ -502,6 +501,12 @@ export default {
     clampSize(value, min, max) {
       return Math.min(Math.max(value, min), max)
     },
+    // 同步当前宽高比，宽高其一为0或非有限值时保持原值（默认1）
+    syncWhRatio() {
+      if (this.width > 0 && this.height > 0) {
+        this.whRatio = this.width / this.height
+      }
+    },
     // 获取可用于锁定宽高比的比例
     getValidWhRatio() {
       return isFinite(this.whRatio) && this.whRatio > 0 ? this.whRatio : 1
@@ -584,103 +589,33 @@ export default {
     },
     // 设置最小尺寸时不可翻转，越过对边后的距离按0处理，由min尺寸接管
     getResizeWidth(point, symPoint, stick) {
-      const width = {
-        tl: symPoint[0] - point[0],
-        tm: this.width,
-        tr: point[0] - symPoint[0],
-        mr: point[0] - symPoint[0],
-        br: point[0] - symPoint[0],
-        bm: this.width,
-        bl: symPoint[0] - point[0],
-        ml: symPoint[0] - point[0],
-      }[stick]
-      return this.hasMinSizeLimit() ? Math.max(0, width) : Math.abs(point[0] - symPoint[0])
+      let raw
+      if (stick.includes('l')) raw = symPoint[0] - point[0]
+      else if (stick.includes('r')) raw = point[0] - symPoint[0]
+      else return this.width
+      return this.hasMinSizeLimit() ? Math.max(0, raw) : Math.abs(raw)
     },
     // 设置最小尺寸时不可翻转，越过对边后的距离按0处理，由min尺寸接管
     getResizeHeight(point, symPoint, stick) {
-      const height = {
-        tl: symPoint[1] - point[1],
-        tm: symPoint[1] - point[1],
-        tr: symPoint[1] - point[1],
-        mr: this.height,
-        br: point[1] - symPoint[1],
-        bm: point[1] - symPoint[1],
-        bl: point[1] - symPoint[1],
-        ml: this.height,
-      }[stick]
-      return this.hasMinSizeLimit() ? Math.max(0, height) : Math.abs(point[1] - symPoint[1])
+      let raw
+      if (stick.includes('t')) raw = symPoint[1] - point[1]
+      else if (stick.includes('b')) raw = point[1] - symPoint[1]
+      else return this.height
+      return this.hasMinSizeLimit() ? Math.max(0, raw) : Math.abs(raw)
     },
-    // 根据strick生成对应的矩形渲染函数
+    // 根据stick生成对应的矩形渲染函数：中点以非固定轴为base，避免lock时反推错方向
     createRenderFunc(stick) {
-      return {
-        tl(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.getResizeWidth(point, symPoint, 'tl'),
-            this.getResizeHeight(point, symPoint, 'tl'),
-            lock
-          )
-          this.renderLimitedRect(width, height, 'tl')
-        },
-        tm(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.width,
-            this.getResizeHeight(point, symPoint, 'tm'),
-            lock,
-            'height'
-          )
-          this.renderLimitedRect(width, height, 'tm')
-        },
-        tr(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.getResizeWidth(point, symPoint, 'tr'),
-            this.getResizeHeight(point, symPoint, 'tr'),
-            lock
-          )
-          this.renderLimitedRect(width, height, 'tr')
-        },
-        mr(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.getResizeWidth(point, symPoint, 'mr'),
-            this.height,
-            lock
-          )
-          this.renderLimitedRect(width, height, 'mr')
-        },
-        br(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.getResizeWidth(point, symPoint, 'br'),
-            this.getResizeHeight(point, symPoint, 'br'),
-            lock
-          )
-          this.renderLimitedRect(width, height, 'br')
-        },
-        bm(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.width,
-            this.getResizeHeight(point, symPoint, 'bm'),
-            lock,
-            'height'
-          )
-          this.renderLimitedRect(width, height, 'bm')
-        },
-        bl(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.getResizeWidth(point, symPoint, 'bl'),
-            this.getResizeHeight(point, symPoint, 'bl'),
-            lock
-          )
-          this.renderLimitedRect(width, height, 'bl')
-        },
-        ml(point, symPoint, lock) {
-          const {width, height} = this.getLimitedSize(
-            this.getResizeWidth(point, symPoint, 'ml'),
-            this.height,
-            lock
-          )
-          this.renderLimitedRect(width, height, 'ml')
-        },
-        angle() {},
-      }[stick]
+      if (stick === 'angle') return null
+      return function (point, symPoint, lock) {
+        const baseAxis = stick.includes('l') || stick.includes('r') ? 'width' : 'height'
+        const {width, height} = this.getLimitedSize(
+          this.getResizeWidth(point, symPoint, stick),
+          this.getResizeHeight(point, symPoint, stick),
+          lock,
+          baseAxis
+        )
+        this.renderLimitedRect(width, height, stick)
+      }
     },
     // 更新矩形信息
     updateElementInfo(point, symPoint, stick, lock) {

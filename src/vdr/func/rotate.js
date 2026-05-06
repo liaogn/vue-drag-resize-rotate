@@ -4,7 +4,7 @@ function angleToRadian(rotate) {
 }
 // 获取元素旋转角度(矩阵转换)
 function getElementRotate(element) {
-  if (element == null) return 0
+  if (!element || element.nodeType !== 1) return 0
   const parentStyle = window.getComputedStyle(element, null)
   const matrixInfo =
     parentStyle['-webkit-transform'] ||
@@ -12,7 +12,7 @@ function getElementRotate(element) {
     parentStyle['-ms-transform'] ||
     parentStyle['-o-transform'] ||
     parentStyle['transform']
-  if (matrixInfo.match('matrix') == null) return 0
+  if (!matrixInfo || matrixInfo.indexOf('matrix') === -1) return 0
   const matrix = matrixInfo.replace(/matrix\(|\)|\s/gi, '')
   const matrixArray = matrix.split(',') || []
   const a = Number(matrixArray[0])
@@ -21,19 +21,18 @@ function getElementRotate(element) {
   return angle || 0
 }
 
-// 获取所有父旋转角的叠加状态角#待解决：插槽元素存在旋转角，会出现角度计算偏差。
-function getParentsRotate(ev, isStick) {
+// 累加事件 path 上某一边界之上的祖先旋转角。
+// boundary：累加从该元素的下一项开始；不传则只跳过 ev.target，累加所有祖先（含拥有 stick/vdr 自身旋转的根，用于触点 cursor 计算）。
+function getParentsRotate(ev, boundary) {
+  const path = ev.path || (ev.composedPath && ev.composedPath()) || []
+  if (path.length < 2) return 0
+  const startIndex = boundary ? path.indexOf(boundary) + 1 : 1
+  if (startIndex <= 0) return 0
   let rotate = 0
-  let path = ev.path || (ev.composedPath && ev.composedPath()) || []
-  path = isStick ? path.slice(1) : path
-  path = path.filter((element) => element.className && element.className.match('childWrap') == null)
-  const len = path.length || 0
-  if (len < 1) return 0
-  //自身index为0， >0 过滤掉自身
-  for (let i = len - 1; i > 0; i--) {
+  for (let i = path.length - 1; i >= startIndex; i--) {
     const element = path[i]
-    // 过滤掉window和document
-    if (element === window || element === document) continue
+    if (!element || element.nodeType !== 1) continue
+    if (element.classList && element.classList.contains('childWrap')) continue
     rotate += getElementRotate(element)
   }
   return rotate

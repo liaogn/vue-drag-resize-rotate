@@ -12,7 +12,7 @@ export default class RectDrager {
       parentsRotate: 0,
     }
   }
-  downHandle(ev, curPosition) {
+  downHandle(ev, curPosition, boundary) {
     this.isDrag = true
     // 记录开始鼠标位置
     this.startPos.mx = ev.clientX
@@ -21,7 +21,7 @@ export default class RectDrager {
     this.startPos.left = curPosition[0]
     this.startPos.top = curPosition[1]
     // 获取父元素的旋转角
-    this.startPos.parentsRotate = getParentsRotate(ev)
+    this.startPos.parentsRotate = getParentsRotate(ev, boundary)
   }
   moveHandle(ev) {
     // 起始位置信息
