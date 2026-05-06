@@ -2,6 +2,7 @@
   <div id="app">
     <!-- <Guide/> -->
     <Test_1/>
+    <Test_8/>
     <Test_2/>
     <Test_3/>
     <Test_4/>
@@ -19,6 +20,7 @@ import Test_4 from './cpn/Test4.vue'
 import Test_5 from './cpn/Test5.vue'
 import Test_6 from './cpn/Test6.vue'
 import Test_7 from './cpn/Test7.vue'
+import Test_8 from './cpn/Test8.vue'
 export default {
   name: 'app',
   components:{
@@ -29,7 +31,8 @@ export default {
     Test_4,
     Test_5,
     Test_6,
-    Test_7
+    Test_7,
+    Test_8
   },
   data() {
     return {

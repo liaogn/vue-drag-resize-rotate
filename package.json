@@ -20,21 +20,22 @@
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^1.0.2",
-    "core-js": "^2.6.5",
-    "highlight.js": "^11.6.0",
-    "vue": "^2.6.10"
+    "core-js": "^3.32.0",
+    "highlight.js": "^11.9.0",
+    "vue": "^2.7.14"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.9.0",
-    "@vue/cli-plugin-eslint": "^3.9.0",
-    "@vue/cli-service": "^3.9.0",
-    "babel-eslint": "^10.0.1",
+    "@babel/eslint-parser": "^7.28.6",
+    "@vue/babel-preset-app": "^5.0.8",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
     "babel-plugin-component": "^1.1.1",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "node-sass": "^4.9.0",
-    "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.6.10"
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.18.1",
+    "node-sass": "^7.0.0",
+    "sass-loader": "^13.3.2",
+    "vue-template-compiler": "^2.7.14"
   },
   "eslintConfig": {
     "root": true,
@@ -46,10 +47,12 @@
       "eslint:recommended"
     ],
     "rules": {
-      "no-console": "off"
+      "no-console": "off",
+      "vue/multi-word-component-names": "off"
     },
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "@babel/eslint-parser",
+      "requireConfigFile": false
     }
   }
 }

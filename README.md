@@ -62,6 +62,10 @@ export default {
       :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
       :w="rect.w"
       :h="rect.h"
+      :min-width="50"
+      :min-height="50"
+      :max-width="500"
+      :max-height="500"
       :r="rect.r"
       :x="rect.x"
       :y="rect.y"
@@ -102,42 +106,50 @@ export default {
 
 2. **:h** 描述：高 ；类型：Number ； 默认：100
 
-3. **:x** 描述：left ；类型：Number ； 默认：0
+3. **:min-width** 描述：缩放最小宽度 ；类型：Number ； 默认：0
 
-4. **:y** 描述：top ；类型：Number ； 默认：0
+4. **:min-height** 描述：缩放最小高度 ；类型：Number ； 默认：0
 
-5. **:r** 描述：旋转角度 ；类型：Number ； 默认：0
+5. **:max-width** 描述：缩放最大宽度 ；类型：Number ； 默认：Infinity
 
-6. **:z** 描述：层级 ；类型：Number | String ； 默认：auto
+6. **:max-height** 描述：缩放最大高度 ；类型：Number ； 默认：Infinity
 
-7. **:bg** 描述：背景图片 ；类型：String ； 默认：''"
+7. **:x** 描述：left ；类型：Number ； 默认：0
 
-8. **:lock** 描述：锁定宽高比例 ；类型：Boolean ； 默认：false
+8. **:y** 描述：top ；类型：Number ； 默认：0
 
-9. **:active** 描述：激活状态 ；类型：Boolean ； 默认：true
+9. **:r** 描述：旋转角度 ；类型：Number ； 默认：0
 
-10. **:draggable** 描述：是否可拖动 ；类型：Boolean ； 默认：true
+10. **:z** 描述：层级 ；类型：Number | String ； 默认：auto
 
-11. **:resizeable** 描述：是否可缩放 ；类型：Boolean ； 默认：true
+11. **:bg** 描述：背景图片 ；类型：String ； 默认：''"
 
-12. **:rotateable** 描述：是否可旋转 ；类型：Boolean ； 默认：true
+12. **:lock** 描述：锁定宽高比例 ；类型：Boolean ； 默认：false
 
-13. **:activeable** 描述：是否可激活 ；类型：Boolean ； 默认：true
+13. **:active** 描述：激活状态 ；类型：Boolean ； 默认：true
 
-14. **:uuid** 描述：设置一个唯一id，仅用于需要传递childrens产生嵌套（递归）组件时的key值；类型：String ； 默认：""
+14. **:draggable** 描述：是否可拖动 ；类型：Boolean ； 默认：true
 
-15. **:childWrapAttr** 描述：嵌套组件子组件的属性集合；类型：Object； 默认：undefined
+15. **:resizeable** 描述：是否可缩放 ；类型：Boolean ； 默认：true
 
-16. **:overflow**
+16. **:rotateable** 描述：是否可旋转 ；类型：Boolean ； 默认：true
+
+17. **:activeable** 描述：是否可激活 ；类型：Boolean ； 默认：true
+
+18. **:uuid** 描述：设置一个唯一id，仅用于需要传递childrens产生嵌套（递归）组件时的key值；类型：String ； 默认：""
+
+19. **:childWrapAttr** 描述：嵌套组件子组件的属性集合；类型：Object； 默认：undefined
+
+20. **:overflow**
 
     描述：组件插槽包裹overflow（css）属性，如果overflow与childWrapAttr同时定义，则childWrapAttr会合并overflow；
 
     类型：String； 
     默认：""
 
-17. **:childrens** 描述：嵌套组件子的参数数组；类型：Object； 默认：undefined
+21. **:childrens** 描述：嵌套组件子的参数数组；类型：Object； 默认：undefined
 
-18. **:sticks**
+22. **:sticks**
 
     描述：控件集；
 
