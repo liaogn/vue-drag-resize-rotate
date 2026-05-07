@@ -10,7 +10,7 @@
 
 - [gitHub 地址](https://github.com/liaogn/vue-drag-resize-rotate) 
 - [npm 地址](https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate) 
-- [Demo演示  地址](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html?v=20221021)
+- [Demo演示  地址](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html?v=20260507)
 
 ## 安装(Install)
 
