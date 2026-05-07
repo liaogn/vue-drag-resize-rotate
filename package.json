@@ -1,6 +1,6 @@
 {
   "name": "@liaogn/vue-drag-resize-rotate",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Vue drag resize & rotate,Simple source code!",
   "private": false,
   "main": "./src/index.js",
