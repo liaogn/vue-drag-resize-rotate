@@ -1,4 +1,4 @@
-import {angleToRadian, getParentsRotate} from './rotate'
+import {angleToRadian, getParentsRotate} from '../dom/rotate'
 export default class RectDrager {
   constructor() {
     this.isDrag = false

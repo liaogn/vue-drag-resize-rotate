@@ -1,4 +1,4 @@
-import {angleToRadian} from './rotate'
+import {angleToRadian} from '../dom/rotate'
 import {contactorMaps} from './maps'
 // 计算两点间的斜率
 function calcLineSlope(p1, p2) {
@@ -66,7 +66,7 @@ function calcBorderLineEquation(p1, p2) {
       const k = (y2 - y1) / (x2 - x1)
       return (targetAxis, knownValue) => {
         if (k === 0) {
-          return {y: y1}[targetAxis] 
+          return {y: y1}[targetAxis]
         } else if (!isFinite(k)) {
           return {x: x1}[targetAxis]
         } else {
