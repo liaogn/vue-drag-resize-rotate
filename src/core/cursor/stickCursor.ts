@@ -1,7 +1,12 @@
-import {getParentsRotate} from '../dom/rotate'
+import { getParentsRotate } from '../dom/rotate'
+import type {
+  StickCursorState,
+  StickHoverRender,
+  StickHoverRenderResult,
+} from '../types'
 
-// 默认 cursor 图标渲染函数
-function defaultCursorIconRender(cursorRotate) {
+/** 默认 cursor 图标渲染函数 */
+export function defaultCursorIconRender(cursorRotate: number): StickHoverRenderResult {
   return {
     x: 16,
     y: 16,
@@ -11,15 +16,15 @@ function defaultCursorIconRender(cursorRotate) {
   }
 }
 
-// svg 转 base64
-function svgTobase64(svgString) {
+/** svg 转 base64 */
+export function svgTobase64(svgString: string): string {
   if (typeof svgString !== 'string' || svgString.length <= 0) return ''
   return window.btoa(unescape(encodeURIComponent(svgString)))
 }
 
-// 获取控件图标悬停角度
-function getCursorIconRotate(parentsRotate = 0, stick) {
-  const hoverAngle = {
+/** 获取控件图标悬停角度（基于父链累计旋转 + stick 方向） */
+export function getCursorIconRotate(parentsRotate = 0, stick: string): number {
+  const map: Record<string, number> = {
     tl: parentsRotate - 45,
     tr: parentsRotate + 45,
     bl: parentsRotate - 135,
@@ -28,14 +33,24 @@ function getCursorIconRotate(parentsRotate = 0, stick) {
     mr: parentsRotate + 90,
     bm: parentsRotate - 180,
     ml: parentsRotate - 90,
-  }[stick]
-  return hoverAngle || 0
+  }
+  return map[stick] ?? 0
 }
 
-// 计算指定 stick 鼠标进入时的 cursor 字符串
-// state: { stickDrag, currentStick, resizeable }
-// options: { hoverRender }
-function buildStickCursor(ev, stick, state, options = {}) {
+export interface BuildStickCursorOptions {
+  hoverRender?: StickHoverRender
+}
+
+/**
+ * 计算指定 stick 鼠标进入时的 cursor 字符串
+ * @returns 'default' | css-cursor 字符串 | null（angle 触点不处理）
+ */
+export function buildStickCursor(
+  ev: MouseEvent,
+  stick: string,
+  state: StickCursorState,
+  options: BuildStickCursorOptions = {}
+): string | null {
   if (stick === 'angle') return null
   if (state.stickDrag && state.currentStick !== stick) {
     return 'default'
@@ -43,23 +58,18 @@ function buildStickCursor(ev, stick, state, options = {}) {
   const parentsRotate = getParentsRotate(ev)
   const cursorRotate = getCursorIconRotate(parentsRotate, stick)
   const renderFunc = options.hoverRender || defaultCursorIconRender
-  const {htmlText, x, y} = renderFunc(cursorRotate)
+  const { htmlText, x, y } = renderFunc(cursorRotate)
   const iconBase64 = svgTobase64(htmlText)
   const iconUrl = `data:image/svg+xml;base64,${iconBase64}`
   return state.resizeable ? `url(${iconUrl}) ${x} ${y},auto` : 'no-drop'
 }
 
-// 鼠标移出 stick 时是否要重置 cursor
-function shouldResetStickCursor(stick, state) {
+/** 鼠标移出 stick 时是否要重置 cursor */
+export function shouldResetStickCursor(
+  stick: string,
+  state: { stickDrag: boolean }
+): boolean {
   if (stick === 'angle') return false
   if (state.stickDrag) return false
   return true
-}
-
-export {
-  defaultCursorIconRender,
-  svgTobase64,
-  getCursorIconRotate,
-  buildStickCursor,
-  shouldResetStickCursor,
 }

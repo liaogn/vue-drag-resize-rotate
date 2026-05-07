@@ -11,15 +11,15 @@
     <template v-if="active && activeable">
       <!-- 尺寸控件 -->
       <span
-        :class="`vdr-stick-${stick}`"
+        v-for="(stick, stickIndex) in resizeSticks"
         :key="stickIndex"
-        :style="{zIndex: activeStickIndex == stickIndex ? 10 : 9}"
-        @mousedown.stop.prevent="stickDown($event,stick, stickIndex)"
+        :class="`vdr-stick-${stick}`"
+        :style="{ zIndex: activeStickIndex === stickIndex ? 10 : 9 }"
+        @mousedown.stop.prevent="stickDown($event, stick, stickIndex)"
         @mouseenter="onStickMouseenter($event, stick)"
         @mouseout="onStickMouseout($event, stick)"
         class="vdr-stick"
         :ref="`stick_${stick}`"
-        v-for="(stick, stickIndex) in resizeSticks"
       >
       </span>
       <!-- 旋转控件 -->
@@ -27,30 +27,37 @@
         <span class="vdr-stick-rotate-line"></span>
         <span
           @mousedown.stop.prevent="rotateDown($event)"
-          :style="{cursor:!this.rotateable?'no-drop':''}"
+          :style="{ cursor: !rotateable ? 'no-drop' : '' }"
           class="vdr-stick vdr-angle"
-          :ref="`stick_angle`"
+          ref="stick_angle"
         ></span>
       </template>
     </template>
     <div class="childWrap" v-if="_childWrapAttr" v-bind="_childWrapAttr">
-        <template v-if="childrens">
-          <vdr v-for="(child,index) in childrens" v-bind="child" v-on="$listeners" :key="child.uuid||`child_${index}`"></vdr>
-        </template>
-        <!-- 插槽 -->
-        <slot class="child-vdr"></slot>
+      <template v-if="childrens">
+        <vdr
+          v-for="(child, index) in childrens"
+          v-bind="child"
+          :key="(child as any).uuid || `child_${index}`"
+        ></vdr>
+      </template>
+      <slot></slot>
     </div>
     <template v-else>
       <template v-if="childrens">
-        <vdr v-for="(child,index) in childrens" v-bind="child" v-on="$listeners" :key="child.uuid||`child_${index}`"></vdr>
+        <vdr
+          v-for="(child, index) in childrens"
+          v-bind="child"
+          :key="(child as any).uuid || `child_${index}`"
+        ></vdr>
       </template>
-      <!-- 插槽 -->
-      <slot class="child-vdr"></slot>
+      <slot></slot>
     </template>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, type PropType } from 'vue'
 import {
   getSymStick,
   RectDrager,
@@ -68,123 +75,89 @@ import {
   computeResize,
   buildStickCursor,
   shouldResetStickCursor,
+  type ElementGeometricInfo,
+  type FlipSign,
+  type Point,
+  type StickHoverRender,
+  type StickType,
 } from '../core'
 
-export default {
+export default defineComponent({
   name: 'vdr',
+  inheritAttrs: false,
   props: {
-    overflow:{
-      type: String,
-      default: '',
-    },
-    uuid:{
-      type: [String, Number],
-      default: '',
-    },
-    bg: {
-      type: String,
-      default: '',
-    },
-    lock: {
-      type: Boolean,
-      default: false,
-    },
+    overflow: { type: String, default: '' },
+    uuid: { type: [String, Number], default: '' },
+    bg: { type: String, default: '' },
+    lock: { type: Boolean, default: false },
     w: {
       type: Number,
       default: 100,
-      validator: function(val) {
-        return val >= 0
-      },
+      validator: (val: number) => val >= 0,
     },
     h: {
       type: Number,
       default: 100,
-      validator: function(val) {
-        return val >= 0
-      },
+      validator: (val: number) => val >= 0,
     },
     minWidth: {
       type: Number,
       default: 0,
-      validator: function(val) {
-        return val >= 0
-      },
+      validator: (val: number) => val >= 0,
     },
     minHeight: {
       type: Number,
       default: 0,
-      validator: function(val) {
-        return val >= 0
-      },
+      validator: (val: number) => val >= 0,
     },
     maxWidth: {
       type: Number,
       default: Infinity,
-      validator: function(val) {
-        return val >= 0
-      },
+      validator: (val: number) => val >= 0,
     },
     maxHeight: {
       type: Number,
       default: Infinity,
-      validator: function(val) {
-        return val >= 0
-      },
+      validator: (val: number) => val >= 0,
     },
     x: {
       type: Number,
       default: 0,
-      validator: function(val) {
-        return typeof val === 'number'
-      },
+      validator: (val: number) => typeof val === 'number',
     },
     y: {
       type: Number,
       default: 0,
-      validator: function(val) {
-        return typeof val === 'number'
-      },
+      validator: (val: number) => typeof val === 'number',
     },
-    z: {
-      type: [String, Number],
-      default: '',
-    },
-    r: {
-      type: Number,
-      default: 0,
-    },
-    sticks: {
-      type: Array,
-    },
-    active: {
-      type: Boolean,
-      default: true,
-    },
-    draggable: {
-      type: Boolean,
-      default: true,
-    },
-    resizeable: {
-      type: Boolean,
-      default: true,
-    },
-    rotateable: {
-      type: Boolean,
-      default: true,
-    },
-    activeable: {
-      type: Boolean,
-      default: true,
-    },
-    childrens:{
-      type: Array,
+    z: { type: [String, Number], default: '' },
+    r: { type: Number, default: 0 },
+    sticks: { type: Array as PropType<string[]>, default: undefined },
+    active: { type: Boolean, default: true },
+    draggable: { type: Boolean, default: true },
+    resizeable: { type: Boolean, default: true },
+    rotateable: { type: Boolean, default: true },
+    activeable: { type: Boolean, default: true },
+    childrens: { type: Array as PropType<Record<string, any>[]>, default: undefined },
+    childWrapAttr: { type: Object as PropType<Record<string, any>>, default: undefined },
+    stickHoverRender: {
+      type: Function as PropType<StickHoverRender>,
       default: undefined,
     },
-    childWrapAttr:{
-      type:Object,
-      default:undefined
-    }
   },
+  emits: [
+    'activated',
+    'dragStart',
+    'dragging',
+    'dragStop',
+    'resizeStart',
+    'resizing',
+    'resizeStop',
+    'rotateStart',
+    'rotating',
+    'rotateStop',
+    'fliped',
+  ],
   data() {
     return {
       width: this.w,
@@ -194,52 +167,64 @@ export default {
       zIndex: this.z,
       rotate: this.r,
       whRatio: 1,
-      currentStick: '',
+      currentStick: '' as string,
       activeStickIndex: -1,
-      hoverRender: undefined,
-      flipSign: '',
+      flipSign: '' as FlipSign,
+      stickDrag: false,
+      isMiddlePoint: null as null | RegExpMatchArray,
+      // 以下字段在 mounted / stickDown 之后才会被赋值，使用前一定已存在
+      RectDrager: null as unknown as RectDrager,
+      RectRotator: null as unknown as RectRotator,
+      RectFliper: null as unknown as RectFliper,
+      elementInfo: null as unknown as ElementGeometricInfo,
+      parentElement: null as unknown as HTMLElement,
+      parentInfo: null as unknown as ElementGeometricInfo,
+      absoluteContactor: null as unknown as Point,
+      symAbsoluteContactor: null as unknown as Point,
+      symRelativeContactor: null as unknown as Point,
     }
   },
   computed: {
-    _sticks(){
-     if(!this.sticks) {
-       return ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'angle']
-     }
-     return this.sticks
+    _sticks(): string[] {
+      if (!this.sticks) {
+        return ['tl', 'tm', 'tr', 'mr', 'br', 'bm', 'bl', 'ml', 'angle']
+      }
+      return this.sticks
     },
-    _class(){
-     const inClass= {'vdr-active':this.active && this.activeable, 'vdr-not-active': !this.activeable}
-     return [inClass]
+    _class() {
+      const inClass = {
+        'vdr-active': this.active && this.activeable,
+        'vdr-not-active': !this.activeable,
+      }
+      return [inClass]
     },
     _style() {
       const rotate = `rotateZ(${this.rotate}deg)`
       const translate = `translate3d(${this.left}px,${this.top}px,0)`
-      let cursor = 'pointer'
-      if(this.active){
+      let cursor: string = 'pointer'
+      if (this.active) {
         cursor = this.draggable ? 'move' : 'no-drop'
       }
-      if(!this.activeable) cursor = 'no-drop'
-      const rectStyle= {
+      if (!this.activeable) cursor = 'no-drop'
+      return {
         zIndex: this.zIndex,
         width: `${this.width}px`,
         height: `${this.height}px`,
         backgroundImage: `url(${this.bg})`,
         transform: `${translate} ${rotate}`,
-        cursor: cursor
-      }
-      return Object.assign({}, rectStyle)
-    },
-    _childWrapAttr(){
-      if(this.overflow){
-        const childWrapAttr = this.childWrapAttr||{}
-        const style = Object.assign(childWrapAttr.style||{}, {overflow:this.overflow})
-        return Object.assign(childWrapAttr,{style})
-      }else{
-        return this.childWrapAttr
+        cursor,
       }
     },
-    resizeSticks() {
-      return this._sticks.filter((itme) => itme !== 'angle')
+    _childWrapAttr() {
+      if (this.overflow) {
+        const childWrapAttr = this.childWrapAttr || {}
+        const style = Object.assign(childWrapAttr.style || {}, { overflow: this.overflow })
+        return Object.assign(childWrapAttr, { style })
+      }
+      return this.childWrapAttr
+    },
+    resizeSticks(): string[] {
+      return this._sticks.filter((item) => item !== 'angle')
     },
     sizeLimits() {
       return normalizeSizeLimits({
@@ -256,18 +241,14 @@ export default {
         w: this.width,
         h: this.height,
         r: this.rotate,
-        z:this.zIndex,
+        z: this.zIndex,
         stick: this.currentStick,
-        lock:this.lock,
-        active:this.active,
-        uuid:this.uuid,
-        flipSign:this.flipSign
+        lock: this.lock,
+        active: this.active,
+        uuid: this.uuid,
+        flipSign: this.flipSign,
       }
     },
-  },
-  created(){
-    // 自定义触点hover样式函数，可由组件安装前时通过mixins或extends导入
-    this.hoverRender = this.stickHoverRender || this.$stickHoverRender
   },
   mounted() {
     this.syncWhRatio()
@@ -276,22 +257,19 @@ export default {
       this.init()
     })
   },
-  beforeDestroy() {
+  beforeUnmount() {
     document.documentElement.removeEventListener('mousemove', this.move)
     document.documentElement.removeEventListener('mouseup', this.up)
   },
   methods: {
-    // 初始化
     init() {
       this.cacheRectDomInfo(this.$el)
-
       this.RectDrager = new RectDrager()
       this.RectRotator = new RectRotator()
-
       document.documentElement.addEventListener('mousemove', this.move)
       document.documentElement.addEventListener('mouseup', this.up)
     },
-    move(ev) {
+    move(ev: MouseEvent) {
       if (this.draggable && this.RectDrager.isDrag && !this.stickDrag) {
         this.bodyMove(ev)
       }
@@ -302,7 +280,7 @@ export default {
         this.rotateMove(ev)
       }
     },
-    up(ev) {
+    up(ev: MouseEvent) {
       if (this.draggable && this.RectDrager.isDrag) {
         this.RectDrager.upHandle()
         this.$emit('dragStop', this.posData, ev)
@@ -317,7 +295,7 @@ export default {
       }
       this.syncWhRatio()
     },
-    bodyDown(ev) {
+    bodyDown(ev: MouseEvent) {
       if (!this.activeable) return
       this.currentStick = ''
       this.RectDrager.downHandle(ev, [this.left, this.top], this.$el)
@@ -326,28 +304,28 @@ export default {
         this.$emit('dragStart', this.posData, ev)
       }
     },
-    bodyMove(ev) {
+    bodyMove(ev: MouseEvent) {
       const moveInfo = this.RectDrager.moveHandle(ev)
       this.left = moveInfo[0]
       this.top = moveInfo[1]
       this.$emit('dragging', this.posData, ev)
     },
-    rotateDown(ev) {
+    rotateDown(ev: MouseEvent) {
       if (!this.activeable) return
       this.currentStick = 'angle'
       this.RectRotator.downHandle(ev, this.$el, this.rotate)
       this.$emit('rotateStart', this.posData, ev)
     },
-    rotateMove(ev) {
+    rotateMove(ev: MouseEvent) {
       this.rotate = this.RectRotator.moveHandle(ev)
       this.$emit('rotating', this.posData, ev)
     },
-    cacheRectDomInfo(element) {
+    cacheRectDomInfo(element: HTMLElement) {
       this.elementInfo = getElementGeometricInfo(element)
-      this.parentElement = element.parentNode
+      this.parentElement = element.parentNode as HTMLElement
       this.parentInfo = getElementGeometricInfo(this.parentElement)
     },
-    stickDown(ev, stick, index) {
+    stickDown(ev: MouseEvent, stick: string, index: number) {
       if (!this.activeable || !this.resizeable) return
       this.activeStickIndex = index
       this.syncWhRatio()
@@ -355,39 +333,36 @@ export default {
       this.stickDrag = true
       this.$emit('resizeStart', this.posData, ev)
     },
-    stickDownHandle(stick) {
+    stickDownHandle(stick: string) {
       this.currentStick = stick
       this.cacheRectDomInfo(this.$el)
       this.isMiddlePoint = this.currentStick.match('m')
 
       if (this.stickDrag) return
 
-      // 当前拖拽点的坐标（已旋转时的实际坐标，相对文档左上角）
-      this.absoluteContactor = calcRotatedContactor(this.elementInfo, this.currentStick)
+      const stickKey = this.currentStick as StickType
+      this.absoluteContactor = calcRotatedContactor(this.elementInfo, stickKey) as Point
+      this.symAbsoluteContactor = calcRotatedContactor(
+        this.elementInfo,
+        getSymStick(stickKey) as StickType
+      ) as Point
 
-      // 对称点坐标（相对文档左上角）
-      this.symAbsoluteContactor = calcRotatedContactor(this.elementInfo, getSymStick(stick))
-
-      // 对称点基于父元素中点旋转复位（相对文档左上角）
       const symRotatedContactor = calcRotatedPoint(
         this.symAbsoluteContactor,
         [this.parentInfo.cx, this.parentInfo.cy],
         this.parentInfo.absoluteRotate
       )
 
-      // 对称点相对父元素的点坐标
       this.symRelativeContactor = [
         symRotatedContactor[0] - this.parentInfo.left,
         symRotatedContactor[1] - this.parentInfo.top,
       ]
 
-      // 创建翻转监听器
-      this.RectFliper = new RectFliper(this.elementInfo, stick)
+      this.RectFliper = new RectFliper(this.elementInfo, stickKey)
     },
-    stickMove(ev) {
-      let mousePoint = [ev.clientX, ev.clientY]
+    stickMove(ev: MouseEvent) {
+      let mousePoint: number[] = [ev.clientX, ev.clientY]
 
-      // 当拖拽触点为中点（tm,bm,mr,ml）或锁定比例时，把鼠标点投影到参考线
       if (this.lock || this.isMiddlePoint) {
         mousePoint = calcVerticalCrossPoint(
           mousePoint,
@@ -396,15 +371,13 @@ export default {
         )
       }
 
-      // 计算当前元素旋转复位后的几何信息
-      const {newMousePoint, newSymPoint} = calcRectResetRotated(
+      const { newMousePoint, newSymPoint } = calcRectResetRotated(
         mousePoint,
         this.symRelativeContactor,
         this.parentInfo,
         this.rotate
       )
 
-      // 更新矩形
       const next = computeResize({
         point: newMousePoint,
         symPoint: newSymPoint,
@@ -424,13 +397,12 @@ export default {
         if (next.top !== undefined) this.top = next.top
       }
 
-      // 设置最小尺寸时，缩放到最小值即停止，不再越过边界触发翻转
       if (!hasMinSizeLimit(this.sizeLimits)) {
-        this.RectFliper.borderSignsWatcher(mousePoint, (isDegFlip, sign) => {
+        this.RectFliper.borderSignsWatcher(mousePoint, (isDegFlip: boolean, sign: FlipSign) => {
           this.flipSign = sign
           if (isDegFlip) this.rotate += this.flipSign === '-' ? -180 : 180
           this.$emit('fliped', this.posData, ev)
-          this.stickDownHandle(this.RectFliper.getFlipStick(this.currentStick))
+          this.stickDownHandle(this.RectFliper.getFlipStick(this.currentStick as StickType))
         })
       }
       this.$emit('resizing', this.posData, ev)
@@ -440,9 +412,8 @@ export default {
         this.whRatio = this.width / this.height
       }
     },
-    // 当前尺寸受外部 props 变化影响时，同步落在限制范围内
     limitCurrentSize() {
-      const {width, height} = getLimitedSize({
+      const { width, height } = getLimitedSize({
         width: this.width,
         height: this.height,
         lock: this.lock,
@@ -453,7 +424,7 @@ export default {
       this.width = width
       this.height = height
     },
-    onStickMouseenter(ev, stick) {
+    onStickMouseenter(ev: MouseEvent, stick: string) {
       const cursor = buildStickCursor(
         ev,
         stick,
@@ -462,24 +433,24 @@ export default {
           currentStick: this.currentStick,
           resizeable: this.resizeable,
         },
-        {hoverRender: this.hoverRender}
+        { hoverRender: this.stickHoverRender }
       )
-      if (cursor !== null) ev.target.style.cursor = cursor
+      if (cursor !== null) (ev.target as HTMLElement).style.cursor = cursor
     },
-    onStickMouseout(ev, stick) {
-      if (shouldResetStickCursor(stick, {stickDrag: this.stickDrag})) {
-        ev.target.style.cursor = ''
+    onStickMouseout(ev: MouseEvent, stick: string) {
+      if (shouldResetStickCursor(stick, { stickDrag: this.stickDrag })) {
+        ;(ev.target as HTMLElement).style.cursor = ''
       }
     },
   },
   watch: {
-    x(value) {
+    x(value: number) {
       this.left = value
     },
-    y(value) {
+    y(value: number) {
       this.top = value
     },
-    w(value) {
+    w(value: number) {
       this.width = getLimitedSize({
         width: value,
         height: this.height,
@@ -489,7 +460,7 @@ export default {
         whRatio: getValidWhRatio(this.whRatio),
       }).width
     },
-    h(value) {
+    h(value: number) {
       this.height = getLimitedSize({
         width: this.width,
         height: value,
@@ -511,13 +482,13 @@ export default {
     maxHeight() {
       this.limitCurrentSize()
     },
-    r(value) {
+    r(value: number) {
       this.rotate = value
     },
-    z(value) {
+    z(value: number | string) {
       this.zIndex = value
     },
   },
-}
+})
 </script>
-<style lang="css" src="../core/style/vdr.css"></style>
+<style src="../core/style/vdr.css"></style>

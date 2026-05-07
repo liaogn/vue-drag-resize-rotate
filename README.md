@@ -1,315 +1,112 @@
-## 描述(Describe)
+# vue-drag-resize-rotate
 
-是一个基于 vue2.6 的一个 dom 元素拖拽、缩放和旋转的vue组件；支持宽高触点控制、翻转、子父级(递归)嵌套、锁定比例、层级等功能；提供事件回调，提供元素实时宽高位置等数据；（注：目前仅支持 pc 端web浏览器）组件目前仅实现了拖拽、缩放和旋转核心功能。组件源码简单清晰，内部功能函数封装度较高、有需要可自行修改扩展或参与一起研究开发;
+[![npm version](https://img.shields.io/npm/v/@liaogn/vue-drag-resize-rotate?style=flat-square&color=42b883)](https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate)
+[![npm downloads](https://img.shields.io/npm/dm/@liaogn/vue-drag-resize-rotate?style=flat-square)](https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate)
+[![license](https://img.shields.io/npm/l/@liaogn/vue-drag-resize-rotate?style=flat-square)](./LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/liaogn/vue-drag-resize-rotate/ci.yml?branch=master&style=flat-square)](https://github.com/liaogn/vue-drag-resize-rotate/actions)
 
-## 版本(Version)
+> 简洁、零依赖的 Vue 3 拖拽 / 缩放 / 旋转组件。
 
-最新版本：1.10
+[文档站](https://liaogn.github.io/vue-drag-resize-rotate/) · [English](https://liaogn.github.io/vue-drag-resize-rotate/en/) · [Changelog](./CHANGELOG.md)
 
-## 资源地址(source address)
+## 特性
 
-- [gitHub 地址](https://github.com/liaogn/vue-drag-resize-rotate) 
-- [npm 地址](https://www.npmjs.com/package/@liaogn/vue-drag-resize-rotate) 
-- [Demo演示  地址](https://liaogn.github.io/vue-drag-resize-rotate/dist/index.html?v=20260507)
+- 🎯 **拖拽 / 缩放 / 旋转**：8 触点缩放、独立旋转控件、锁定宽高比、翻转检测
+- 🪄 **任意嵌套**：通过 `childrens` 递归嵌套，子组件操作自动跟随父级旋转坐标系
+- 🎨 **CSS 变量主题**：14 个 `--vdr-*` 变量驱动样式，外层覆写即换肤
+- 📦 **零运行时依赖**：仅 Vue 3 作 peer dep，构建产物含 ESM / UMD / `.d.ts`
+- 🔒 **TypeScript 优先**：完整 props / events / 工具函数类型
 
-## 安装(Install)
+## 安装
 
-```shell
-npm i @liaogn/vue-drag-resize-rotate -S
-// 或
-cnpm i @liaogn/vue-drag-resize-rotate -S
+```bash
+pnpm add @liaogn/vue-drag-resize-rotate
+# 或
+npm install @liaogn/vue-drag-resize-rotate
 ```
 
-## 引入(Import)
+## 快速使用
 
-1、main.js 全局引入
+```ts
+// main.ts
+import { createApp } from 'vue'
+import VueDragResizeRotate from '@liaogn/vue-drag-resize-rotate'
+import '@liaogn/vue-drag-resize-rotate/style.css'
+import App from './App.vue'
 
-```javascript
-import vdr from '@liaogn/vue-drag-resize-rotate';
-// 使用时直接<vdr>...</vdr>
-Vue.use(vdr);
+createApp(App).use(VueDragResizeRotate).mount('#app')
 ```
-
-2、局部引入
 
 ```vue
 <template>
-  <div class='yourDiv'>
-    <vdr :x="100" :y="100"></vdr>
-  </div>
+  <vdr :w="200" :h="150" :x="50" :y="50" @dragging="onChange">
+    <div>drag · resize · rotate</div>
+  </vdr>
 </template>
-<script>
-import vdr from "@liaogn/vue-drag-resize-rotate";
-export default {
-  components: { vdr },
+
+<script setup lang="ts">
+function onChange(pos: { x: number; y: number; w: number; h: number; r: number }) {
+  console.log(pos)
 }
 </script>
 ```
 
+完整 API 见 [Props](https://liaogn.github.io/vue-drag-resize-rotate/guide/props) · [Events](https://liaogn.github.io/vue-drag-resize-rotate/guide/events) · [Slots](https://liaogn.github.io/vue-drag-resize-rotate/guide/slots)。
 
+## 主题定制
 
-## 使用示例(Use)
+通过覆写 CSS 变量即可换肤，无需 override class：
 
-组件属性、方法的用法
+```css
+.my-vdr {
+  --vdr-stick-color: crimson;
+  --vdr-stick-border-radius: 2px;
+  --vdr-stick-size: 20px;
+}
+```
+
+完整变量清单见 [主题定制](https://liaogn.github.io/vue-drag-resize-rotate/guide/theming)。
+
+## 嵌套示例
 
 ```vue
-<template>
-    <vdr
-      :activeable="true"
-      :draggable="true"
-      :resizeable="true"
-      :rotateable="true"
-      :sticks="['tl', 'tm', 'angle', 'tr', 'mr', 'ml', 'bl', 'bm', 'br']"
-      :w="rect.w"
-      :h="rect.h"
-      :min-width="50"
-      :min-height="50"
-      :max-width="500"
-      :max-height="500"
-      :r="rect.r"
-      :x="rect.x"
-      :y="rect.y"
-      :z="rect.z"
-      :bg="rect.bg"
-      :lock="rect.lock"
-      :active="rect.active"
-    />
-<template>
-<script>
-import testImage from '../img/test_1.jpg'
-export default {
-  name: 'test_1',
-  data() {
-    return {
-      rect: {
-        w: 200,
-        h: 182,
-        x: 300,
-        y: 120,
-        r: 0,
-        z: 99,
-        lock: false,
-        active: true,
-        bg: testImage,
-      },
-    }
-  },
+<vdr v-bind="root" />
+
+<script setup lang="ts">
+const root = {
+  uuid: 'root',
+  w: 400, h: 300, x: 40, y: 40,
+  childrens: [
+    { uuid: 'c1', w: 160, h: 100, x: 40, y: 40, r: 15 },
+    { uuid: 'c2', w: 100, h: 100, x: 240, y: 140, lock: true },
+  ],
 }
 </script>
 ```
 
+详见 [嵌套指南](https://liaogn.github.io/vue-drag-resize-rotate/guide/nesting)。
 
+## 版本与兼容
 
-## 参数详情(Props)
+| 版本   | 支持的 Vue | 状态 |
+| ------ | ---------- | ---- |
+| `^2.x` | Vue 3.3+   | ✅ 当前主线 |
+| `^1.x` | Vue 2.6+   | 🛑 已停止维护；安装 `@liaogn/vue-drag-resize-rotate@^1` |
 
-1. **:w** 描述：宽 ；类型：Number ； 默认：100
+v1 → v2 迁移指南见 [CHANGELOG](./CHANGELOG.md#迁移指南v1--v2)。
 
-2. **:h** 描述：高 ；类型：Number ； 默认：100
+## 开发
 
-3. **:min-width** 描述：缩放最小宽度 ；类型：Number ； 默认：0
-
-4. **:min-height** 描述：缩放最小高度 ；类型：Number ； 默认：0
-
-5. **:max-width** 描述：缩放最大宽度 ；类型：Number ； 默认：Infinity
-
-6. **:max-height** 描述：缩放最大高度 ；类型：Number ； 默认：Infinity
-
-7. **:x** 描述：left ；类型：Number ； 默认：0
-
-8. **:y** 描述：top ；类型：Number ； 默认：0
-
-9. **:r** 描述：旋转角度 ；类型：Number ； 默认：0
-
-10. **:z** 描述：层级 ；类型：Number | String ； 默认：auto
-
-11. **:bg** 描述：背景图片 ；类型：String ； 默认：''"
-
-12. **:lock** 描述：锁定宽高比例 ；类型：Boolean ； 默认：false
-
-13. **:active** 描述：激活状态 ；类型：Boolean ； 默认：true
-
-14. **:draggable** 描述：是否可拖动 ；类型：Boolean ； 默认：true
-
-15. **:resizeable** 描述：是否可缩放 ；类型：Boolean ； 默认：true
-
-16. **:rotateable** 描述：是否可旋转 ；类型：Boolean ； 默认：true
-
-17. **:activeable** 描述：是否可激活 ；类型：Boolean ； 默认：true
-
-18. **:uuid** 描述：设置一个唯一id，仅用于需要传递childrens产生嵌套（递归）组件时的key值；类型：String ； 默认：""
-
-19. **:childWrapAttr** 描述：嵌套组件子组件的属性集合；类型：Object； 默认：undefined
-
-20. **:overflow**
-
-    描述：组件插槽包裹overflow（css）属性，如果overflow与childWrapAttr同时定义，则childWrapAttr会合并overflow；
-
-    类型：String； 
-    默认：""
-
-21. **:childrens** 描述：嵌套组件子的参数数组；类型：Object； 默认：undefined
-
-22. **:sticks**
-
-    描述：控件集；
-
-    类型：Array ；
-
-    默认：['tl', 'tm', 'tr', 'mr', 'ml', 'bl', 'bm', 'br', 'angle'] 对应 8 个缩放控件和旋转控件(不分顺序)，传入空数组则不显示任何控件。
-
-    
-
-## 事件(Event)
-
-1. **activated(pos, event) 点击选中元素** 参数：pos [Object] 位置信息；event  [Object]  原生事件；
-2. **dragStart(pos, event) 拖拽开始** 参数：pos [Object] 位置信息；event [Object]   原生事件；
-3. **dragging(pos, event) 拖拽中** 参数：pos [Object] 位置信息；event [Object]   原生事件；
-4. **dragStop(pos, event) 拖拽停止** 参数：pos [Object] 位置信息；event [Object]   原生事件；
-5. **resizeStart(pos, event) 缩放开始** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-6. **resizing(pos, event) 缩放中** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-7. **resizeStop(pos, event) 缩放结束** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-8. **rotateStart(pos, event) 旋转开始** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-9. **rotating(pos, event) 旋转中** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-10. **rotateStop(pos, event) 旋转停止** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-11. **fliped(pos, event) 翻转** 参数：pos [Object] 位置信息；event [Object]  原生事件；
-
-```javascript
-// pos参数详情
-{
-  uuid:'xxx',// uuid
-  left:0,// 相对父元素的left
-  top:0,// 相对父元素的top
-  widht:200,// 宽
-  height:300,// 高
-  rotate:0,// 旋转角
-  stick:'tl'// 当前操作的控件类型
-  lock:false, // 比例是否锁定
-  active:true,// 是否在选中状态
-  flipSign:'+' // 正向("+")翻转还是反("-")向翻转；
-}
+```bash
+pnpm install
+pnpm dev          # playground
+pnpm docs:dev     # 文档站
+pnpm type-check
+pnpm build        # 产出 dist/
 ```
 
+参与贡献请见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
+## License
 
-## 组件嵌套(Recursion)
-
-组件实现了通过传入childrens参数进行组件递归嵌套。嵌套层级是否需要overflow:hidden的效果，可以通过传入参数overflow或childWrapAttr控制样式，若有这两个参数之一，会给子组件包裹一层div，来实现overflow:hidden效果
-
-```vue
-<template>
-   <vdr v-bind="rect"/>
-</template>
-<script>
-import testImage from '../img/test_1.jpg'
-export default {
-  data() {
-    return {
-      rect: {
-        w: 400,
-        h: 350,
-        x: 235,
-        y: 125,
-        r: 0,
-        z: 99,
-        lock: false,
-        active: true,
-        uuid:'1',
-        childrens:[
-          {
-            w: 250,
-            h: 250,
-            x: 70,
-            y: 53,
-            r: 30,
-            lock: true,
-            active: true,
-            uuid:'2_1',
-            overflow:'hidden',
-            childrens:[
-             // ...
-            ]
-          }
-        ]
-      },
-    }
-  },
-}
-</script>
-```
-
-
-
-## 插槽(Slot)
-
-组件提供了一个默认插槽
-
-```vue
-<template>
-   <vdr :w="200" :h="200" >
-       <div>我是一个插槽</div>
-   </vdr>
-   <vdr :w="200" :h="200" >
-       <vdr>插槽组件自嵌套</vdr>
-   </vdr>
-</template>
-```
-
-
-
-## 控件样式(Style)
-
-1、可通过在组件上定义class、style、或选取组件内部class定义css，来修改组件内部控件样式，例如：
-
-```vue
-<template>
-     <!-- 修改触点框颜色 -->
-    <vdr class="vdr_test_2" style="outline: 1px solid brown" />
-     <!-- 修改触点background透明 -->
-    <vdr class="vdr_test_1">
-</template>
-<style>
-  .vdr_test_2 .vdr-stick {
-      border-radius: 0;
-      border-color: brown;
-  }
-  .vdr_test_1 .vdr-stick{
-      background: transparent;
-  }
-</style>    
-```
-
-2、通过组件扩展修改触点hover的icon(目前只支持svg)
-
-```js
-// main.js（你的组件引入文件）
-
-// hover时的方向图标是使用svg转base64, 然后定义style属性cursor:url(base64....) x y ,auto;来实现的
-// 在组件上实现了可通过extends、mixins或Vue.prototype定义图标渲染回调函数stickHoverRender
-// stickHoverRender要求return返回一个包含svg的字符串，和cursor偏移值x，y（x、y默认值16）
-// 函数提供一个回调参数（当前方向角度），该参数需要插入svg字符串style="transform:rotate(xxxdeg)"里面，控制方向
-
-// extends 扩展组件
-vdr.extends = {
-  methods:{
-    stickHoverRender(cursorRotate){
-    return {
-          x:16, // cursor的x偏移值
-          y:16, // cursor的y偏移值
-          htmlText:`<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="crimson" stroke="black" style="transform: rotate(\${cursorRotate}deg);transform-origin: 16px 16px;"></path></svg>`
-        }
-    }
-  }
-}
-
-// 或使用mixins
-
-// 或全局定义
-Vue.prototype.$stickHoverRender = function(cursorRotate){
-    return {
-          x:16, // cursor的x偏移值
-          y:16, // cursor的y偏移值
-          htmlText:`<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="crimson" stroke="black" style="transform: rotate(\${cursorRotate}deg);transform-origin: 16px 16px;"></path></svg>`
-        }
-}
-```
-
+[MIT](./LICENSE) © liaogn

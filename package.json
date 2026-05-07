@@ -1,62 +1,81 @@
 {
   "name": "@liaogn/vue-drag-resize-rotate",
-  "version": "1.2.0",
-  "description": "Vue drag resize & rotate,Simple source code!",
+  "version": "2.0.0",
+  "description": "Vue 3 component for dragging, resizing, and rotating DOM elements. Simple, dependency-free, supports nesting / aspect-lock / flipping.",
   "private": false,
-  "main": "./lib/VueDragResizeRotate.common.js",
+  "type": "module",
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
   "files": [
-    "lib",
-    "src"
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
   ],
   "keywords": [
     "vue",
+    "vue3",
     "drag",
     "resize",
-    "rotate"
+    "rotate",
+    "draggable",
+    "resizable",
+    "rotatable"
   ],
   "author": "liaogn",
-  "license": "ISC",
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib --name VueDragResizeRotate --dest lib src/index.js"
+  "license": "MIT",
+  "homepage": "https://github.com/liaogn/vue-drag-resize-rotate#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liaogn/vue-drag-resize-rotate.git"
   },
-  "dependencies": {
-    "@highlightjs/vue-plugin": "^1.0.2",
-    "core-js": "^3.32.0",
-    "highlight.js": "^11.9.0",
-    "vue": "^2.7.14"
+  "bugs": {
+    "url": "https://github.com/liaogn/vue-drag-resize-rotate/issues"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build --mode lib",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint . --ext .js,.ts,.vue",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.6",
-    "@vue/babel-preset-app": "^5.0.8",
-    "@vue/cli-plugin-babel": "^5.0.8",
-    "@vue/cli-plugin-eslint": "^5.0.8",
-    "@vue/cli-service": "^5.0.8",
-    "babel-plugin-component": "^1.1.1",
-    "eslint": "^8.56.0",
-    "eslint-plugin-vue": "^9.18.1",
-    "node-sass": "^7.0.0",
-    "sass-loader": "^13.3.2",
-    "vue-template-compiler": "^2.7.14"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {
-      "no-console": "off",
-      "vue/multi-word-component-names": "off"
-    },
-    "parserOptions": {
-      "parser": "@babel/eslint-parser",
-      "requireConfigFile": false
-    }
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^22.10.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitepress-demo-preview/component": "^2.6.2",
+    "@vitepress-demo-preview/plugin": "^1.4.1",
+    "@vue/eslint-config-typescript": "^14.1.4",
+    "eslint": "^9.16.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.3",
+    "vite-plugin-dts": "^4.3.0",
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.1.10"
   }
 }

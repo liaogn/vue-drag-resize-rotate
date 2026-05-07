@@ -1,4 +1,6 @@
-export {contactorMaps, getSymStick} from './geometry/maps'
+export * from './types'
+
+export { contactorMaps, getSymStick } from './geometry/maps'
 export {
   calcLineSlope,
   calcVerticalCrossPoint,
@@ -6,6 +8,7 @@ export {
   calcRotatedPoint,
   calcRotatedContactor,
   calcBorderLineEquation,
+  type LineEquation,
 } from './geometry/calc'
 export {
   clampSize,
@@ -13,6 +16,7 @@ export {
   hasMinSizeLimit,
   getValidWhRatio,
   getLimitedSize,
+  type GetLimitedSizeInput,
 } from './geometry/size'
 
 export {
@@ -21,11 +25,11 @@ export {
   getParentsRotate,
   getAbsoluteRotate,
 } from './dom/rotate'
-export {getElementGeometricInfo} from './dom/element'
+export { getElementGeometricInfo } from './dom/element'
 
-export {default as RectDrager} from './controllers/RectDrager'
-export {default as RectRotator} from './controllers/RectRotator'
-export {default as RectFliper} from './controllers/RectFliper'
+export { default as RectDrager } from './controllers/RectDrager'
+export { default as RectRotator } from './controllers/RectRotator'
+export { default as RectFliper } from './controllers/RectFliper'
 
 export {
   calcRectResetRotated,
@@ -34,6 +38,7 @@ export {
   getResizeHeight,
   renderLimitedRect,
   computeResize,
+  type ComputeResizeInput,
 } from './resize/computeResize'
 
 export {
@@ -42,4 +47,5 @@ export {
   getCursorIconRotate,
   buildStickCursor,
   shouldResetStickCursor,
+  type BuildStickCursorOptions,
 } from './cursor/stickCursor'
