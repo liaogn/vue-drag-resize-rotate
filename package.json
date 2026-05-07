@@ -3,7 +3,11 @@
   "version": "1.2.0",
   "description": "Vue drag resize & rotate,Simple source code!",
   "private": false,
-  "main": "./src/index.js",
+  "main": "./lib/VueDragResizeRotate.common.js",
+  "files": [
+    "lib",
+    "src"
+  ],
   "keywords": [
     "vue",
     "drag",
