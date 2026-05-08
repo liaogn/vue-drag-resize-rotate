@@ -6,6 +6,7 @@ node_modules/
 dist/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+docs/.vitepress/.temp/
 
 # 仅使用 pnpm 作为包管理器，禁止其他工具的 lock 文件入库
 package-lock.json

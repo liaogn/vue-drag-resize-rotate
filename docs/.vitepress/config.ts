@@ -101,7 +101,10 @@ export default defineConfig({
             },
             {
               text: 'API',
-              items: [{ text: 'Props', link: '/en/guide/props' }],
+              items: [
+                { text: 'Props', link: '/en/guide/props' },
+                { text: 'Events', link: '/en/guide/events' },
+              ],
             },
           ],
         },
