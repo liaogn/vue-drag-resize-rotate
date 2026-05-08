@@ -1,5 +1,6 @@
 .DS_Store
 node_modules/
+.codex/
 
 # build artifacts
 dist/
@@ -29,5 +30,5 @@ pnpm-debug.log*
 *.sln
 *.sw*
 
-# legacy reference (留作参照，不打包发布)
-legacy/node_modules/
+# legacy reference (留作参照,后续会删除)
+legacy/
