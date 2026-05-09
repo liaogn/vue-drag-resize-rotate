@@ -18,6 +18,16 @@ export {
   getLimitedSize,
   type GetLimitedSizeInput,
 } from './geometry/size'
+export {
+  hasBoundary,
+  getRotatedRectAABB,
+  getBoundaryShift,
+  isRectInsideLimits,
+  clampPositionWithinLimits,
+  fitResizeWithinLimits,
+  type LimitRange,
+  type AABB,
+} from './geometry/boundary'
 
 export {
   angleToRadian,

@@ -75,6 +75,11 @@ import {
   computeResize,
   buildStickCursor,
   shouldResetStickCursor,
+  hasBoundary,
+  clampPositionWithinLimits,
+  isRectInsideLimits,
+  fitResizeWithinLimits,
+  type LimitRange,
   type ElementGeometricInfo,
   type FlipSign,
   type Point,
@@ -143,6 +148,28 @@ export default defineComponent({
     stickHoverRender: {
       type: Function as PropType<StickHoverRender>,
       default: undefined,
+    },
+    limitX: {
+      type: Array as unknown as PropType<[number, number] | null>,
+      default: null,
+      validator: (val: unknown) =>
+        val === null ||
+        (Array.isArray(val) &&
+          val.length === 2 &&
+          typeof val[0] === 'number' &&
+          typeof val[1] === 'number' &&
+          val[0] <= val[1]),
+    },
+    limitY: {
+      type: Array as unknown as PropType<[number, number] | null>,
+      default: null,
+      validator: (val: unknown) =>
+        val === null ||
+        (Array.isArray(val) &&
+          val.length === 2 &&
+          typeof val[0] === 'number' &&
+          typeof val[1] === 'number' &&
+          val[0] <= val[1]),
     },
   },
   emits: [
@@ -234,6 +261,12 @@ export default defineComponent({
         maxHeight: this.maxHeight,
       })
     },
+    _limitX(): LimitRange {
+      return this.limitX as LimitRange
+    },
+    _limitY(): LimitRange {
+      return this.limitY as LimitRange
+    },
     posData() {
       return {
         x: this.left,
@@ -253,6 +286,7 @@ export default defineComponent({
   mounted() {
     this.syncWhRatio()
     this.limitCurrentSize()
+    this.applyBoundaryToCurrent()
     this.$nextTick(() => {
       this.init()
     })
@@ -306,8 +340,30 @@ export default defineComponent({
     },
     bodyMove(ev: MouseEvent) {
       const moveInfo = this.RectDrager.moveHandle(ev)
-      this.left = moveInfo[0]
-      this.top = moveInfo[1]
+      let nextLeft = moveInfo[0]
+      let nextTop = moveInfo[1]
+      if (hasBoundary(this._limitX, this._limitY)) {
+        const clamped = clampPositionWithinLimits(
+          {
+            left: nextLeft,
+            top: nextTop,
+            width: this.width,
+            height: this.height,
+            rotate: this.rotate,
+          },
+          this._limitX,
+          this._limitY
+        )
+        if (clamped.fits) {
+          nextLeft = clamped.left
+          nextTop = clamped.top
+        } else {
+          nextLeft = this.left
+          nextTop = this.top
+        }
+      }
+      this.left = nextLeft
+      this.top = nextTop
       this.$emit('dragging', this.posData, ev)
     },
     rotateDown(ev: MouseEvent) {
@@ -317,13 +373,47 @@ export default defineComponent({
       this.$emit('rotateStart', this.posData, ev)
     },
     rotateMove(ev: MouseEvent) {
-      this.rotate = this.RectRotator.moveHandle(ev)
+      const nextRotate = this.RectRotator.moveHandle(ev)
+      if (hasBoundary(this._limitX, this._limitY)) {
+        const clamped = clampPositionWithinLimits(
+          {
+            left: this.left,
+            top: this.top,
+            width: this.width,
+            height: this.height,
+            rotate: nextRotate,
+          },
+          this._limitX,
+          this._limitY
+        )
+        if (!clamped.fits) {
+          // 旋转后矩形 AABB 比区间还大 → 拒绝该旋转
+          return
+        }
+        this.rotate = nextRotate
+        this.left = clamped.left
+        this.top = clamped.top
+      } else {
+        this.rotate = nextRotate
+      }
       this.$emit('rotating', this.posData, ev)
     },
     cacheRectDomInfo(element: HTMLElement) {
       this.elementInfo = getElementGeometricInfo(element)
       this.parentElement = element.parentNode as HTMLElement
       this.parentInfo = getElementGeometricInfo(this.parentElement)
+    },
+    /**
+     * 翻转触发的 stickDownHandle 紧跟 data 修改而来，但 Vue 的 DOM patch 是异步的，
+     * 此刻 getBoundingClientRect 仍读到旧的 transform/size。这里在读 DOM 之前
+     * 同步把当前 data 写入 style，保证后续几何信息与 data 一致。
+     */
+    syncDomToData() {
+      const el = this.$el as HTMLElement | undefined
+      if (!el || !el.style) return
+      el.style.width = `${this.width}px`
+      el.style.height = `${this.height}px`
+      el.style.transform = `translate3d(${this.left}px,${this.top}px,0) rotateZ(${this.rotate}deg)`
     },
     stickDown(ev: MouseEvent, stick: string, index: number) {
       if (!this.activeable || !this.resizeable) return
@@ -335,6 +425,7 @@ export default defineComponent({
     },
     stickDownHandle(stick: string) {
       this.currentStick = stick
+      this.syncDomToData()
       this.cacheRectDomInfo(this.$el)
       this.isMiddlePoint = this.currentStick.match('m')
 
@@ -391,10 +482,40 @@ export default defineComponent({
         symRelativeContactor: this.symRelativeContactor,
       })
       if (next) {
-        this.width = next.width
-        this.height = next.height
-        if (next.left !== undefined) this.left = next.left
-        if (next.top !== undefined) this.top = next.top
+        let result = next
+        if (
+          hasBoundary(this._limitX, this._limitY) &&
+          !isRectInsideLimits(
+            {
+              left: next.left ?? this.left,
+              top: next.top ?? this.top,
+              width: next.width,
+              height: next.height,
+              rotate: this.rotate,
+            },
+            this._limitX,
+            this._limitY
+          )
+        ) {
+          result = fitResizeWithinLimits(
+            {
+              width: next.width,
+              height: next.height,
+              stick: this.currentStick as StickType,
+              rotate: this.rotate,
+              symRelativeContactor: this.symRelativeContactor,
+              lock: this.lock,
+              whRatio: getValidWhRatio(this.whRatio),
+              limits: this.sizeLimits,
+            },
+            this._limitX,
+            this._limitY
+          )
+        }
+        this.width = result.width
+        this.height = result.height
+        if (result.left !== undefined) this.left = result.left
+        if (result.top !== undefined) this.top = result.top
       }
 
       if (!hasMinSizeLimit(this.sizeLimits)) {
@@ -424,6 +545,24 @@ export default defineComponent({
       this.width = width
       this.height = height
     },
+    applyBoundaryToCurrent() {
+      if (!hasBoundary(this._limitX, this._limitY)) return
+      const clamped = clampPositionWithinLimits(
+        {
+          left: this.left,
+          top: this.top,
+          width: this.width,
+          height: this.height,
+          rotate: this.rotate,
+        },
+        this._limitX,
+        this._limitY
+      )
+      if (clamped.fits) {
+        this.left = clamped.left
+        this.top = clamped.top
+      }
+    },
     onStickMouseenter(ev: MouseEvent, stick: string) {
       const cursor = buildStickCursor(
         ev,
@@ -446,9 +585,11 @@ export default defineComponent({
   watch: {
     x(value: number) {
       this.left = value
+      this.applyBoundaryToCurrent()
     },
     y(value: number) {
       this.top = value
+      this.applyBoundaryToCurrent()
     },
     w(value: number) {
       this.width = getLimitedSize({
@@ -484,9 +625,22 @@ export default defineComponent({
     },
     r(value: number) {
       this.rotate = value
+      this.applyBoundaryToCurrent()
     },
     z(value: number | string) {
       this.zIndex = value
+    },
+    limitX: {
+      handler() {
+        this.applyBoundaryToCurrent()
+      },
+      deep: true,
+    },
+    limitY: {
+      handler() {
+        this.applyBoundaryToCurrent()
+      },
+      deep: true,
     },
   },
 })

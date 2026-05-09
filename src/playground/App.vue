@@ -153,6 +153,168 @@
           </vdr>
         </div>
       </section>
+      <!-- 11. 边界限制 limit-x / limit-y -->
+      <section class="scene">
+        <h2>11. 边界限制 limit-x / limit-y</h2>
+        <p class="info">
+          x=[{{ bound.lx0 }},{{ bound.lx1 }}] · y=[{{ bound.ly0 }},{{ bound.ly1 }}] ·
+          pos=({{ fmt(boundPos.x) }},{{ fmt(boundPos.y) }}) · {{ fmt(boundPos.w) }}×{{
+            fmt(boundPos.h)
+          }} · r={{ fmt(boundPos.r) }}°
+        </p>
+        <div class="toggles">
+          <label>
+            x max
+            <input type="range" min="120" max="380" step="10" v-model.number="bound.lx1" />
+            {{ bound.lx1 }}
+          </label>
+          <label>
+            y max
+            <input type="range" min="120" max="320" step="10" v-model.number="bound.ly1" />
+            {{ bound.ly1 }}
+          </label>
+          <label><input type="checkbox" v-model="bound.lock" /> lock</label>
+          <button type="button" @click="resetBound">reset</button>
+        </div>
+        <div class="stage">
+          <div
+            class="boundary-hint"
+            :style="{
+              position: 'absolute',
+              left: bound.lx0 + 'px',
+              top: bound.ly0 + 'px',
+              width: bound.lx1 - bound.lx0 + 'px',
+              height: bound.ly1 - bound.ly0 + 'px',
+              outline: '2px dashed #fa541c',
+              pointerEvents: 'none',
+            }"
+          ></div>
+          <vdr
+            :key="boundKey"
+            :w="boundPos.w"
+            :h="boundPos.h"
+            :x="boundPos.x"
+            :y="boundPos.y"
+            :r="boundPos.r"
+            :lock="bound.lock"
+            :limit-x="[bound.lx0, bound.lx1]"
+            :limit-y="[bound.ly0, bound.ly1]"
+            @dragging="updateBound"
+            @resizing="updateBound"
+            @rotating="updateBound"
+            @fliped="updateBound"
+          >
+            <div class="card">bounded · drag / resize / rotate / flip</div>
+          </vdr>
+        </div>
+      </section>
+
+      <!-- 12. 边界 + min/max 尺寸限制 -->
+      <section class="scene">
+        <h2>12. 边界 + min/max（交叉验证）</h2>
+        <p class="info">
+          limit=[0,280]×[0,240]，min 60×60，max 240×200；缩放在 min 与边界双重约束下正确收敛，翻转已禁用
+        </p>
+        <div class="stage">
+          <div
+            class="boundary-hint"
+            :style="{
+              position: 'absolute',
+              left: '0px',
+              top: '0px',
+              width: '280px',
+              height: '240px',
+              outline: '2px dashed #13c2c2',
+              pointerEvents: 'none',
+            }"
+          ></div>
+          <vdr
+            :w="140"
+            :h="110"
+            :x="30"
+            :y="30"
+            :r="10"
+            :min-width="60"
+            :min-height="60"
+            :max-width="240"
+            :max-height="200"
+            :limit-x="[0, 280]"
+            :limit-y="[0, 240]"
+          >
+            <div class="card alt">bounded + min/max</div>
+          </vdr>
+        </div>
+      </section>
+
+      <!-- 13. 嵌套 + limit-x / limit-y -->
+      <section class="scene">
+        <h2>13. 嵌套 + limit（父子各自的坐标系）</h2>
+        <p class="info">
+          外层 limit 在 stage 内；子元素 limit 在父 vdr 内（父旋转/缩放后子限制仍生效）
+        </p>
+        <div class="stage">
+          <!-- 外层边界提示（在 stage 坐标系） -->
+          <div
+            :style="{
+              position: 'absolute',
+              left: '0px',
+              top: '0px',
+              width: '320px',
+              height: '260px',
+              outline: '2px dashed #fa541c',
+              pointerEvents: 'none',
+            }"
+          ></div>
+          <vdr
+            :w="280"
+            :h="220"
+            :x="20"
+            :y="20"
+            :r="0"
+            :limit-x="[0, 320]"
+            :limit-y="[0, 260]"
+            uuid="nest-root"
+          >
+            <!-- 子元素的边界提示（在父 vdr 坐标系，不带旋转） -->
+            <div
+              :style="{
+                position: 'absolute',
+                left: '10px',
+                top: '10px',
+                width: '260px',
+                height: '200px',
+                outline: '2px dashed #13c2c2',
+                pointerEvents: 'none',
+              }"
+            ></div>
+            <vdr
+              :w="120"
+              :h="90"
+              :x="30"
+              :y="30"
+              :r="15"
+              :limit-x="[10, 270]"
+              :limit-y="[10, 210]"
+              uuid="nest-child-a"
+            >
+              <div class="card">child A</div>
+            </vdr>
+            <vdr
+              :w="80"
+              :h="80"
+              :x="160"
+              :y="100"
+              :r="-10"
+              :lock="true"
+              :limit-x="[10, 270]"
+              :limit-y="[10, 210]"
+              uuid="nest-child-b"
+            >
+              <div class="card alt">child B (lock)</div>
+            </vdr>
+          </vdr>
+        </div>
+      </section>
     </main>
   </div>
 </template>
@@ -281,6 +443,27 @@ export default defineComponent({
       () => themes.find((t) => t.name === theme.value)?.vars ?? {}
     )
 
+    const boundInitial = { w: 120, h: 100, x: 40, y: 40, r: 20 }
+    const boundPos = reactive({ ...boundInitial })
+    const bound = reactive({ lx0: 0, lx1: 300, ly0: 0, ly1: 260, lock: false })
+    const boundKey = ref(0)
+    function updateBound(pos: any) {
+      boundPos.x = pos.x
+      boundPos.y = pos.y
+      boundPos.w = pos.w
+      boundPos.h = pos.h
+      boundPos.r = pos.r
+    }
+    function resetBound() {
+      Object.assign(boundPos, boundInitial)
+      bound.lx0 = 0
+      bound.lx1 = 300
+      bound.ly0 = 0
+      bound.ly1 = 260
+      bound.lock = false
+      boundKey.value++
+    }
+
     return {
       basic,
       updateBasic,
@@ -293,6 +476,20 @@ export default defineComponent({
       themes,
       theme,
       currentTheme,
+      boundPos,
+      bound,
+      boundKey,
+      updateBound,
+      resetBound,
+      boundaryHintStyle: {
+        position: 'absolute',
+        left: '0px',
+        top: '0px',
+        width: '300px',
+        height: '260px',
+        outline: '2px dashed #fa541c',
+        pointerEvents: 'none',
+      } as Record<string, string>,
     }
   },
 })
