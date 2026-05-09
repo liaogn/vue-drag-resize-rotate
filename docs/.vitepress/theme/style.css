@@ -1,0 +1,143 @@
+/* Documentation layout polish.
+ * Header layout stays owned by VitePress. These rules only tune docs content and sidebar.
+ */
+
+@media (min-width: 960px) {
+  :root {
+    --vp-sidebar-width: 264px;
+  }
+
+  .VPContent.has-sidebar {
+    padding-top: var(--vp-nav-height);
+  }
+
+  .VPContent.has-sidebar .VPDoc:not(.vdr-home-page) {
+    padding-top: 36px;
+  }
+
+  .VPContent.has-sidebar .VPDoc:not(.vdr-home-page) .container {
+    max-width: 1160px;
+  }
+
+  .VPContent.has-sidebar .VPDoc:not(.vdr-home-page) .content {
+    padding-bottom: 96px;
+  }
+
+  .VPContent.has-sidebar .VPDoc:not(.vdr-home-page) .aside {
+    padding-top: 20px;
+  }
+
+  .VPSidebar {
+    top: var(--vp-nav-height) !important;
+    height: calc(100vh - var(--vp-nav-height)) !important;
+    padding: 24px 12px 32px 72px !important;
+    background: var(--vp-sidebar-bg-color) !important;
+  }
+
+  .VPSidebar .curtain {
+    display: none !important;
+  }
+
+  .VPNavBarTitle.has-sidebar {
+    border-bottom: 0 !important;
+    a {
+      border: none !important;
+    }
+  }
+
+  .VPNavBar .divider {
+    padding-left: 0 !important;
+  }
+
+  .VPNavBar .divider-line {
+    width: 100% !important;
+  }
+}
+
+.VPSidebar .nav {
+  padding: 0 !important;
+}
+
+.VPSidebar .group {
+  padding: 10px 0 14px !important;
+  border-top: 0 !important;
+}
+
+.VPSidebar .group + .group {
+  margin-top: 8px;
+  padding-top: 20px !important;
+  border-top: 1px solid var(--vp-c-divider) !important;
+}
+
+.VPSidebarItem.level-0 > .item {
+  min-height: 30px;
+  padding: 0 8px !important;
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  color: var(--vp-c-text-1) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em;
+}
+
+.VPSidebarItem.level-0 > .items {
+  margin-top: 10px;
+}
+
+.VPSidebarItem.level-1 > .item {
+  min-height: 36px;
+  padding: 0 !important;
+}
+
+.VPSidebarItem.level-1 .link {
+  display: flex !important;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 12px !important;
+  border-radius: 9px;
+  color: var(--vp-c-text-2) !important;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.VPSidebarItem.level-1 .link:hover {
+  background: color-mix(in srgb, var(--vp-c-brand-1) 8%, transparent);
+  color: var(--vp-c-brand-1) !important;
+}
+
+.VPSidebarItem.level-1 .link .text {
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  line-height: 1.2;
+}
+
+.VPSidebarItem.level-1.is-active .link,
+.VPSidebarItem.level-1 .link.active {
+  background: color-mix(in srgb, var(--vp-c-brand-1) 12%, transparent);
+  color: var(--vp-c-brand-1) !important;
+}
+
+.VPSidebarItem .indicator {
+  display: none !important;
+}
+
+@media (max-width: 959px) {
+  .VPSidebar {
+    top: var(--vp-nav-height) !important;
+    width: min(286px, calc(100vw - 56px)) !important;
+    height: calc(100vh - var(--vp-nav-height)) !important;
+    padding: 18px 16px 28px !important;
+    background: rgba(248, 250, 255, 0.98) !important;
+    box-shadow: 18px 0 48px rgba(32, 52, 92, 0.12);
+  }
+
+  .VPSidebar .curtain {
+    display: none !important;
+  }
+
+  .VPDoc:not(.vdr-home-page) {
+    padding-top: 24px;
+  }
+}

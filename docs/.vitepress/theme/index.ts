@@ -4,6 +4,7 @@ import { AntDesignContainer } from '@vitepress-demo-preview/component'
 import VueDragResizeRotate from '../../../src/index'
 import '@vitepress-demo-preview/component/dist/style.css'
 import '../../../src/core/style/vdr.css'
+import './style.css'
 
 export default {
   extends: DefaultTheme,
