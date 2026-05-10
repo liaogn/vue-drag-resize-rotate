@@ -9,7 +9,7 @@
  *
  * 所有变量按"色彩 / 尺寸 / 行为 / 其他" 4 组划分。
  * ========================================================================= */
-.vdr {
+:root {
   /* ---- 色彩 ---- */
   --vdr-stick-color: #2db7f5;
   --vdr-stick-bg: #fff;
@@ -31,7 +31,9 @@
   /* ---- 行为 ---- */
   --vdr-stick-transition: box-shadow 0.1s;
   --vdr-rotate-cursor: crosshair;
+}
 
+.vdr {
   /* ---- 基础布局 ---- */
   position: absolute;
   left: 0;
@@ -110,12 +112,12 @@
   left: 50%;
   transform: translate(-50%, calc(var(--vdr-angle-offset) * -1));
   cursor: var(--vdr-rotate-cursor);
-  z-index: 1;
+  z-index: 9;
 }
 
 .vdr-stick-rotate-line {
   position: absolute;
-  z-index: 0;
+  z-index: 8;
   width: 1px;
   left: 50%;
   top: calc(var(--vdr-rotate-line-offset) * -1);
@@ -129,8 +131,16 @@
   cursor: var(--vdr-rotate-cursor);
 }
 
-.vdr-active {
+.vdr-outline {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 8;
+  width: 100%;
+  height: 100%;
   outline: var(--vdr-active-outline-width) solid var(--vdr-active-outline-color);
+  pointer-events: none;
 }
 
 .vdr-not-active {

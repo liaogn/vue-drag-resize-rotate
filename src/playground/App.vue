@@ -22,6 +22,7 @@
             :x="basic.x"
             :y="basic.y"
             :r="basic.r"
+            overflow="hidden"
             @dragging="updateBasic"
             @resizing="updateBasic"
             @rotating="updateBasic"
@@ -38,7 +39,7 @@
           <p class="info">中点和角点缩放时都强制保持宽高比</p>
         </div>
         <div class="stage">
-          <vdr v-bind="lockedRect" :lock="true">
+          <vdr v-bind="lockedRect" overflow="hidden" :lock="true">
             <div class="card alt">lock</div>
           </vdr>
         </div>
@@ -70,8 +71,8 @@
           <p class="info">未设 min，越过对边触发翻转（fliped 事件计数: {{ flipCount }}）</p>
         </div>
         <div class="stage">
-          <vdr v-bind="flipRect" @fliped="flipCount++">
-            <div class="card warn">把我拽过对边</div>
+          <vdr overflow="hidden" v-bind="flipRect" @fliped="flipCount++">
+            <div class="card warn">拖拽触点实现翻转</div>
           </vdr>
         </div>
       </section>
@@ -83,7 +84,7 @@
           <p class="info">父子级递归，子组件操作时坐标系跟随父级旋转</p>
         </div>
         <div class="stage">
-          <vdr v-bind="nestedRoot" />
+          <vdr v-bind="nestedRoot"  />
         </div>
       </section>
 
@@ -105,7 +106,7 @@
           <p class="info">只显示四角 + 旋转，不显示中点</p>
         </div>
         <div class="stage">
-          <vdr v-bind="centerRect180x140" :sticks="['tl', 'tr', 'bl', 'br', 'angle']">
+          <vdr overflow="hidden" v-bind="centerRect180x140" :sticks="['tl', 'tr', 'bl', 'br', 'angle']">
             <div class="card alt">corners only</div>
           </vdr>
         </div>
@@ -118,7 +119,7 @@
           <p class="info">把 hover 箭头换成红色双箭头</p>
         </div>
         <div class="stage">
-          <vdr v-bind="centerRect180x140" :stick-hover-render="redArrowRender">
+          <vdr overflow="hidden" v-bind="centerRect180x140" :stick-hover-render="redArrowRender">
             <div class="card warn">custom cursor</div>
           </vdr>
         </div>
@@ -143,6 +144,7 @@
             :draggable="flags.draggable"
             :resizeable="flags.resizeable"
             :rotateable="flags.rotateable"
+            overflow="hidden"
           >
             <div class="card">flags</div>
           </vdr>
@@ -162,7 +164,7 @@
           </div>
         </div>
         <div class="stage" :style="currentTheme">
-          <vdr v-bind="centerRect180x140">
+          <vdr overflow="hidden" v-bind="centerRect180x140">
             <div class="card alt">themed</div>
           </vdr>
         </div>
@@ -217,6 +219,7 @@
         <div class="stage">
           <div class="boundary-hint boundary-hint--cyan" :style="boundaryHintStyle"></div>
           <vdr
+            overflow="hidden"
             v-bind="boundedMinMaxRect"
             :min-width="60"
             :min-height="60"
@@ -243,6 +246,7 @@
             :limit-x="[bound.lx0, bound.lx1]"
             :limit-y="[bound.ly0, bound.ly1]"
             uuid="nest-root"
+            overflow="hidden"
           >
             <div class="boundary-hint boundary-hint--cyan" :style="nestedChildBoundaryStyle"></div>
             <vdr
@@ -254,6 +258,7 @@
               :limit-x="[12, 268]"
               :limit-y="[12, 208]"
               uuid="nest-child-a"
+              overflow="hidden"
             >
               <div class="card">child A</div>
             </vdr>
@@ -267,6 +272,7 @@
               :limit-x="[12, 268]"
               :limit-y="[12, 208]"
               uuid="nest-child-b"
+              overflow="hidden"
             >
               <div class="card alt">child B (lock)</div>
             </vdr>
@@ -372,7 +378,7 @@ export default defineComponent({
     const nestedRoot = {
       ...centerRect(320, 220),
       uuid: 'root',
-      childWrapAttr: { class: 'vdr-fill vdr-fill--root' },
+      childWrapAttr: { class: 'vdr-fill vdr-fill--root', 'data-label': '父级容器' },
       childrens: [
         {
           w: 140,
@@ -381,7 +387,8 @@ export default defineComponent({
           y: 40,
           r: 15,
           uuid: 'child-1',
-          childWrapAttr: { class: 'vdr-fill vdr-fill--child-a' },
+          overflow: 'hidden',
+          childWrapAttr: { class: 'vdr-fill vdr-fill--child-a', 'data-label': '子元素 A' },
         },
         {
           w: 90,
@@ -391,7 +398,8 @@ export default defineComponent({
           r: -10,
           lock: true,
           uuid: 'child-2',
-          childWrapAttr: { class: 'vdr-fill vdr-fill--child-b' },
+          overflow: 'hidden',
+          childWrapAttr: { class: 'vdr-fill vdr-fill--child-b', 'data-label': '子元素 B' },
         },
       ],
     }
@@ -399,7 +407,7 @@ export default defineComponent({
     const nestedClipped = {
       ...centerRect(320, 220),
       uuid: 'clip-root',
-      childWrapAttr: { class: 'vdr-fill vdr-fill--clip-root' },
+      childWrapAttr: { class: 'vdr-fill vdr-fill--clip-root', 'data-label': '裁剪父级' },
       overflow: 'hidden',
       childrens: [
         {
@@ -408,8 +416,9 @@ export default defineComponent({
           x: 60,
           y: 30,
           r: 20,
+          overflow: 'hidden',
           uuid: 'clip-child',
-          childWrapAttr: { class: 'vdr-fill vdr-fill--clip-child' },
+          childWrapAttr: { class: 'vdr-fill vdr-fill--clip-child', 'data-label': '被裁剪的子元素' },
         },
       ],
     }
@@ -681,6 +690,20 @@ body,
   width: 100%;
   height: 100%;
 }
+.vdr-fill::before {
+  content: attr(data-label);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
 .vdr-fill--root,
 .vdr-fill--clip-root {
   background: #2db7f5;
@@ -720,7 +743,6 @@ body,
   }
 }
 </style>
-
 
 
 

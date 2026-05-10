@@ -7,6 +7,7 @@
     @mousedown.stop="bodyDown($event)"
     ref="vdr"
   >
+    <i v-if="active && activeable" class="vdr-outline" aria-hidden="true"></i>
     <!-- 控件 -->
     <template v-if="active && activeable">
       <!-- 尺寸控件 -->
