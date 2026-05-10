@@ -8,11 +8,13 @@
     <main class="grid">
       <!-- 1. 基础：拖 / 缩 / 转 -->
       <section class="scene">
-        <h2>1. 基础：拖 / 缩 / 转</h2>
-        <p class="info">
-          x={{ fmt(basic.x) }} · y={{ fmt(basic.y) }} · w={{ fmt(basic.w) }} · h={{ fmt(basic.h) }}
-          · r={{ fmt(basic.r) }}°
-        </p>
+        <div class="scene-info">
+          <h2>1. 基础：拖 / 缩 / 转</h2>
+          <p class="info">
+            x={{ fmt(basic.x) }} · y={{ fmt(basic.y) }} · w={{ fmt(basic.w) }} · h={{ fmt(basic.h) }}
+            · r={{ fmt(basic.r) }}°
+          </p>
+        </div>
         <div class="stage">
           <vdr
             :w="basic.w"
@@ -31,10 +33,12 @@
 
       <!-- 2. 锁定比例 -->
       <section class="scene">
-        <h2>2. 锁定比例 lock</h2>
-        <p class="info">中点和角点缩放时都强制保持宽高比</p>
+        <div class="scene-info">
+          <h2>2. 锁定比例 lock</h2>
+          <p class="info">中点和角点缩放时都强制保持宽高比</p>
+        </div>
         <div class="stage">
-          <vdr :w="180" :h="120" :x="40" :y="40" :lock="true">
+          <vdr v-bind="lockedRect" :lock="true">
             <div class="card alt">lock</div>
           </vdr>
         </div>
@@ -42,14 +46,13 @@
 
       <!-- 3. min / max 限制（不可翻转） -->
       <section class="scene">
-        <h2>3. min/max 尺寸限制</h2>
-        <p class="info">min: 80×80，max: 240×200。设置了 min 后越过对边不会翻转</p>
+        <div class="scene-info">
+          <h2>3. min/max 尺寸限制</h2>
+          <p class="info">min: 80×80，max: 240×200。设置了 min 后越过对边不会翻转</p>
+        </div>
         <div class="stage">
           <vdr
-            :w="160"
-            :h="120"
-            :x="40"
-            :y="40"
+            v-bind="minMaxRect"
             :min-width="80"
             :min-height="80"
             :max-width="240"
@@ -62,10 +65,12 @@
 
       <!-- 4. 翻转 -->
       <section class="scene">
-        <h2>4. 翻转 fliped</h2>
-        <p class="info">未设 min，越过对边触发翻转（fliped 事件计数: {{ flipCount }}）</p>
+        <div class="scene-info">
+          <h2>4. 翻转 fliped</h2>
+          <p class="info">未设 min，越过对边触发翻转（fliped 事件计数: {{ flipCount }}）</p>
+        </div>
         <div class="stage">
-          <vdr :w="160" :h="120" :x="160" :y="80" :r="0" @fliped="flipCount++">
+          <vdr v-bind="flipRect" @fliped="flipCount++">
             <div class="card warn">把我拽过对边</div>
           </vdr>
         </div>
@@ -73,8 +78,10 @@
 
       <!-- 5. 嵌套 childrens -->
       <section class="scene">
-        <h2>5. 嵌套（childrens）</h2>
-        <p class="info">父子级递归，子组件操作时坐标系跟随父级旋转</p>
+        <div class="scene-info">
+          <h2>5. 嵌套（childrens）</h2>
+          <p class="info">父子级递归，子组件操作时坐标系跟随父级旋转</p>
+        </div>
         <div class="stage">
           <vdr v-bind="nestedRoot" />
         </div>
@@ -82,8 +89,10 @@
 
       <!-- 6. 嵌套 + overflow:hidden -->
       <section class="scene">
-        <h2>6. 嵌套 + overflow:hidden</h2>
-        <p class="info">通过 overflow="hidden" 包一层 childWrap，子元素被父级裁剪</p>
+        <div class="scene-info">
+          <h2>6. 嵌套 + overflow:hidden</h2>
+          <p class="info">通过 overflow="hidden" 包一层 childWrap，子元素被父级裁剪</p>
+        </div>
         <div class="stage">
           <vdr v-bind="nestedClipped" />
         </div>
@@ -91,10 +100,12 @@
 
       <!-- 7. 控件子集 sticks -->
       <section class="scene">
-        <h2>7. 控件子集 sticks</h2>
-        <p class="info">只显示四角 + 旋转，不显示中点</p>
+        <div class="scene-info">
+          <h2>7. 控件子集 sticks</h2>
+          <p class="info">只显示四角 + 旋转，不显示中点</p>
+        </div>
         <div class="stage">
-          <vdr :w="180" :h="140" :x="40" :y="40" :sticks="['tl', 'tr', 'bl', 'br', 'angle']">
+          <vdr v-bind="centerRect180x140" :sticks="['tl', 'tr', 'bl', 'br', 'angle']">
             <div class="card alt">corners only</div>
           </vdr>
         </div>
@@ -102,10 +113,12 @@
 
       <!-- 8. 自定义 stickHoverRender -->
       <section class="scene">
-        <h2>8. 自定义 cursor (stickHoverRender)</h2>
-        <p class="info">把 hover 箭头换成红色双箭头</p>
+        <div class="scene-info">
+          <h2>8. 自定义 cursor (stickHoverRender)</h2>
+          <p class="info">把 hover 箭头换成红色双箭头</p>
+        </div>
         <div class="stage">
-          <vdr :w="180" :h="140" :x="40" :y="40" :stick-hover-render="redArrowRender">
+          <vdr v-bind="centerRect180x140" :stick-hover-render="redArrowRender">
             <div class="card warn">custom cursor</div>
           </vdr>
         </div>
@@ -113,20 +126,19 @@
 
       <!-- 9. 不可激活 / 不可拖 / 不可缩 -->
       <section class="scene">
-        <h2>9. 状态开关</h2>
-        <p class="info">勾选实时切换 active / draggable / resizeable / rotateable</p>
-        <div class="toggles">
-          <label><input type="checkbox" v-model="flags.active" /> active</label>
-          <label><input type="checkbox" v-model="flags.draggable" /> draggable</label>
-          <label><input type="checkbox" v-model="flags.resizeable" /> resizeable</label>
-          <label><input type="checkbox" v-model="flags.rotateable" /> rotateable</label>
+        <div class="scene-info">
+          <h2>9. 状态开关</h2>
+          <p class="info">勾选实时切换 active / draggable / resizeable / rotateable</p>
+          <div class="toggles">
+            <label><input type="checkbox" v-model="flags.active" /> active</label>
+            <label><input type="checkbox" v-model="flags.draggable" /> draggable</label>
+            <label><input type="checkbox" v-model="flags.resizeable" /> resizeable</label>
+            <label><input type="checkbox" v-model="flags.rotateable" /> rotateable</label>
+          </div>
         </div>
         <div class="stage">
           <vdr
-            :w="180"
-            :h="140"
-            :x="40"
-            :y="40"
+            v-bind="centerRect180x140"
             :active="flags.active"
             :draggable="flags.draggable"
             :resizeable="flags.resizeable"
@@ -139,56 +151,40 @@
 
       <!-- 10. CSS 变量主题切换 -->
       <section class="scene">
-        <h2>10. CSS 变量主题</h2>
-        <p class="info">通过覆写 --vdr-* 变量实现主题切换</p>
-        <div class="toggles">
-          <label v-for="t in themes" :key="t.name">
-            <input type="radio" name="vdr-theme" :value="t.name" v-model="theme" />
-            {{ t.name }}
-          </label>
+        <div class="scene-info">
+          <h2>10. CSS 变量主题</h2>
+          <p class="info">通过覆写 --vdr-* 变量实现主题切换</p>
+          <div class="toggles">
+            <label v-for="t in themes" :key="t.name">
+              <input type="radio" name="vdr-theme" :value="t.name" v-model="theme" />
+              {{ t.name }}
+            </label>
+          </div>
         </div>
         <div class="stage" :style="currentTheme">
-          <vdr :w="180" :h="140" :x="40" :y="40">
+          <vdr v-bind="centerRect180x140">
             <div class="card alt">themed</div>
           </vdr>
         </div>
       </section>
+
       <!-- 11. 边界限制 limit-x / limit-y -->
       <section class="scene">
-        <h2>11. 边界限制 limit-x / limit-y</h2>
-        <p class="info">
-          x=[{{ bound.lx0 }},{{ bound.lx1 }}] · y=[{{ bound.ly0 }},{{ bound.ly1 }}] ·
-          pos=({{ fmt(boundPos.x) }},{{ fmt(boundPos.y) }}) · {{ fmt(boundPos.w) }}×{{
-            fmt(boundPos.h)
-          }} · r={{ fmt(boundPos.r) }}°
-        </p>
-        <div class="toggles">
-          <label>
-            x max
-            <input type="range" min="120" max="380" step="10" v-model.number="bound.lx1" />
-            {{ bound.lx1 }}
-          </label>
-          <label>
-            y max
-            <input type="range" min="120" max="320" step="10" v-model.number="bound.ly1" />
-            {{ bound.ly1 }}
-          </label>
-          <label><input type="checkbox" v-model="bound.lock" /> lock</label>
-          <button type="button" @click="resetBound">reset</button>
+        <div class="scene-info">
+          <h2>11. 边界限制 limit-x / limit-y</h2>
+          <p class="info">
+            x=[{{ bound.lx0 }},{{ bound.lx1 }}] · y=[{{ bound.ly0 }},{{ bound.ly1 }}] ·
+            pos=({{ fmt(boundPos.x) }},{{ fmt(boundPos.y) }}) · {{ fmt(boundPos.w) }}×{{
+              fmt(boundPos.h)
+            }} · r={{ fmt(boundPos.r) }}°
+          </p>
+          <div class="toggles">
+            <label><input type="checkbox" v-model="bound.lock" /> lock</label>
+            <button type="button" @click="resetBound">reset</button>
+          </div>
         </div>
-        <div class="stage">
-          <div
-            class="boundary-hint"
-            :style="{
-              position: 'absolute',
-              left: bound.lx0 + 'px',
-              top: bound.ly0 + 'px',
-              width: bound.lx1 - bound.lx0 + 'px',
-              height: bound.ly1 - bound.ly0 + 'px',
-              outline: '2px dashed #fa541c',
-              pointerEvents: 'none',
-            }"
-          ></div>
+        <div class="stage" ref="limitStageRef">
+          <div class="boundary-hint boundary-hint--orange" :style="boundaryHintStyle"></div>
           <vdr
             :key="boundKey"
             :w="boundPos.w"
@@ -199,6 +195,7 @@
             :lock="bound.lock"
             :limit-x="[bound.lx0, bound.lx1]"
             :limit-y="[bound.ly0, bound.ly1]"
+            overflow="hidden"
             @dragging="updateBound"
             @resizing="updateBound"
             @rotating="updateBound"
@@ -211,35 +208,22 @@
 
       <!-- 12. 边界 + min/max 尺寸限制 -->
       <section class="scene">
-        <h2>12. 边界 + min/max（交叉验证）</h2>
-        <p class="info">
-          limit=[0,280]×[0,240]，min 60×60，max 240×200；缩放在 min 与边界双重约束下正确收敛，翻转已禁用
-        </p>
+        <div class="scene-info">
+          <h2>12. 边界 + min/max（交叉验证）</h2>
+          <p class="info">
+            limit 为操作区 95% 居中边界，min 60×60，max 240×200；缩放在双重约束下正确收敛
+          </p>
+        </div>
         <div class="stage">
-          <div
-            class="boundary-hint"
-            :style="{
-              position: 'absolute',
-              left: '0px',
-              top: '0px',
-              width: '280px',
-              height: '240px',
-              outline: '2px dashed #13c2c2',
-              pointerEvents: 'none',
-            }"
-          ></div>
+          <div class="boundary-hint boundary-hint--cyan" :style="boundaryHintStyle"></div>
           <vdr
-            :w="140"
-            :h="110"
-            :x="30"
-            :y="30"
-            :r="10"
+            v-bind="boundedMinMaxRect"
             :min-width="60"
             :min-height="60"
             :max-width="240"
             :max-height="200"
-            :limit-x="[0, 280]"
-            :limit-y="[0, 240]"
+            :limit-x="[bound.lx0, bound.lx1]"
+            :limit-y="[bound.ly0, bound.ly1]"
           >
             <div class="card alt">bounded + min/max</div>
           </vdr>
@@ -248,53 +232,27 @@
 
       <!-- 13. 嵌套 + limit-x / limit-y -->
       <section class="scene">
-        <h2>13. 嵌套 + limit（父子各自的坐标系）</h2>
-        <p class="info">
-          外层 limit 在 stage 内；子元素 limit 在父 vdr 内（父旋转/缩放后子限制仍生效）
-        </p>
+        <div class="scene-info">
+          <h2>13. 嵌套 + limit（父子各自的坐标系）</h2>
+          <p class="info">外层 limit 使用操作区 95% 居中边界；子元素 limit 在父 vdr 内独立生效</p>
+        </div>
         <div class="stage">
-          <!-- 外层边界提示（在 stage 坐标系） -->
-          <div
-            :style="{
-              position: 'absolute',
-              left: '0px',
-              top: '0px',
-              width: '320px',
-              height: '260px',
-              outline: '2px dashed #fa541c',
-              pointerEvents: 'none',
-            }"
-          ></div>
+          <div class="boundary-hint boundary-hint--orange" :style="boundaryHintStyle"></div>
           <vdr
-            :w="280"
-            :h="220"
-            :x="20"
-            :y="20"
-            :r="0"
-            :limit-x="[0, 320]"
-            :limit-y="[0, 260]"
+            v-bind="boundedNestedRoot"
+            :limit-x="[bound.lx0, bound.lx1]"
+            :limit-y="[bound.ly0, bound.ly1]"
             uuid="nest-root"
           >
-            <!-- 子元素的边界提示（在父 vdr 坐标系，不带旋转） -->
-            <div
-              :style="{
-                position: 'absolute',
-                left: '10px',
-                top: '10px',
-                width: '260px',
-                height: '200px',
-                outline: '2px dashed #13c2c2',
-                pointerEvents: 'none',
-              }"
-            ></div>
+            <div class="boundary-hint boundary-hint--cyan" :style="nestedChildBoundaryStyle"></div>
             <vdr
               :w="120"
               :h="90"
               :x="30"
               :y="30"
               :r="15"
-              :limit-x="[10, 270]"
-              :limit-y="[10, 210]"
+              :limit-x="[12, 268]"
+              :limit-y="[12, 208]"
               uuid="nest-child-a"
             >
               <div class="card">child A</div>
@@ -306,8 +264,8 @@
               :y="100"
               :r="-10"
               :lock="true"
-              :limit-x="[10, 270]"
-              :limit-y="[10, 210]"
+              :limit-x="[12, 268]"
+              :limit-y="[12, 208]"
               uuid="nest-child-b"
             >
               <div class="card alt">child B (lock)</div>
@@ -320,12 +278,75 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from 'vue'
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  type CSSProperties,
+} from 'vue'
+
+const STAGE_WIDTH = 420
+const STAGE_HEIGHT = 380
+const BOUNDARY_RATIO = 0.95
+
+function centerRect(w: number, h: number, r = 0) {
+  return {
+    w,
+    h,
+    x: Math.round((STAGE_WIDTH - w) / 2),
+    y: Math.round((STAGE_HEIGHT - h) / 2),
+    r,
+  }
+}
+
+function getBoundary(width = STAGE_WIDTH, height = STAGE_HEIGHT) {
+  const boundaryWidth = Math.round(width * BOUNDARY_RATIO)
+  const boundaryHeight = Math.round(height * BOUNDARY_RATIO)
+  const marginX = Math.round((width - boundaryWidth) / 2)
+  const marginY = Math.round((height - boundaryHeight) / 2)
+
+  return {
+    x0: marginX,
+    x1: marginX + boundaryWidth,
+    y0: marginY,
+    y1: marginY + boundaryHeight,
+    width: boundaryWidth,
+    height: boundaryHeight,
+  }
+}
+
+function centerRectInBoundary(w: number, h: number, r = 0, width = STAGE_WIDTH, height = STAGE_HEIGHT) {
+  const boundary = getBoundary(width, height)
+
+  return {
+    w,
+    h,
+    x: Math.round(boundary.x0 + (boundary.width - w) / 2),
+    y: Math.round(boundary.y0 + (boundary.height - h) / 2),
+    r,
+  }
+}
 
 export default defineComponent({
   name: 'PlaygroundApp',
   setup() {
-    const basic = reactive({ w: 180, h: 140, x: 40, y: 40, r: 0 })
+    const centerRect180x140 = centerRect(180, 140)
+    const lockedRect = centerRect(180, 120)
+    const minMaxRect = centerRect(160, 120)
+    const flipRect = centerRect(160, 120)
+    const boundedMinMaxRect = reactive(centerRectInBoundary(140, 110, 10))
+    const boundedNestedRoot = reactive(centerRectInBoundary(280, 220))
+    const limitStageRef = ref<HTMLElement | null>(null)
+    const stageSize = reactive({ width: STAGE_WIDTH, height: STAGE_HEIGHT })
+    const boundTouched = ref(false)
+    let stageResizeObserver: ResizeObserver | null = null
+
+    const basic = reactive({ ...centerRect180x140 })
 
     function updateBasic(pos: any) {
       basic.x = pos.x
@@ -349,40 +370,36 @@ export default defineComponent({
     })
 
     const nestedRoot = {
-      w: 320,
-      h: 220,
-      x: 30,
-      y: 30,
-      r: 0,
+      ...centerRect(320, 220),
       uuid: 'root',
+      childWrapAttr: { class: 'vdr-fill vdr-fill--root' },
       childrens: [
         {
           w: 140,
           h: 100,
-          x: 30,
-          y: 30,
+          x: 40,
+          y: 40,
           r: 15,
           uuid: 'child-1',
+          childWrapAttr: { class: 'vdr-fill vdr-fill--child-a' },
         },
         {
           w: 90,
           h: 90,
-          x: 200,
+          x: 190,
           y: 100,
           r: -10,
           lock: true,
           uuid: 'child-2',
+          childWrapAttr: { class: 'vdr-fill vdr-fill--child-b' },
         },
       ],
     }
 
     const nestedClipped = {
-      w: 320,
-      h: 220,
-      x: 30,
-      y: 30,
-      r: 0,
+      ...centerRect(320, 220),
       uuid: 'clip-root',
+      childWrapAttr: { class: 'vdr-fill vdr-fill--clip-root' },
       overflow: 'hidden',
       childrens: [
         {
@@ -392,6 +409,7 @@ export default defineComponent({
           y: 30,
           r: 20,
           uuid: 'clip-child',
+          childWrapAttr: { class: 'vdr-fill vdr-fill--clip-child' },
         },
       ],
     }
@@ -443,11 +461,36 @@ export default defineComponent({
       () => themes.find((t) => t.name === theme.value)?.vars ?? {}
     )
 
-    const boundInitial = { w: 120, h: 100, x: 40, y: 40, r: 20 }
+    const boundInitial = centerRectInBoundary(120, 100, 20)
     const boundPos = reactive({ ...boundInitial })
-    const bound = reactive({ lx0: 0, lx1: 300, ly0: 0, ly1: 260, lock: false })
+    const initialBoundary = getBoundary()
+    const bound = reactive({
+      lx0: initialBoundary.x0,
+      lx1: initialBoundary.x1,
+      ly0: initialBoundary.y0,
+      ly1: initialBoundary.y1,
+      lock: false,
+    })
     const boundKey = ref(0)
+    const boundaryHintStyle = computed<CSSProperties>(() => ({
+      position: 'absolute',
+      left: `${bound.lx0}px`,
+      top: `${bound.ly0}px`,
+      width: `${bound.lx1 - bound.lx0}px`,
+      height: `${bound.ly1 - bound.ly0}px`,
+      pointerEvents: 'none',
+    }))
+    const nestedChildBoundaryStyle: CSSProperties = {
+      position: 'absolute',
+      left: '12px',
+      top: '12px',
+      width: '256px',
+      height: '196px',
+      pointerEvents: 'none',
+    }
+
     function updateBound(pos: any) {
+      boundTouched.value = true
       boundPos.x = pos.x
       boundPos.y = pos.y
       boundPos.w = pos.w
@@ -455,14 +498,48 @@ export default defineComponent({
       boundPos.r = pos.r
     }
     function resetBound() {
-      Object.assign(boundPos, boundInitial)
-      bound.lx0 = 0
-      bound.lx1 = 300
-      bound.ly0 = 0
-      bound.ly1 = 260
+      Object.assign(boundPos, centerRectInBoundary(120, 100, 20, stageSize.width, stageSize.height))
+      boundTouched.value = false
       bound.lock = false
       boundKey.value++
     }
+
+    function syncLimitBoundary() {
+      const boundary = getBoundary(stageSize.width, stageSize.height)
+      bound.lx0 = boundary.x0
+      bound.lx1 = boundary.x1
+      bound.ly0 = boundary.y0
+      bound.ly1 = boundary.y1
+      Object.assign(boundedMinMaxRect, centerRectInBoundary(140, 110, 10, stageSize.width, stageSize.height))
+      Object.assign(boundedNestedRoot, centerRectInBoundary(280, 220, 0, stageSize.width, stageSize.height))
+      if (!boundTouched.value) {
+        Object.assign(boundPos, centerRectInBoundary(120, 100, 20, stageSize.width, stageSize.height))
+        boundKey.value++
+      }
+    }
+
+    onMounted(() => {
+      nextTick(() => {
+        if (!limitStageRef.value) return
+
+        const syncStageSize = () => {
+          if (!limitStageRef.value) return
+          const rect = limitStageRef.value.getBoundingClientRect()
+          stageSize.width = Math.round(rect.width)
+          stageSize.height = Math.round(rect.height)
+        }
+
+        syncStageSize()
+        stageResizeObserver = new ResizeObserver(syncStageSize)
+        stageResizeObserver.observe(limitStageRef.value)
+      })
+    })
+
+    onBeforeUnmount(() => {
+      stageResizeObserver?.disconnect()
+    })
+
+    watch(() => [stageSize.width, stageSize.height], syncLimitBoundary, { immediate: true })
 
     return {
       basic,
@@ -470,6 +547,11 @@ export default defineComponent({
       fmt,
       flipCount,
       flags,
+      limitStageRef,
+      centerRect180x140,
+      lockedRect,
+      minMaxRect,
+      flipRect,
       nestedRoot,
       nestedClipped,
       redArrowRender,
@@ -481,15 +563,10 @@ export default defineComponent({
       boundKey,
       updateBound,
       resetBound,
-      boundaryHintStyle: {
-        position: 'absolute',
-        left: '0px',
-        top: '0px',
-        width: '300px',
-        height: '260px',
-        outline: '2px dashed #fa541c',
-        pointerEvents: 'none',
-      } as Record<string, string>,
+      boundaryHintStyle,
+      nestedChildBoundaryStyle,
+      boundedMinMaxRect,
+      boundedNestedRoot,
     }
   },
 })
@@ -526,37 +603,48 @@ body,
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
   gap: 16px;
   padding: 16px;
 }
 .scene {
+  height: 530px;
   background: #fff;
   border: 1px solid #eaeaea;
   border-radius: 6px;
   padding: 14px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 110px 380px;
+  gap: 12px;
+}
+.scene-info {
+  min-height: 0;
+  overflow: hidden;
 }
 .scene h2 {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-size: 14px;
   font-weight: 600;
   color: #222;
 }
 .scene .info {
-  margin: 0 0 10px;
+  min-height: 36px;
+  max-height: 36px;
+  margin: 0 0 8px;
   color: #888;
   font-size: 12px;
+  line-height: 18px;
   font-family: ui-monospace, monospace;
-  min-height: 16px;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .stage {
   position: relative;
-  height: 320px;
+  width: 100%;
+  height: 380px;
+  justify-self: center;
   background: repeating-conic-gradient(#f0f0f0 0% 25%, #fafafa 0% 50%) 0 / 16px 16px;
   border-radius: 4px;
   overflow: hidden;
@@ -564,10 +652,45 @@ body,
 .toggles {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
+  gap: 10px 12px;
+  min-height: 24px;
   font-size: 12px;
   color: #555;
-  margin-bottom: 8px;
+}
+.toggles button {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+}
+.boundary-hint {
+  position: absolute;
+  pointer-events: none;
+}
+.boundary-hint--orange {
+  border: 2px dashed #fa541c;
+}
+.boundary-hint--cyan {
+  border: 2px dashed #13c2c2;
+}
+.vdr-fill {
+  width: 100%;
+  height: 100%;
+}
+.vdr-fill--root,
+.vdr-fill--clip-root {
+  background: #2db7f5;
+}
+.vdr-fill--child-a,
+.vdr-fill--clip-child {
+  background: #fa8c16;
+}
+.vdr-fill--child-b {
+  background: #722ed1;
 }
 .card {
   width: 100%;
@@ -575,6 +698,8 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 8px;
+  text-align: center;
   background: #2db7f5;
   color: #fff;
   font-size: 13px;
@@ -586,4 +711,20 @@ body,
 .card.warn {
   background: #fa8c16;
 }
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .stage {
+    width: 100%;
+  }
+}
 </style>
+
+
+
+
+
+
+
+

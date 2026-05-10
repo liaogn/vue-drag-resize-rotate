@@ -55,6 +55,9 @@ export function getRotatedRectAABB({
   return { minX, maxX, minY, maxY }
 }
 
+/** AABB 检测的浮点容差：避免边角浮点误差让贴边状态被误判为越界 */
+const BOUNDARY_EPS = 1e-3
+
 /** 计算把 AABB 平移回 limit 区间所需的位移；若 AABB 比区间还大则 fits=false */
 export function getBoundaryShift(
   aabb: AABB,
@@ -66,15 +69,15 @@ export function getBoundaryShift(
   let fits = true
   if (limitX) {
     const [lo, hi] = limitX
-    if (aabb.maxX - aabb.minX > hi - lo + 1e-6) fits = false
-    else if (aabb.minX < lo) dx = lo - aabb.minX
-    else if (aabb.maxX > hi) dx = hi - aabb.maxX
+    if (aabb.maxX - aabb.minX > hi - lo + BOUNDARY_EPS) fits = false
+    else if (aabb.minX < lo - BOUNDARY_EPS) dx = lo - aabb.minX
+    else if (aabb.maxX > hi + BOUNDARY_EPS) dx = hi - aabb.maxX
   }
   if (limitY) {
     const [lo, hi] = limitY
-    if (aabb.maxY - aabb.minY > hi - lo + 1e-6) fits = false
-    else if (aabb.minY < lo) dy = lo - aabb.minY
-    else if (aabb.maxY > hi) dy = hi - aabb.maxY
+    if (aabb.maxY - aabb.minY > hi - lo + BOUNDARY_EPS) fits = false
+    else if (aabb.minY < lo - BOUNDARY_EPS) dy = lo - aabb.minY
+    else if (aabb.maxY > hi + BOUNDARY_EPS) dy = hi - aabb.maxY
   }
   return { dx, dy, fits }
 }
@@ -115,6 +118,9 @@ export function clampPositionWithinLimits(
 export interface FitResizeInput {
   width: number
   height: number
+  /** 上一帧（未应用本次拖拽前）的合法尺寸；越界时用作二分基线，避免"snap back" */
+  prevWidth: number
+  prevHeight: number
   stick: StickType
   rotate: number
   symRelativeContactor: Point | null
@@ -124,16 +130,32 @@ export interface FitResizeInput {
 }
 
 /**
- * Resize 受限：在 sym-contactor 锚点不动的前提下，二分搜索最大可行的尺寸缩放比例
- * - lock 模式下保持比例的等比缩放
- * - 中点 stick：仅缩放有变化的轴
+ * Resize 受限：在 sym-contactor 锚点不动的前提下确定最终尺寸
+ *
+ * 二分基线从 prev → request 沿"用户意图方向"线性插值，保证：
+ *   - 请求合法 → 直接采用请求值
+ *   - 请求越界且 prev 合法 → 取 [prev, request] 间最大的合法尺寸（≥ prev，永不 snap back）
+ *   - prev 也越界（如边界刚被收紧、初始化越界）→ 退化为 [0, request] 二分缩
+ *
+ * 这样能正确处理 max 与 limit 同时存在、贴边继续拖等场景，避免"突然缩回拖拽前大小"。
  */
 export function fitResizeWithinLimits(
   input: FitResizeInput,
   limitX?: LimitRange,
   limitY?: LimitRange
 ): RectGeometry {
-  const { width, height, stick, rotate, symRelativeContactor, lock, whRatio, limits } = input
+  const {
+    width,
+    height,
+    prevWidth,
+    prevHeight,
+    stick,
+    rotate,
+    symRelativeContactor,
+    lock,
+    whRatio,
+    limits,
+  } = input
   const baseAxis: 'width' | 'height' =
     stick.includes('l') || stick.includes('r') ? 'width' : 'height'
 
@@ -165,19 +187,22 @@ export function fitResizeWithinLimits(
   const initial = buildAt(width, height)
   if (!hasBoundary(limitX, limitY) || fitsAt(initial)) return initial
 
-  const widthChanges = lock || stick.includes('l') || stick.includes('r')
-  const heightChanges = lock || stick.includes('t') || stick.includes('b')
+  // 选取二分下界：优先用 prev（上一帧合法值），否则退化到 0
+  const prevCandidate = buildAt(prevWidth, prevHeight)
+  const lowerW = fitsAt(prevCandidate) ? prevWidth : 0
+  const lowerH = fitsAt(prevCandidate) ? prevHeight : 0
 
+  // 在 [lower, request] 间二分插值，t∈[0,1]：t=0 → lower，t=1 → request
   let lo = 0
   let hi = 1
   for (let i = 0; i < 24; i++) {
     const mid = (lo + hi) / 2
-    const w = widthChanges ? width * mid : width
-    const h = heightChanges ? height * mid : height
+    const w = lowerW + (width - lowerW) * mid
+    const h = lowerH + (height - lowerH) * mid
     if (fitsAt(buildAt(w, h))) lo = mid
     else hi = mid
   }
-  const w = widthChanges ? width * lo : width
-  const h = heightChanges ? height * lo : height
+  const w = lowerW + (width - lowerW) * lo
+  const h = lowerH + (height - lowerH) * lo
   return buildAt(w, h)
 }

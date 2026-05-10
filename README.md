@@ -211,12 +211,6 @@ pnpm build        # 产出 dist/
 
 参与贡献请见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
-## 已知问题
-
-- **`limit-x` / `limit-y` 边界限制下，贴边翻转后继续往外拖会被压缩成线/点**：当 sym 锚点贴在边界上，用户继续往"会让 AABB 越界"的方向拖动触点时，`fitResizeWithinLimits` 的二分兜底会把尺寸压向 0，预期行为应是"保持当前贴边状态不动"。已尝试用"上一帧尺寸回退"策略修复，但实际效果不理想，已撤回。后续考虑结合鼠标位移方向 + sym 锚点到边界的法向距离，给出更稳定的判定。
-- **`limit-x` / `limit-y` 边界限制下，旋转触发 180° 跳变**：旋转受边界拒绝时，`RectRotator` 内部仍在累加 `rotate`，导致内部值与可视 rotate 偏离；后续某帧合法时一次性应用就出现大跳。尝试过在拒绝那一帧把 `RectRotator.rotate` 同步回当前可视 rotate，但实际还是会偶发跳变（猜测和 `pointB` 的同步时序、跨 ±180° 的 acos 折返有关），已撤回。后续需要重新设计：要么在 rotator 外部维护"待应用增量"，要么改成基于鼠标向量的绝对角计算，避免内部累加状态。
-- **`max-width/height` 与 `limit-x/y` 同时触发时缩放跳变**：`fitResizeWithinLimits` 的二分基线用的是用户请求的原始 `width/height`，但 `buildAt` 内部会先被 `max` 截断；当请求值远大于 max 时，二分前段处于"恒等死区"，跨过临界点会突然收敛到很小的尺寸，肉眼表现为"突然缩回去"。尝试过改用 `initial`（截断后尺寸）作为二分基线，但会引入 demo 11 普通缩放抖动、demo 12 多角贴边时被回弹到拖拽前尺寸的副作用，已撤回。后续考虑：先按鼠标位移单调求解最大可行尺寸，而不是从请求值反向二分。
-
 ## License
 
 [MIT](./LICENSE) © liaogn

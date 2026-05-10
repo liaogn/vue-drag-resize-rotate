@@ -501,6 +501,8 @@ export default defineComponent({
             {
               width: next.width,
               height: next.height,
+              prevWidth: this.width,
+              prevHeight: this.height,
               stick: this.currentStick as StickType,
               rotate: this.rotate,
               symRelativeContactor: this.symRelativeContactor,
