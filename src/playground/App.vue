@@ -59,7 +59,7 @@
             :max-width="240"
             :max-height="200"
           >
-            <div class="card">min/max</div>
+            <div class="card warn">min/max</div>
           </vdr>
         </div>
       </section>
@@ -72,7 +72,7 @@
         </div>
         <div class="stage">
           <vdr overflow="hidden" v-bind="flipRect" @fliped="flipCount++">
-            <div class="card warn">拖拽触点实现翻转</div>
+            <div class="card success">拖拽触点实现翻转</div>
           </vdr>
         </div>
       </section>
@@ -130,14 +130,14 @@
         <div class="scene-info">
           <h2>9. 状态开关</h2>
           <p class="info">勾选实时切换 active / draggable / resizeable / rotateable</p>
-          <div class="toggles">
+        </div>
+        <div class="stage">
+          <div class="stage-tools toggles">
             <label><input type="checkbox" v-model="flags.active" /> active</label>
             <label><input type="checkbox" v-model="flags.draggable" /> draggable</label>
             <label><input type="checkbox" v-model="flags.resizeable" /> resizeable</label>
             <label><input type="checkbox" v-model="flags.rotateable" /> rotateable</label>
           </div>
-        </div>
-        <div class="stage">
           <vdr
             v-bind="centerRect180x140"
             :active="flags.active"
@@ -156,14 +156,14 @@
         <div class="scene-info">
           <h2>10. CSS 变量主题</h2>
           <p class="info">通过覆写 --vdr-* 变量实现主题切换</p>
-          <div class="toggles">
-            <label v-for="t in themes" :key="t.name">
-              <input type="radio" name="vdr-theme" :value="t.name" v-model="theme" />
-              {{ t.name }}
-            </label>
-          </div>
         </div>
         <div class="stage" :style="currentTheme">
+          <div class="stage-tools toggles">
+            <label v-for="t in themes" :key="t.name">
+              <input type="radio" name="vdr-theme" :value="t.name" v-model="theme" />
+              <span>{{ t.name }}</span>
+            </label>
+          </div>
           <vdr overflow="hidden" v-bind="centerRect180x140">
             <div class="card alt">themed</div>
           </vdr>
@@ -173,22 +173,33 @@
       <!-- 11. 边界限制 limit-x / limit-y -->
       <section class="scene">
         <div class="scene-info">
-          <h2>11. 边界限制 limit-x / limit-y</h2>
+          <h2>11. 边界限制 / min-max</h2>
           <p class="info">
             x=[{{ bound.lx0 }},{{ bound.lx1 }}] · y=[{{ bound.ly0 }},{{ bound.ly1 }}] ·
             pos=({{ fmt(boundPos.x) }},{{ fmt(boundPos.y) }}) · {{ fmt(boundPos.w) }}×{{
               fmt(boundPos.h)
             }} · r={{ fmt(boundPos.r) }}°
           </p>
-          <div class="toggles">
+        </div>
+        <div class="stage" ref="limitStageRef">
+          <div class="stage-tools toggles">
+            <label v-for="mode in boundModes" :key="mode.value">
+              <input type="radio" name="bound-demo-mode" :value="mode.value" v-model="boundMode" />
+              <span>{{ mode.label }}</span>
+            </label>
             <label><input type="checkbox" v-model="bound.lock" /> lock</label>
             <button type="button" @click="resetBound">reset</button>
           </div>
-        </div>
-        <div class="stage" ref="limitStageRef">
-          <div class="boundary-hint boundary-hint--orange" :style="boundaryHintStyle"></div>
+          <div
+            :class="[
+              'boundary-hint',
+              boundMode === 'minmax' ? 'boundary-hint--cyan' : 'boundary-hint--orange',
+            ]"
+            :style="boundaryHintStyle"
+          ></div>
           <vdr
             :key="boundKey"
+            v-bind="boundSizeProps"
             :w="boundPos.w"
             :h="boundPos.h"
             :x="boundPos.x"
@@ -203,40 +214,21 @@
             @rotating="updateBound"
             @fliped="updateBound"
           >
-            <div class="card">bounded · drag / resize / rotate / flip</div>
+            <div :class="['card', boundMode === 'minmax' ? 'alt' : '']">
+              {{
+                boundMode === 'minmax'
+                  ? 'bounded + min/max'
+                  : 'bounded · drag / resize / rotate / flip'
+              }}
+            </div>
           </vdr>
         </div>
       </section>
 
-      <!-- 12. 边界 + min/max 尺寸限制 -->
+      <!-- 12. 嵌套 + limit-x / limit-y -->
       <section class="scene">
         <div class="scene-info">
-          <h2>12. 边界 + min/max（交叉验证）</h2>
-          <p class="info">
-            limit 为操作区 95% 居中边界，min 60×60，max 240×200；缩放在双重约束下正确收敛
-          </p>
-        </div>
-        <div class="stage">
-          <div class="boundary-hint boundary-hint--cyan" :style="boundaryHintStyle"></div>
-          <vdr
-            overflow="hidden"
-            v-bind="boundedMinMaxRect"
-            :min-width="60"
-            :min-height="60"
-            :max-width="240"
-            :max-height="200"
-            :limit-x="[bound.lx0, bound.lx1]"
-            :limit-y="[bound.ly0, bound.ly1]"
-          >
-            <div class="card alt">bounded + min/max</div>
-          </vdr>
-        </div>
-      </section>
-
-      <!-- 13. 嵌套 + limit-x / limit-y -->
-      <section class="scene">
-        <div class="scene-info">
-          <h2>13. 嵌套 + limit（父子各自的坐标系）</h2>
+          <h2>12. 嵌套 + limit（父子各自的坐标系）</h2>
           <p class="info">外层 limit 使用操作区 95% 居中边界；子元素 limit 在父 vdr 内独立生效</p>
         </div>
         <div class="stage">
@@ -248,6 +240,7 @@
             uuid="nest-root"
             overflow="hidden"
           >
+            <div class="nested-limit-root-bg"></div>
             <div class="boundary-hint boundary-hint--cyan" :style="nestedChildBoundaryStyle"></div>
             <vdr
               :w="120"
@@ -345,7 +338,6 @@ export default defineComponent({
     const lockedRect = centerRect(180, 120)
     const minMaxRect = centerRect(160, 120)
     const flipRect = centerRect(160, 120)
-    const boundedMinMaxRect = reactive(centerRectInBoundary(140, 110, 10))
     const boundedNestedRoot = reactive(centerRectInBoundary(280, 220))
     const limitStageRef = ref<HTMLElement | null>(null)
     const stageSize = reactive({ width: STAGE_WIDTH, height: STAGE_HEIGHT })
@@ -470,8 +462,23 @@ export default defineComponent({
       () => themes.find((t) => t.name === theme.value)?.vars ?? {}
     )
 
-    const boundInitial = centerRectInBoundary(120, 100, 20)
-    const boundPos = reactive({ ...boundInitial })
+    type BoundMode = 'limit' | 'minmax'
+    const boundMode = ref<BoundMode>('limit')
+    const boundModes: { value: BoundMode; label: string }[] = [
+      { value: 'limit', label: 'limit' },
+      { value: 'minmax', label: 'min/max' },
+    ]
+    const boundSizeProps = computed(() =>
+      boundMode.value === 'minmax'
+        ? { minWidth: 60, minHeight: 60, maxWidth: 240, maxHeight: 200 }
+        : {}
+    )
+    function getBoundRect(mode: BoundMode, width = stageSize.width, height = stageSize.height) {
+      return mode === 'minmax'
+        ? centerRectInBoundary(140, 110, 10, width, height)
+        : centerRectInBoundary(120, 100, 20, width, height)
+    }
+    const boundPos = reactive(getBoundRect(boundMode.value))
     const initialBoundary = getBoundary()
     const bound = reactive({
       lx0: initialBoundary.x0,
@@ -507,7 +514,7 @@ export default defineComponent({
       boundPos.r = pos.r
     }
     function resetBound() {
-      Object.assign(boundPos, centerRectInBoundary(120, 100, 20, stageSize.width, stageSize.height))
+      Object.assign(boundPos, getBoundRect(boundMode.value))
       boundTouched.value = false
       bound.lock = false
       boundKey.value++
@@ -519,10 +526,9 @@ export default defineComponent({
       bound.lx1 = boundary.x1
       bound.ly0 = boundary.y0
       bound.ly1 = boundary.y1
-      Object.assign(boundedMinMaxRect, centerRectInBoundary(140, 110, 10, stageSize.width, stageSize.height))
       Object.assign(boundedNestedRoot, centerRectInBoundary(280, 220, 0, stageSize.width, stageSize.height))
       if (!boundTouched.value) {
-        Object.assign(boundPos, centerRectInBoundary(120, 100, 20, stageSize.width, stageSize.height))
+        Object.assign(boundPos, getBoundRect(boundMode.value, stageSize.width, stageSize.height))
         boundKey.value++
       }
     }
@@ -549,6 +555,7 @@ export default defineComponent({
     })
 
     watch(() => [stageSize.width, stageSize.height], syncLimitBoundary, { immediate: true })
+    watch(boundMode, () => resetBound())
 
     return {
       basic,
@@ -567,6 +574,9 @@ export default defineComponent({
       themes,
       theme,
       currentTheme,
+      boundMode,
+      boundModes,
+      boundSizeProps,
       boundPos,
       bound,
       boundKey,
@@ -574,7 +584,6 @@ export default defineComponent({
       resetBound,
       boundaryHintStyle,
       nestedChildBoundaryStyle,
-      boundedMinMaxRect,
       boundedNestedRoot,
     }
   },
@@ -617,13 +626,12 @@ body,
   padding: 16px;
 }
 .scene {
-  height: 530px;
   background: #fff;
   border: 1px solid #eaeaea;
   border-radius: 6px;
   padding: 14px;
   display: grid;
-  grid-template-rows: 110px 380px;
+  grid-template-rows: auto 380px;
   gap: 12px;
 }
 .scene-info {
@@ -637,8 +645,6 @@ body,
   color: #222;
 }
 .scene .info {
-  min-height: 36px;
-  max-height: 36px;
   margin: 0 0 8px;
   color: #888;
   font-size: 12px;
@@ -658,6 +664,19 @@ body,
   border-radius: 4px;
   overflow: hidden;
 }
+.stage-tools {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 20;
+  max-width: calc(100% - 20px);
+  padding: 6px 8px;
+  border: 1px solid rgb(0 0 0 / 0.08);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+  backdrop-filter: blur(4px);
+}
 .toggles {
   display: flex;
   flex-wrap: wrap;
@@ -666,6 +685,16 @@ body,
   min-height: 24px;
   font-size: 12px;
   color: #555;
+}
+.toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+.toggles input[type='checkbox'],
+.toggles input[type='radio'] {
+  margin: 0;
 }
 .toggles button {
   height: 24px;
@@ -685,6 +714,12 @@ body,
 }
 .boundary-hint--cyan {
   border: 2px dashed #13c2c2;
+}
+.nested-limit-root-bg {
+  position: absolute;
+  inset: 0;
+  background: #fadb14;
+  pointer-events: none;
 }
 .vdr-fill {
   width: 100%;
@@ -734,6 +769,9 @@ body,
 .card.warn {
   background: #fa8c16;
 }
+.card.success {
+  background: #52c41a;
+}
 @media (max-width: 520px) {
   .grid {
     grid-template-columns: 1fr;
@@ -743,10 +781,3 @@ body,
   }
 }
 </style>
-
-
-
-
-
-
-
