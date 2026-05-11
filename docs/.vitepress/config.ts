@@ -10,7 +10,7 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
 
-  head: [['link', { rel: 'icon', href: '/vue-drag-resize-rotate/favicon.svg' }]],
+  head: [['link', { rel: 'icon', href: '/vue-drag-resize-rotate/favicon.ico' }]],
 
   markdown: {
     config(md) {
@@ -20,6 +20,7 @@ export default defineConfig({
   },
 
   themeConfig: {
+    logo: '/logo.png',
     socialLinks: [{ icon: 'github', link: GITHUB }],
     search: { provider: 'local' },
   },
