@@ -2,7 +2,9 @@ import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { AntDesignContainer } from '@vitepress-demo-preview/component'
 import VueDragResizeRotate from '../../../src/index'
+import DemoBlock from '../components/DemoBlock.vue'
 import '@vitepress-demo-preview/component/dist/style.css'
+import '../../../src/playground/demos/demo.css'
 import '../../../src/core/style/vdr.css'
 import './style.css'
 
@@ -11,5 +13,6 @@ export default {
   enhanceApp({ app }) {
     app.use(VueDragResizeRotate)
     app.component('demo-preview', AntDesignContainer)
+    app.component('DemoBlock', DemoBlock)
   },
 } satisfies Theme

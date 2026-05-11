@@ -1,8 +1,80 @@
 <script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { withBase } from 'vitepress'
 
 const guideLink = withBase('/guide/getting-started')
+const examplesLink = withBase('/examples/basic')
 const githubLink = 'https://github.com/liaogn/vue-drag-resize-rotate'
+
+const heroRef = ref<HTMLElement | null>(null)
+const stageRef = ref<HTMLElement | null>(null)
+const panelLimit = reactive({
+  ready: false,
+  lx0: 0,
+  lx1: 0,
+  ly0: 0,
+  ly1: 0,
+})
+const panelLimitX = computed<[number, number] | null>(() =>
+  panelLimit.ready ? [panelLimit.lx0, panelLimit.lx1] : null
+)
+const panelLimitY = computed<[number, number] | null>(() =>
+  panelLimit.ready ? [panelLimit.ly0, panelLimit.ly1] : null
+)
+let panelLimitResizeObserver: ResizeObserver | null = null
+let panelLimitFrame = 0
+
+function syncPanelLimit() {
+  if (!heroRef.value || !stageRef.value) return
+
+  const heroRect = heroRef.value.getBoundingClientRect()
+  const stageRect = stageRef.value.getBoundingClientRect()
+  const stageScaleX = stageRect.width / (stageRef.value.offsetWidth || stageRect.width || 1) || 1
+  const stageScaleY = stageRect.height / (stageRef.value.offsetHeight || stageRect.height || 1) || 1
+  const screenRect = {
+    left: Math.max(heroRect.left, 0),
+    top: Math.max(heroRect.top, 0),
+    right: Math.min(heroRect.right, window.innerWidth),
+    bottom: Math.min(heroRect.bottom, window.innerHeight),
+  }
+  const limitRect =
+    screenRect.right > screenRect.left && screenRect.bottom > screenRect.top
+      ? screenRect
+      : heroRect
+
+  panelLimit.lx0 = Math.floor((limitRect.left - stageRect.left) / stageScaleX)
+  panelLimit.lx1 = Math.ceil((limitRect.right - stageRect.left) / stageScaleX)
+  panelLimit.ly0 = Math.floor((limitRect.top - stageRect.top) / stageScaleY)
+  panelLimit.ly1 = Math.ceil((limitRect.bottom - stageRect.top) / stageScaleY)
+  panelLimit.ready = true
+}
+
+function setupPanelLimitObserver(retryCount = 0) {
+  syncPanelLimit()
+  if (!heroRef.value || !stageRef.value) {
+    if (retryCount < 5) {
+      panelLimitFrame = window.requestAnimationFrame(() =>
+        setupPanelLimitObserver(retryCount + 1)
+      )
+    }
+    return
+  }
+
+  panelLimitResizeObserver = new ResizeObserver(syncPanelLimit)
+  panelLimitResizeObserver.observe(heroRef.value)
+  panelLimitResizeObserver.observe(stageRef.value)
+  window.addEventListener('resize', syncPanelLimit)
+}
+
+onMounted(() => {
+  nextTick(() => setupPanelLimitObserver())
+})
+
+onBeforeUnmount(() => {
+  panelLimitResizeObserver?.disconnect()
+  window.removeEventListener('resize', syncPanelLimit)
+  if (panelLimitFrame) window.cancelAnimationFrame(panelLimitFrame)
+})
 
 const stats = [
   { icon: '▼', text: 'Vue 3' },
@@ -41,7 +113,7 @@ const features = [
 
 <template>
   <main class="vdr-home">
-    <section class="vdr-hero">
+    <section ref="heroRef" class="vdr-hero">
       <div class="vdr-hero__grid" aria-hidden="true"></div>
       <div class="vdr-hero__shade" aria-hidden="true"></div>
 
@@ -67,15 +139,26 @@ const features = [
 
           <div class="vdr-hero__actions">
             <a class="vdr-button vdr-button--primary" :href="guideLink">快速开始 <span>→</span></a>
+            <a class="vdr-button" :href="examplesLink">示例代码 <span>↘</span></a>
             <a class="vdr-button" :href="githubLink" target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
           </div>
         </div>
 
         <ClientOnly>
-          <div class="vdr-stage" aria-label="拖拽缩放旋转演示">
-            <vdr class="vdr-stage__panel" overflow="hidden" :w="500" :h="310" :x="60" :y="110" :r="-7">
+          <div ref="stageRef" class="vdr-stage" aria-label="拖拽缩放旋转演示">
+            <vdr
+              class="vdr-stage__panel"
+              overflow="hidden"
+              :w="500"
+              :h="320"
+              :x="60"
+              :y="110"
+              :r="-7"
+              :limit-x="panelLimitX"
+              :limit-y="panelLimitY"
+            >
               <div class="vdr-stage__surface">
-                <vdr class="vdr-stage__nested" :w="130" :h="86" :x="188" :y="110" :r="10">
+                <vdr :limit-x="[-40,540]" :limit-y="[-40,360]" class="vdr-stage__nested" :w="130" :h="80" :x="188" :y="110" :r="10">
                   <div class="vdr-stage__label">nesting</div>
                 </vdr>
               </div>
@@ -139,6 +222,7 @@ const features = [
 
 .vdr-hero {
   position: relative;
+  user-select: none;
   min-height: calc(100vh - var(--vp-nav-height));
   overflow: hidden;
   border-bottom: 1px solid rgba(98, 132, 196, 0.22);

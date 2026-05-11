@@ -10,6 +10,9 @@ hero:
       text: Get Started
       link: /en/guide/getting-started
     - theme: alt
+      text: Examples
+      link: /en/examples/basic
+    - theme: alt
       text: View on GitHub
       link: https://github.com/liaogn/vue-drag-resize-rotate
 

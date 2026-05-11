@@ -68,4 +68,4 @@ function onChange(pos) {
 ## Next steps
 
 - [Props API](./props) — all configurable options
-- [Examples](/examples/basic) — interactive demos
+- [Examples](/en/examples/basic) — interactive demos

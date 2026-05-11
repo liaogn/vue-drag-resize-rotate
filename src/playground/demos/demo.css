@@ -1,0 +1,134 @@
+.vdr-demo-stage {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  background: repeating-conic-gradient(#f0f0f0 0% 25%, #fafafa 0% 50%) 0 / 16px 16px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vdr-demo-stage-tools {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 20;
+  max-width: calc(100% - 20px);
+  padding: 6px 8px;
+  border: 1px solid rgb(0 0 0 / 0.08);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.vdr-demo-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  min-height: 24px;
+  color: #555;
+  font-size: 12px;
+}
+
+.vdr-demo-toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.vdr-demo-toggles input[type='checkbox'],
+.vdr-demo-toggles input[type='radio'] {
+  margin: 0;
+}
+
+.vdr-demo-toggles button {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+}
+
+.vdr-demo-card {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: #2db7f5;
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  user-select: none;
+}
+
+.vdr-demo-card--alt {
+  background: #722ed1;
+}
+
+.vdr-demo-card--warn {
+  background: #fa8c16;
+}
+
+.vdr-demo-card--success {
+  background: #52c41a;
+}
+
+.vdr-demo-boundary-hint {
+  position: absolute;
+  pointer-events: none;
+}
+
+.vdr-demo-boundary-hint--orange {
+  border: 2px dashed #fa541c;
+}
+
+.vdr-demo-boundary-hint--cyan {
+  border: 2px dashed #13c2c2;
+}
+
+.vdr-demo-nested-limit-root-bg {
+  position: absolute;
+  inset: 0;
+  background: #fadb14;
+  pointer-events: none;
+}
+
+.vdr-demo-fill {
+  width: 100%;
+  height: 100%;
+}
+
+.vdr-demo-fill::before {
+  content: attr(data-label);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.vdr-demo-fill--root,
+.vdr-demo-fill--clip-root {
+  background: #2db7f5;
+}
+
+.vdr-demo-fill--child-a,
+.vdr-demo-fill--clip-child {
+  background: #fa8c16;
+}
+
+.vdr-demo-fill--child-b {
+  background: #722ed1;
+}

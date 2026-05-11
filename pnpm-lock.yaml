@@ -35,6 +35,9 @@ importers:
       eslint-plugin-vue:
         specifier: ^9.32.0
         version: 9.33.0(eslint@9.39.4)
+      shiki:
+        specifier: 2.5.0
+        version: 2.5.0
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
