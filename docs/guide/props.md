@@ -25,6 +25,8 @@
 | `childWrapAttr`     | `Object`                        | `undefined` | 嵌套时子级包裹层的 attrs |
 | `overflow`          | `String`                        | `''`       | 嵌套时子级包裹层的 overflow（与 `childWrapAttr` 同时定义会合并） |
 | `stick-hover-render` | `(cursorRotate: number) => { x: number; y: number; htmlText: string }` | `undefined` | 自定义触点 hover 时的 cursor 图标。返回 svg 字符串与偏移 |
+| `limit-x`           | `[number, number] \| null`      | `null`     | 限制旋转后矩形包围盒在父坐标系内的 x 轴范围 |
+| `limit-y`           | `[number, number] \| null`      | `null`     | 限制旋转后矩形包围盒在父坐标系内的 y 轴范围 |
 
 ## 注意
 
@@ -32,5 +34,6 @@
 - `lock` 为 `true` 时，宽高比基于鼠标按下时的瞬时值。
 - `sticks` 传 `[]` 表示完全不显示控件。
 - `r` 既是 prop 也是 watch 入口；外部修改 `r` 会同步内部 `rotate`。
+- `limit-x` / `limit-y` 可以单独使用；传入的数组必须是 `[最小值, 最大值]`，且最小值不能大于最大值。
 
 参见 [Events](./events) 了解事件回传的 `pos` 字段含义。

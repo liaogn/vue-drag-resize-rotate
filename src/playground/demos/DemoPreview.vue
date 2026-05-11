@@ -9,10 +9,10 @@
     </div>
     <div class="vdr-demo-preview__bar">
       <button type="button" @click="toggleExpanded">
-        {{ expanded ? '收起代码' : '展开代码' }}
+        {{ expanded ? labels.collapse : labels.expand }}
       </button>
       <button type="button" @click="copyCode">
-        {{ copied ? '已复制' : '复制代码' }}
+        {{ copied ? labels.copied : labels.copy }}
       </button>
     </div>
     <div v-if="expanded" class="vdr-demo-preview__source">
@@ -27,22 +27,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, provide, ref, toRef, watch } from 'vue'
 import type { Component } from 'vue'
 import { codeToHtml } from 'shiki/bundle/web'
+import { demoLocaleKey, type DemoLocale } from './i18n'
 
 const props = defineProps<{
   title: string
   description: string
   component: Component
   source: string
+  locale?: DemoLocale
 }>()
 
+const locale = toRef(props, 'locale')
+const normalizedLocale = computed<DemoLocale>(() => locale.value ?? 'zh')
+const labels = computed(() =>
+  normalizedLocale.value === 'en'
+    ? {
+        expand: 'Show code',
+        collapse: 'Hide code',
+        copy: 'Copy code',
+        copied: 'Copied',
+      }
+    : {
+        expand: '展开代码',
+        collapse: '收起代码',
+        copy: '复制代码',
+        copied: '已复制',
+      }
+)
 const expanded = ref(false)
 const copied = ref(false)
 const highlightedSource = ref('')
 let copiedTimer: number | undefined
 let highlightRun = 0
+
+provide(demoLocaleKey, normalizedLocale)
 
 async function copyCode() {
   if (typeof navigator === 'undefined' || !navigator.clipboard) return

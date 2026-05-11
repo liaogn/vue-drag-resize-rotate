@@ -70,9 +70,9 @@ function onUpdate(pos) {
 </script>
 ```
 
-## 嵌套场景下的事件传递
+## 嵌套场景下的事件监听
 
-嵌套子组件（通过 `childrens`）触发的事件会**冒泡到根组件**。如果你需要区分是哪个实例触发的，请给每个层级设置 `uuid`，并在事件回调中读取 `pos.uuid`：
+通过 `childrens` 递归渲染出来的子组件不会把 Vue 组件事件自动冒泡到根组件。如果你需要监听子节点，请在对应子节点配置中使用 `onEventName` 写法，并在事件回调中读取 `pos.uuid`：
 
 ```vue
 <template>
@@ -80,17 +80,26 @@ function onUpdate(pos) {
 </template>
 
 <script setup lang="ts">
+function onUpdate(pos) {
+  console.log('root', pos.uuid, pos.x, pos.y)
+}
+
+function onChildUpdate(pos) {
+  console.log('child', pos.uuid, pos.x, pos.y)
+}
+
 const root = {
   uuid: 'root',
   w: 320, h: 220, x: 30, y: 30,
   childrens: [
-    { uuid: 'child-1', w: 140, h: 100, x: 30, y: 30 },
-    { uuid: 'child-2', w: 90, h: 90, x: 200, y: 100 },
+    {
+      uuid: 'child-1',
+      w: 140, h: 100, x: 30, y: 30,
+      onDragging: onChildUpdate,
+      onResizing: onChildUpdate,
+      onRotating: onChildUpdate,
+    },
   ],
-}
-
-function onUpdate(pos) {
-  console.log(pos.uuid, pos.x, pos.y)
 }
 </script>
 ```

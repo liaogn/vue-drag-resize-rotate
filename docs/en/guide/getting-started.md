@@ -68,4 +68,8 @@ function onChange(pos) {
 ## Next steps
 
 - [Props API](./props) — all configurable options
+- [Events](./events) — event list and `pos` payload
+- [Nesting](./nesting) — recursive data and slot nesting
+- [Boundary Limits](./boundary) — constrain drag, resize, and rotate
+- [Theming](./theming) — customize with CSS variables
 - [Examples](/en/examples/basic) — interactive demos

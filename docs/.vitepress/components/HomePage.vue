@@ -2,9 +2,51 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { withBase } from 'vitepress'
 
-const guideLink = withBase('/guide/getting-started')
-const examplesLink = withBase('/examples/basic')
+const props = withDefaults(
+  defineProps<{
+    locale?: 'zh' | 'en'
+  }>(),
+  { locale: 'zh' }
+)
+
+const isEn = computed(() => props.locale === 'en')
+const guideLink = computed(() =>
+  withBase(isEn.value ? '/en/guide/getting-started' : '/guide/getting-started')
+)
+const examplesLink = computed(() =>
+  withBase(isEn.value ? '/en/examples/basic' : '/examples/basic')
+)
 const githubLink = 'https://github.com/liaogn/vue-drag-resize-rotate'
+
+const copy = computed(() =>
+  isEn.value
+    ? {
+        eyebrow: 'Try the demo on the right and feel the smooth interaction',
+        titlePrefix: 'Drag · Resize ·',
+        titleAccent: 'Rotate',
+        titleSuffix: 'has never been easier.',
+        lead:
+          'vue-drag-resize-rotate is a powerful, lightweight Vue 3 component for dragging, resizing, rotating, and nested editing across visual web editor scenarios.',
+        metaLabel: 'Project features',
+        guideAction: 'Get Started',
+        examplesAction: 'Examples',
+        stageLabel: 'Drag resize rotate demo',
+        infoTitle: 'A silky drag · resize · rotate Vue plugin.',
+      }
+    : {
+        eyebrow: '请操作点击右侧的Demo，体验丝滑交互',
+        titlePrefix: '拖拽 · 缩放 ·',
+        titleAccent: '旋转',
+        titleSuffix: '从未如此简单。',
+        lead:
+          'vue-drag-resize-rotate 是一个功能强大、轻量灵活的 Vue 3 组件，提供拖拽、缩放、旋转、嵌套编辑等能力，适用于各类 Web 可视化编辑场景。',
+        metaLabel: '项目特性',
+        guideAction: '快速开始',
+        examplesAction: '示例代码',
+        stageLabel: '拖拽缩放旋转演示',
+        infoTitle: '丝滑的拖拽 · 缩放 · 旋转的 Vue 插件。',
+      }
+)
 
 const heroRef = ref<HTMLElement | null>(null)
 const stageRef = ref<HTMLElement | null>(null)
@@ -76,39 +118,77 @@ onBeforeUnmount(() => {
   if (panelLimitFrame) window.cancelAnimationFrame(panelLimitFrame)
 })
 
-const stats = [
-  { icon: '▼', text: 'Vue 3' },
-  { icon: '✧', text: '极轻量' },
-  { icon: '↪', text: '可嵌套' },
-  { icon: '↯', text: '高性能' },
-]
+const stats = computed(() =>
+  isEn.value
+    ? [
+        { icon: '▼', text: 'Vue 3' },
+        { icon: '✧', text: 'Lightweight' },
+        { icon: '↪', text: 'Nestable' },
+        { icon: '↯', text: 'Performant' },
+      ]
+    : [
+        { icon: '▼', text: 'Vue 3' },
+        { icon: '✧', text: '极轻量' },
+        { icon: '↪', text: '可嵌套' },
+        { icon: '↯', text: '高性能' },
+      ]
+)
 
-const features = [
-  {
-    icon: '🎯',
-    index: '01',
-    title: '拖拽 / 缩放 / 旋转',
-    text: '支持自由移动、8 方向触点缩放和 360° 旋转，快速获得画布元素编辑能力。',
-  },
-  {
-    icon: '🧱',
-    index: '02',
-    title: '嵌套编辑 / 插槽承载',
-    text: '支持父子元素多层嵌套，可通过插槽放入任意内容，也支持数据配置渲染节点。',
-  },
-  {
-    icon: '🔁',
-    index: '03',
-    title: '锁比例 / 翻转 / 尺寸限制',
-    text: '支持固定比例缩放、拖拽触点自由翻转，并限制元素最小 / 最大宽高。',
-  },
-  {
-    icon: '🎨',
-    index: '04',
-    title: '样式定制 / 轻量接入',
-    text: '仅依赖 Vue 3，支持全局插件安装和单组件引入，主题样式由 CSS 变量驱动。',
-  },
-]
+const features = computed(() =>
+  isEn.value
+    ? [
+        {
+          icon: '🎯',
+          index: '01',
+          title: 'Drag / Resize / Rotate',
+          text: 'Move freely, resize from 8 directional handles, and rotate 360 degrees for editor-ready canvas interactions.',
+        },
+        {
+          icon: '🧱',
+          index: '02',
+          title: 'Nested Editing / Slots',
+          text: 'Support multi-level parent-child editing, arbitrary slot content, and data-driven node rendering.',
+        },
+        {
+          icon: '🔁',
+          index: '03',
+          title: 'Aspect Lock / Flip / Size Limits',
+          text: 'Lock aspect ratio, flip by dragging handles across edges, and constrain minimum or maximum dimensions.',
+        },
+        {
+          icon: '🎨',
+          index: '04',
+          title: 'Theming / Lightweight Setup',
+          text: 'Only Vue 3 is required. Use global install or local import, with visuals driven by CSS variables.',
+        },
+      ]
+    : [
+        {
+          icon: '🎯',
+          index: '01',
+          title: '拖拽 / 缩放 / 旋转',
+          text: '支持自由移动、8 方向触点缩放和 360° 旋转，快速获得画布元素编辑能力。',
+        },
+        {
+          icon: '🧱',
+          index: '02',
+          title: '嵌套编辑 / 插槽承载',
+          text: '支持父子元素多层嵌套，可通过插槽放入任意内容，也支持数据配置渲染节点。',
+        },
+        {
+          icon: '🔁',
+          index: '03',
+          title: '锁比例 / 翻转 / 尺寸限制',
+          text: '支持固定比例缩放、拖拽触点自由翻转，并限制元素最小 / 最大宽高。',
+        },
+        {
+          icon: '🎨',
+          index: '04',
+          title: '样式定制 / 轻量接入',
+          text: '仅依赖 Vue 3，支持全局插件安装和单组件引入，主题样式由 CSS 变量驱动。',
+        },
+      ]
+)
 </script>
 
 <template>
@@ -119,17 +199,15 @@ const features = [
 
       <div class="vdr-hero__inner">
         <div class="vdr-hero__copy">
-          <p class="vdr-eyebrow">请操作点击右侧的Demo，体验丝滑交互</p>
-          <h1><span class="vdr-hero__title-line">拖拽 · 缩放 · <span class="vdr-hero__accent">旋转</span></span><br />从未如此简单。</h1>
+          <p class="vdr-eyebrow">{{ copy.eyebrow }}</p>
+          <h1><span class="vdr-hero__title-line">{{ copy.titlePrefix }} <span class="vdr-hero__accent">{{ copy.titleAccent }}</span></span><br />{{ copy.titleSuffix }}</h1>
          
           <div>
             <p class="vdr-hero__lead">
-              vue-drag-resize-rotate 是一个功能强大、轻量灵活的 Vue 3 组件，
-              提供拖拽、缩放、旋转、嵌套编辑等能力，
-              适用于各类 Web 可视化编辑场景。
+              {{ copy.lead }}
             </p>
 
-            <div class="vdr-hero__meta" aria-label="项目特性">
+            <div class="vdr-hero__meta" :aria-label="copy.metaLabel">
               <span v-for="item in stats" :key="item.text">
                 <i>{{ item.icon }}</i>
                 {{ item.text }}
@@ -138,14 +216,14 @@ const features = [
           </div>
 
           <div class="vdr-hero__actions">
-            <a class="vdr-button vdr-button--primary" :href="guideLink">快速开始 <span>→</span></a>
-            <a class="vdr-button" :href="examplesLink">示例代码 <span>↘</span></a>
+            <a class="vdr-button vdr-button--primary" :href="guideLink">{{ copy.guideAction }} <span>→</span></a>
+            <a class="vdr-button" :href="examplesLink">{{ copy.examplesAction }} <span>↘</span></a>
             <a class="vdr-button" :href="githubLink" target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
           </div>
         </div>
 
         <ClientOnly>
-          <div ref="stageRef" class="vdr-stage" aria-label="拖拽缩放旋转演示">
+          <div ref="stageRef" class="vdr-stage" :aria-label="copy.stageLabel">
             <vdr
               class="vdr-stage__panel"
               overflow="hidden"
@@ -170,7 +248,7 @@ const features = [
 
     <section class="vdr-info">
       <div class="vdr-info__heading">
-        <h2>丝滑的拖拽 · 缩放 · 旋转的 Vue 插件。</h2>
+        <h2>{{ copy.infoTitle }}</h2>
       </div>
 
       <div class="vdr-feature-grid">

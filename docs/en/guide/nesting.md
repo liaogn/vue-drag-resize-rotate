@@ -1,8 +1,8 @@
-# 嵌套
+# Nesting
 
-`vdr` 支持两种嵌套形态：**数据递归嵌套**（`childrens`）和 **模板嵌套**（slot）。前者适合由配置驱动的编辑器场景，后者适合手写组合。
+`vdr` supports two nesting styles: **recursive data nesting** through `childrens`, and **template nesting** through the default slot. Use `childrens` when your editor is driven by a JSON-like schema; use slots when you compose each level by hand.
 
-## 通过 `childrens` 递归嵌套
+## Recursive Nesting with `childrens`
 
 ```vue
 <template>
@@ -21,7 +21,7 @@ const root = {
     {
       w: 100, h: 100, x: 240, y: 140, r: -10, lock: true,
       uuid: 'child-2',
-      // 子节点也可以继续有 childrens
+      // Children can also define their own childrens.
       childrens: [
         { w: 60, h: 60, x: 20, y: 20, uuid: 'grand-1' },
       ],
@@ -31,11 +31,11 @@ const root = {
 </script>
 ```
 
-子组件的操作会**自动跟随父级旋转坐标系**，你不需要手动换算旋转角度。
+Child operations follow the parent's rotated coordinate system automatically, so you do not need to convert angles manually.
 
-## `overflow` —— 子元素被父级裁剪
+## `overflow` for Clipping Children
 
-默认情况下子元素超出父元素不会被裁剪。通过传 `overflow` 可以给子级包一层 `overflow:hidden` 的 `.childWrap`：
+By default, children are not clipped when they exceed the parent. Pass `overflow` to create a `.childWrap` with the requested overflow behavior:
 
 ```vue
 <vdr
@@ -45,11 +45,11 @@ const root = {
 />
 ```
 
-常用值：`'hidden' | 'auto' | 'scroll'`。
+Common values are `'hidden'`, `'auto'`, and `'scroll'`.
 
-## `childWrapAttr` —— 自定义子级包裹层
+## `childWrapAttr`
 
-如果需要更多包裹层的控制（class、inline style、任意属性），使用 `childWrapAttr`：
+Use `childWrapAttr` when you need more control over the wrapper around child nodes, such as class, inline style, or other attributes:
 
 ```vue
 <vdr
@@ -62,9 +62,9 @@ const root = {
 />
 ```
 
-`overflow` 与 `childWrapAttr` 同时存在时，`overflow` 会合并到 `childWrapAttr.style`。
+When both `overflow` and `childWrapAttr` are provided, `overflow` is merged into `childWrapAttr.style`.
 
-## 通过 slot 嵌套
+## Slot Nesting
 
 ```vue
 <vdr :w="320" :h="220" :x="30" :y="30">
@@ -74,11 +74,11 @@ const root = {
 </vdr>
 ```
 
-两种方式可以混用：外层用 `childrens`，插槽里再手写一个 `vdr`。
+You can mix both styles: render part of the tree from `childrens`, then place hand-written `vdr` nodes in the slot.
 
-## 子级事件监听
+## Handling Child Events
 
-通过 `childrens` 递归渲染出来的子组件不会把 Vue 组件事件自动冒泡到根组件。如果你需要监听数据驱动子节点的操作，可以在子节点配置中使用 Vue 的 `onEventName` 对象监听写法，并通过 `pos.uuid` 区分来源：
+Vue component events emitted by recursive `childrens` do not automatically bubble to the root `vdr`. To handle events from data-driven children, pass listeners in the child config with Vue's `onEventName` object syntax:
 
 ```vue
 <template>
@@ -110,4 +110,4 @@ const root = {
 </script>
 ```
 
-如果是 slot 嵌套，则直接在每个手写的 `<vdr>` 上绑定事件。
+For slot nesting, bind listeners directly on each nested `<vdr>`.

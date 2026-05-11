@@ -12,7 +12,7 @@
 ## 功能亮点
 
 - 🎯 **支持拖拽 / 缩放 / 旋转**：支持在画布中自由移动元素、通过 8 个方向触点调整尺寸，并进行 360° 自由旋转。
-- 🔁 **支持锁定宽高比例 / 翻转 / 尺寸限制**：支持按固定比例缩放、拖拽触点自由翻转，并限制元素最小 / 最大宽高。
+- 🔁 **支持锁定宽高比例 / 翻转 / 尺寸与边界限制**：支持按固定比例缩放、拖拽触点自由翻转，并限制元素最小 / 最大宽高和画布活动范围。
 - 🧱 **支持嵌套编辑 / 插槽承载**：支持父子元素多层嵌套，可通过插槽放入任意内容，也支持通过数据配置渲染节点。
 - 🎛️ **支持编辑模式控制**：支持切换只读、仅拖拽、仅缩放、禁止旋转、隐藏控件等模式。
 - 🎨 **支持样式定制**：支持自定义触点、轮廓、旋转线、尺寸、阴影和 光标图案。
@@ -60,7 +60,7 @@ function onChange(pos: { x: number; y: number; w: number; h: number; r: number }
 </script>
 ```
 
-完整 API 见 [Props](https://liaogn.github.io/vue-drag-resize-rotate/guide/props) · [Events](https://liaogn.github.io/vue-drag-resize-rotate/guide/events) · [Slots](https://liaogn.github.io/vue-drag-resize-rotate/guide/slots)。
+完整 API 见 [Props](https://liaogn.github.io/vue-drag-resize-rotate/guide/props) · [Events](https://liaogn.github.io/vue-drag-resize-rotate/guide/events) · [Slots](https://liaogn.github.io/vue-drag-resize-rotate/guide/slots) · [边界限制](https://liaogn.github.io/vue-drag-resize-rotate/guide/boundary)。
 
 ## 核心能力
 
@@ -123,6 +123,8 @@ interface PosData {
   :min-height="60"
   :max-width="480"
   :max-height="320"
+  :limit-x="[0, 800]"
+  :limit-y="[0, 480]"
   :sticks="['tl', 'tr', 'br', 'bl', 'angle']"
 />
 ```
@@ -139,7 +141,26 @@ interface PosData {
 | `lock` | 是否锁定当前宽高比 |
 | `minWidth` / `minHeight` | 缩放最小尺寸 |
 | `maxWidth` / `maxHeight` | 缩放最大尺寸 |
+| `limitX` / `limitY` | 限制旋转后矩形包围盒在父坐标系内的活动范围 |
 | `sticks` | 自定义显示哪些缩放 / 旋转触点 |
+
+### 边界限制
+
+`limit-x` / `limit-y` 可以约束拖拽、缩放和旋转后的矩形范围。边界判断基于**旋转后的轴对齐包围盒**，适合把节点限制在画布、裁剪区或父级容器内：
+
+```vue
+<vdr
+  :w="180"
+  :h="120"
+  :x="40"
+  :y="40"
+  :r="15"
+  :limit-x="[20, 620]"
+  :limit-y="[20, 420]"
+/>
+```
+
+两个 prop 可以单独使用；如果旋转后的包围盒仍能放进边界，组件会在需要时微调 `x` / `y` 使其回到范围内。详见 [边界限制指南](https://liaogn.github.io/vue-drag-resize-rotate/guide/boundary)。
 
 ## 主题定制
 

@@ -69,5 +69,7 @@ function onChange(pos) {
 
 - [Props API](./props) — 所有可配置项
 - [Events](./events) — 事件列表与 `pos` 参数结构
+- [嵌套](./nesting) — 数据递归与 slot 嵌套
+- [边界限制](./boundary) — 约束拖拽、缩放和旋转范围
 - [主题定制](./theming) — 用 CSS 变量换肤
 - [示例](/examples/basic) — 交互演示

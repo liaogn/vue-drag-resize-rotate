@@ -25,6 +25,8 @@
 | `childWrapAttr`     | `Object`                                                              | `undefined` | Attrs for the wrapper around children |
 | `overflow`          | `String`                                                              | `''`       | Wrapper `overflow` (merged into `childWrapAttr` if both provided) |
 | `stick-hover-render` | `(cursorRotate: number) => { x: number; y: number; htmlText: string }` | `undefined` | Custom cursor renderer for sticks (returns an SVG string with offsets) |
+| `limit-x`           | `[number, number] \| null`                                            | `null`     | Limit the transformed rectangle's bounding box on the x axis in parent coordinates |
+| `limit-y`           | `[number, number] \| null`                                            | `null`     | Limit the transformed rectangle's bounding box on the y axis in parent coordinates |
 
 ## Notes
 
@@ -32,5 +34,6 @@
 - `lock` ratio is based on the snapshot at mousedown.
 - `sticks: []` hides every handle.
 - `r` is both a prop and a watch source; external updates sync to internal state.
+- `limit-x` and `limit-y` can be used independently. The array must be `[min, max]`, with `min <= max`.
 
 See [Events](./events) for the `pos` payload structure.

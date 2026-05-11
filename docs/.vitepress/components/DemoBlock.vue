@@ -5,20 +5,25 @@
     :description="demo.description"
     :component="demo.component"
     :source="demo.source"
+    :locale="locale"
   />
   <p v-else class="demo-block__missing">Demo not found: {{ demoKey }}</p>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useData } from 'vitepress'
 import DemoPreview from '../../../src/playground/demos/DemoPreview.vue'
 import { getDemo } from '../../../src/playground/demos/registry'
+import type { DemoLocale } from '../../../src/playground/demos/i18n'
 
 const props = defineProps<{
   demoKey: string
 }>()
 
-const demo = computed(() => getDemo(props.demoKey))
+const { lang } = useData()
+const locale = computed<DemoLocale>(() => (lang.value.startsWith('en') ? 'en' : 'zh'))
+const demo = computed(() => getDemo(props.demoKey, locale.value))
 </script>
 
 <style scoped>

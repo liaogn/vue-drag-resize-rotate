@@ -41,7 +41,14 @@ export default defineConfig({
               text: '指南',
               items: [
                 { text: '快速开始', link: '/guide/getting-started' },
+                { text: '锁定比例', link: '/guide/lock-ratio' },
+                { text: '尺寸限制', link: '/guide/min-max' },
+                { text: '翻转', link: '/guide/flip' },
                 { text: '嵌套', link: '/guide/nesting' },
+                { text: '边界限制', link: '/guide/boundary' },
+                { text: '控件子集', link: '/guide/sticks' },
+                { text: '自定义 cursor', link: '/guide/custom-cursor' },
+                { text: '状态开关', link: '/guide/flags' },
                 { text: '主题定制', link: '/guide/theming' },
               ],
             },
@@ -103,13 +110,25 @@ export default defineConfig({
           '/en/guide/': [
             {
               text: 'Guide',
-              items: [{ text: 'Getting Started', link: '/en/guide/getting-started' }],
+              items: [
+                { text: 'Getting Started', link: '/en/guide/getting-started' },
+                { text: 'Lock Ratio', link: '/en/guide/lock-ratio' },
+                { text: 'Size Limits', link: '/en/guide/min-max' },
+                { text: 'Flip', link: '/en/guide/flip' },
+                { text: 'Nesting', link: '/en/guide/nesting' },
+                { text: 'Boundary Limits', link: '/en/guide/boundary' },
+                { text: 'Sticks', link: '/en/guide/sticks' },
+                { text: 'Custom Cursor', link: '/en/guide/custom-cursor' },
+                { text: 'State Flags', link: '/en/guide/flags' },
+                { text: 'Theming', link: '/en/guide/theming' },
+              ],
             },
             {
               text: 'API',
               items: [
                 { text: 'Props', link: '/en/guide/props' },
                 { text: 'Events', link: '/en/guide/events' },
+                { text: 'Slots', link: '/en/guide/slots' },
               ],
             },
           ],
