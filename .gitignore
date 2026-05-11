@@ -1,6 +1,7 @@
 .DS_Store
 node_modules/
 .codex/
+tmp/
 
 # build artifacts
 dist/
