@@ -88,6 +88,14 @@ import {
   type StickType,
 } from '../core'
 
+type ChildConfig = Record<string, unknown> & {
+  uuid?: string | number
+}
+
+type ChildWrapAttr = Record<string, unknown> & {
+  style?: Record<string, string | number | undefined>
+}
+
 export default defineComponent({
   name: 'vdr',
   inheritAttrs: false,
@@ -144,8 +152,8 @@ export default defineComponent({
     resizeable: { type: Boolean, default: true },
     rotateable: { type: Boolean, default: true },
     activeable: { type: Boolean, default: true },
-    childrens: { type: Array as PropType<Record<string, any>[]>, default: undefined },
-    childWrapAttr: { type: Object as PropType<Record<string, any>>, default: undefined },
+    childrens: { type: Array as PropType<ChildConfig[]>, default: undefined },
+    childWrapAttr: { type: Object as PropType<ChildWrapAttr>, default: undefined },
     stickHoverRender: {
       type: Function as PropType<StickHoverRender>,
       default: undefined,
@@ -246,8 +254,13 @@ export default defineComponent({
     _childWrapAttr() {
       if (this.overflow) {
         const childWrapAttr = this.childWrapAttr || {}
-        const style = Object.assign(childWrapAttr.style || {}, { overflow: this.overflow })
-        return Object.assign(childWrapAttr, { style })
+        return {
+          ...childWrapAttr,
+          style: {
+            ...(childWrapAttr.style || {}),
+            overflow: this.overflow,
+          },
+        }
       }
       return this.childWrapAttr
     },

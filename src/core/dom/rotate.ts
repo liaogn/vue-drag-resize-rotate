@@ -6,12 +6,12 @@ export function angleToRadian(rotate: number): number {
 /** 获取元素旋转角度（基于 transform matrix） */
 export function getElementRotate(element: Element | null | undefined): number {
   if (!element || element.nodeType !== 1) return 0
-  const parentStyle = window.getComputedStyle(element as Element, null)
+  const parentStyle = window.getComputedStyle(element, null)
   const matrixInfo =
-    (parentStyle as any)['-webkit-transform'] ||
-    (parentStyle as any)['-moz-transform'] ||
-    (parentStyle as any)['-ms-transform'] ||
-    (parentStyle as any)['-o-transform'] ||
+    parentStyle.getPropertyValue('-webkit-transform') ||
+    parentStyle.getPropertyValue('-moz-transform') ||
+    parentStyle.getPropertyValue('-ms-transform') ||
+    parentStyle.getPropertyValue('-o-transform') ||
     parentStyle.transform
   if (!matrixInfo || matrixInfo.indexOf('matrix') === -1) return 0
   const matrix = matrixInfo.replace(/matrix\(|\)|\s/gi, '')
@@ -28,8 +28,9 @@ export function getElementRotate(element: Element | null | undefined): number {
  * @param boundary 累加从该元素的下一项开始；不传则只跳过 ev.target
  */
 export function getParentsRotate(ev: MouseEvent, boundary?: Element): number {
+  const eventWithPath = ev as MouseEvent & { path?: EventTarget[] }
   const path: EventTarget[] =
-    (ev as any).path || (typeof ev.composedPath === 'function' && ev.composedPath()) || []
+    eventWithPath.path || (typeof ev.composedPath === 'function' && ev.composedPath()) || []
   if (path.length < 2) return 0
   const startIndex = boundary ? path.indexOf(boundary) + 1 : 1
   if (startIndex <= 0) return 0
