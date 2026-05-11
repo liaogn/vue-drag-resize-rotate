@@ -32,4 +32,6 @@ pnpm-debug.log*
 *.sw*
 
 # legacy reference (留作参照,后续会删除)
-legacy/
+legacy/*
+!legacy/
+!legacy/package.json
