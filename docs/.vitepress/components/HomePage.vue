@@ -50,6 +50,10 @@ const copy = computed(() =>
 
 const heroRef = ref<HTMLElement | null>(null)
 const stageRef = ref<HTMLElement | null>(null)
+const stageSize = reactive({
+  width: 620,
+  height: 540,
+})
 const panelLimit = reactive({
   ready: false,
   lx0: 0,
@@ -66,28 +70,49 @@ const panelLimitY = computed<[number, number] | null>(() =>
 let panelLimitResizeObserver: ResizeObserver | null = null
 let panelLimitFrame = 0
 
-function syncPanelLimit() {
-  if (!heroRef.value || !stageRef.value) return
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value))
+}
 
-  const heroRect = heroRef.value.getBoundingClientRect()
+const demoPanel = computed(() => {
+  const width = Math.round(clamp(stageSize.width - 32, 220, 500))
+  const height = Math.round(width * 0.64)
+
+  return {
+    w: width,
+    h: height,
+    x: Math.round((stageSize.width - width) / 2),
+    y: Math.round((stageSize.height - height) / 2 + stageSize.height * 0.02),
+    r: stageSize.width < 420 ? -4 : -7,
+  }
+})
+
+const nestedPanel = computed(() => {
+  const width = Math.round(clamp(demoPanel.value.w * 0.26, 92, 130))
+  const height = Math.round(width * 0.62)
+
+  return {
+    w: width,
+    h: height,
+    x: Math.round((demoPanel.value.w - width) / 2),
+    y: Math.round((demoPanel.value.h - height) / 2),
+    r: 10,
+  }
+})
+
+function syncPanelLimit() {
+  if (!stageRef.value) return
+
   const stageRect = stageRef.value.getBoundingClientRect()
   const stageScaleX = stageRect.width / (stageRef.value.offsetWidth || stageRect.width || 1) || 1
   const stageScaleY = stageRect.height / (stageRef.value.offsetHeight || stageRect.height || 1) || 1
-  const screenRect = {
-    left: Math.max(heroRect.left, 0),
-    top: Math.max(heroRect.top, 0),
-    right: Math.min(heroRect.right, window.innerWidth),
-    bottom: Math.min(heroRect.bottom, window.innerHeight),
-  }
-  const limitRect =
-    screenRect.right > screenRect.left && screenRect.bottom > screenRect.top
-      ? screenRect
-      : heroRect
 
-  panelLimit.lx0 = Math.floor((limitRect.left - stageRect.left) / stageScaleX)
-  panelLimit.lx1 = Math.ceil((limitRect.right - stageRect.left) / stageScaleX)
-  panelLimit.ly0 = Math.floor((limitRect.top - stageRect.top) / stageScaleY)
-  panelLimit.ly1 = Math.ceil((limitRect.bottom - stageRect.top) / stageScaleY)
+  stageSize.width = Math.round(stageRef.value.offsetWidth || stageRect.width)
+  stageSize.height = Math.round(stageRef.value.offsetHeight || stageRect.height)
+  panelLimit.lx0 = 0
+  panelLimit.lx1 = Math.ceil(stageRect.width / stageScaleX)
+  panelLimit.ly0 = 0
+  panelLimit.ly1 = Math.ceil(stageRect.height / stageScaleY)
   panelLimit.ready = true
 }
 
@@ -227,16 +252,25 @@ const features = computed(() =>
             <vdr
               class="vdr-stage__panel"
               overflow="hidden"
-              :w="500"
-              :h="320"
-              :x="60"
-              :y="110"
-              :r="-7"
+              :w="demoPanel.w"
+              :h="demoPanel.h"
+              :x="demoPanel.x"
+              :y="demoPanel.y"
+              :r="demoPanel.r"
               :limit-x="panelLimitX"
               :limit-y="panelLimitY"
             >
               <div class="vdr-stage__surface">
-                <vdr :limit-x="[-40,540]" :limit-y="[-40,360]" class="vdr-stage__nested" :w="130" :h="80" :x="188" :y="110" :r="10">
+                <vdr
+                  :limit-x="[0, demoPanel.w]"
+                  :limit-y="[0, demoPanel.h]"
+                  class="vdr-stage__nested"
+                  :w="nestedPanel.w"
+                  :h="nestedPanel.h"
+                  :x="nestedPanel.x"
+                  :y="nestedPanel.y"
+                  :r="nestedPanel.r"
+                >
                   <div class="vdr-stage__label">nesting</div>
                 </vdr>
               </div>
@@ -336,19 +370,21 @@ const features = computed(() =>
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(610px, 1fr) minmax(520px, 1fr);
-  gap: 42px;
-  width: min(1420px, calc(100% - 128px));
+  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
+  gap: clamp(28px, 3vw, 48px);
+  width: min(1420px, calc(100% - 80px));
   min-height: calc(100vh - var(--vp-nav-height));
   margin: 0 auto;
   align-items: center;
 }
 
 .vdr-hero__copy {
+  position: relative;
+  z-index: 2;
   padding: 20px 0 60px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: clamp(20px, 2.5vw, 30px);
 }
 
 .vdr-eyebrow {
@@ -366,8 +402,8 @@ const features = computed(() =>
 
 .vdr-hero h1 {
   color: #17254a;
-  font-size: clamp(66px, 5.3vw, 82px);
-  line-height: 1.5;
+  font-size: clamp(50px, 5.1vw, 82px);
+  line-height: 1.28;
   font-weight: 900;
   letter-spacing: 0;
 }
@@ -453,6 +489,7 @@ const features = computed(() =>
   height: 540px;
   min-width: 0;
   margin-top: 26px;
+  z-index: 1;
 }
 
 .vdr-stage::before {
@@ -606,24 +643,25 @@ const features = computed(() =>
   line-height: 1.75;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1240px) {
   .vdr-hero {
     min-height: auto;
   }
 
   .vdr-hero__inner {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 22px;
     min-height: auto;
-    padding-top: 54px;
+    padding-top: 48px;
   }
 
   .vdr-hero__copy {
-    padding: 42px 0 0;
+    max-width: 820px;
+    padding: 34px 0 0;
   }
 
   .vdr-stage {
-    height: 460px;
+    height: clamp(360px, 44vw, 500px);
     margin-top: 0;
   }
 
@@ -640,11 +678,27 @@ const features = computed(() =>
   .vdr-hero__inner,
   .vdr-info__heading,
   .vdr-feature-grid {
-    width: min(100% - 32px, 1120px);
+    width: min(100% - 28px, 1120px);
+  }
+
+  .vdr-hero__inner {
+    padding-top: 26px;
+    gap: 18px;
+  }
+
+  .vdr-hero__copy {
+    padding-top: 20px;
+    gap: 18px;
+  }
+
+  .vdr-eyebrow {
+    min-height: 32px;
+    padding: 0 14px;
+    font-size: 14px;
   }
 
   .vdr-hero h1 {
-    font-size: clamp(40px, 12vw, 58px);
+    font-size: clamp(38px, 10.8vw, 56px);
     line-height: 1.18;
   }
 
@@ -654,21 +708,30 @@ const features = computed(() =>
 
   .vdr-hero__lead {
     font-size: 16px;
+    line-height: 1.62;
+  }
+
+  .vdr-hero__meta {
+    gap: 10px 16px;
+  }
+
+  .vdr-hero__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
   }
 
   .vdr-button {
-    min-width: 132px;
-    height: 52px;
-    padding: 0 20px;
-    font-size: 15px;
+    min-width: 0;
+    height: 48px;
+    padding: 0 12px;
+    font-size: 14px;
   }
 
   .vdr-stage {
-    height: 380px;
-    transform: scale(0.72);
-    transform-origin: top left;
-    width: 138%;
-    margin-bottom: -88px;
+    height: clamp(300px, 78vw, 380px);
+    margin-bottom: 0;
   }
 
   .vdr-info {
@@ -681,6 +744,40 @@ const features = computed(() =>
 
   .vdr-feature {
     min-height: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .vdr-hero__inner,
+  .vdr-info__heading,
+  .vdr-feature-grid {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .vdr-hero h1 {
+    font-size: clamp(34px, 10vw, 42px);
+  }
+
+  .vdr-hero__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .vdr-stage {
+    height: 292px;
+  }
+
+  .vdr-stage__panel {
+    --vdr-stick-size: 14px;
+    --vdr-angle-size: 18px;
+  }
+
+  .vdr-stage__nested {
+    --vdr-stick-size: 12px;
+    --vdr-angle-size: 16px;
+  }
+
+  .vdr-stage__label {
+    font-size: 16px;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="vdr-demo-stage">
+  <div class="vdr-demo-stage" ref="limitStageRef">
     <div
       class="vdr-demo-boundary-hint vdr-demo-boundary-hint--orange"
       :style="boundaryHintStyle"
@@ -10,6 +10,10 @@
       :limit-y="[bound.ly0, bound.ly1]"
       uuid="nest-root"
       overflow="hidden"
+      @dragging="updateBoundedNestedRoot"
+      @resizing="updateBoundedNestedRoot"
+      @rotating="updateBoundedNestedRoot"
+      @fliped="updateBoundedNestedRoot"
     >
       <div class="vdr-demo-nested-limit-root-bg"></div>
       <div
@@ -48,18 +52,32 @@
 </template>
 
 <script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
-import { boundaryStyle, centerRectInBoundary, getBoundary } from './helpers'
+import {
+  STAGE_HEIGHT,
+  STAGE_WIDTH,
+  assignPos,
+  boundaryStyle,
+  centerRectInBoundary,
+  getBoundary,
+  type PosDataLike,
+} from './helpers'
 
-const initialBoundary = getBoundary()
-const bound = {
+const limitStageRef = ref<HTMLElement | null>(null)
+const stageSize = reactive({ width: STAGE_WIDTH, height: STAGE_HEIGHT })
+const rootTouched = ref(false)
+let stageResizeObserver: ResizeObserver | null = null
+
+const initialBoundary = getBoundary(stageSize.width, stageSize.height)
+const bound = reactive({
   lx0: initialBoundary.x0,
   lx1: initialBoundary.x1,
   ly0: initialBoundary.y0,
   ly1: initialBoundary.y1,
-}
-const boundedNestedRoot = centerRectInBoundary(280, 220)
-const boundaryHintStyle = boundaryStyle(bound)
+})
+const boundedNestedRoot = reactive(centerRectInBoundary(280, 220, 0, stageSize.width, stageSize.height))
+const boundaryHintStyle = computed(() => boundaryStyle(bound))
 const nestedChildBoundaryStyle: CSSProperties = {
   position: 'absolute',
   left: '12px',
@@ -68,4 +86,47 @@ const nestedChildBoundaryStyle: CSSProperties = {
   height: '196px',
   pointerEvents: 'none',
 }
+
+function updateBoundedNestedRoot(pos: PosDataLike) {
+  rootTouched.value = true
+  assignPos(boundedNestedRoot, pos)
+}
+
+function syncLimitBoundary() {
+  const boundary = getBoundary(stageSize.width, stageSize.height)
+  bound.lx0 = boundary.x0
+  bound.lx1 = boundary.x1
+  bound.ly0 = boundary.y0
+  bound.ly1 = boundary.y1
+
+  if (!rootTouched.value) {
+    Object.assign(
+      boundedNestedRoot,
+      centerRectInBoundary(280, 220, 0, stageSize.width, stageSize.height)
+    )
+  }
+}
+
+onMounted(() => {
+  nextTick(() => {
+    if (!limitStageRef.value) return
+
+    const syncStageSize = () => {
+      if (!limitStageRef.value) return
+      const rect = limitStageRef.value.getBoundingClientRect()
+      stageSize.width = Math.round(rect.width)
+      stageSize.height = Math.round(rect.height)
+    }
+
+    syncStageSize()
+    stageResizeObserver = new ResizeObserver(syncStageSize)
+    stageResizeObserver.observe(limitStageRef.value)
+  })
+})
+
+onBeforeUnmount(() => {
+  stageResizeObserver?.disconnect()
+})
+
+watch(() => [stageSize.width, stageSize.height], syncLimitBoundary, { immediate: true })
 </script>
