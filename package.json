@@ -45,6 +45,9 @@
   "bugs": {
     "url": "https://github.com/liaogn/vue-drag-resize-rotate/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build --mode lib",

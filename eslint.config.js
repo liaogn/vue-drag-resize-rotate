@@ -13,6 +13,8 @@ export default defineConfigWithVueTs(
       'docs/.vitepress/.temp/**',
       'legacy/**',
       'node_modules/**',
+      'playgrounds/**/dist/**',
+      'playgrounds/**/node_modules/**',
       'tmp/**',
     ],
   },

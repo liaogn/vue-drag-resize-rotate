@@ -10,4 +10,5 @@ installable.install = (app: App) => {
 }
 
 export { installable as VueDragResizeRotate }
+export * from './core'
 export default installable
