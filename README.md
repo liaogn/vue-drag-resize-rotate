@@ -7,7 +7,7 @@
 
 > 面向 Vue 3 的拖拽 / 缩放 / 旋转组件，适合图片标注、海报编辑、低代码画布、可视化搭建器等需要矩形编辑能力的场景。
 
-[文档站](https://liaogn.github.io/vue-drag-resize-rotate/) · [English](https://liaogn.github.io/vue-drag-resize-rotate/en/) · [Changelog](./CHANGELOG.md)
+[文档站](https://liaogn.github.io/vue-drag-resize-rotate/) · [English](https://liaogn.github.io/vue-drag-resize-rotate/en/) · [React 版](https://liaogn.github.io/react-drag-resize-rotate/) · [Changelog](./CHANGELOG.md)
 
 ## 功能亮点
 

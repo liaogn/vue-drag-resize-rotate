@@ -34,6 +34,7 @@ export default defineConfig({
           { text: '指南', link: '/guide/getting-started' },
           { text: 'API', link: '/guide/props' },
           { text: '示例', link: '/examples/basic' },
+          { text: 'React 版', link: 'https://liaogn.github.io/react-drag-resize-rotate/' },
           { text: 'v2.0', items: [{ text: '更新日志', link: `${GITHUB}/blob/master/CHANGELOG.md` }] },
         ],
         sidebar: {
@@ -105,6 +106,7 @@ export default defineConfig({
           { text: 'Guide', link: '/en/guide/getting-started' },
           { text: 'API', link: '/en/guide/props' },
           { text: 'Examples', link: '/en/examples/basic' },
+          { text: 'React version', link: 'https://liaogn.github.io/react-drag-resize-rotate/en/' },
           { text: 'v2.0', items: [{ text: 'Changelog', link: `${GITHUB}/blob/master/CHANGELOG.md` }] },
         ],
         sidebar: {
