@@ -15,7 +15,7 @@
 - 🔁 **支持锁定宽高比例 / 翻转 / 尺寸与边界限制**：支持按固定比例缩放、拖拽触点自由翻转，并限制元素最小 / 最大宽高和画布活动范围。
 - 🧱 **支持嵌套编辑 / 插槽承载**：支持父子元素多层嵌套，可通过插槽放入任意内容，也支持通过数据配置渲染节点。
 - 🎛️ **支持编辑模式控制**：支持切换只读、仅拖拽、仅缩放、禁止旋转、隐藏控件等模式。
-- 🎨 **支持样式定制**：支持自定义触点、轮廓、旋转线、尺寸、阴影和 光标图案。
+- 🎨 **支持样式定制**：支持自定义触点、轮廓、旋转线、尺寸、阴影和光标图案。
 - 📦 **支持轻量接入**：仅依赖 Vue 3，支持全局插件安装和单组件引入，样式按需手动加载。
 
 ## 适合什么场景
@@ -73,7 +73,7 @@ function onChange(pos: { x: number; y: number; w: number; h: number; r: number }
 - `angle` 触点用于旋转
 - `sticks` 可传入触点白名单，例如只保留四角缩放，或隐藏旋转控件
 
-交互过程中会触发 `dragStart` / `dragging` / `dragStop`、`resizeStart` / `resizing` / `resizeStop`、`rotateStart` / `rotating` / `rotateStop` 等事件。所有事件回调都会拿到同一份 `pos` 数据：
+交互过程中会触发 `activated`、`dragStart` / `dragging` / `dragStop`、`resizeStart` / `resizing` / `resizeStop`、`rotateStart` / `rotating` / `rotateStop`、`fliped` 等事件。所有事件回调都会拿到同一份 `pos` 数据：
 
 ```ts
 interface PosData {
@@ -139,9 +139,9 @@ interface PosData {
 | `active` | 是否显示激活态与控件 |
 | `activeable` | 是否允许被激活和操作 |
 | `lock` | 是否锁定当前宽高比 |
-| `minWidth` / `minHeight` | 缩放最小尺寸 |
-| `maxWidth` / `maxHeight` | 缩放最大尺寸 |
-| `limitX` / `limitY` | 限制旋转后矩形包围盒在父坐标系内的活动范围 |
+| `min-width` / `min-height` | 缩放最小尺寸 |
+| `max-width` / `max-height` | 缩放最大尺寸 |
+| `limit-x` / `limit-y` | 限制旋转后矩形包围盒在父坐标系内的活动范围 |
 | `sticks` | 自定义显示哪些缩放 / 旋转触点 |
 
 ### 边界限制
@@ -216,9 +216,9 @@ const root = {
 | 版本   | 支持的 Vue | 状态 |
 | ------ | ---------- | ---- |
 | `^2.x` | Vue 3.3+   | ✅ 当前主线 |
-| `^1.x` | Vue 2.6+   | 🛑 已停止维护；安装 `@liaogn/vue-drag-resize-rotate@^1` |
+| `^1.x` | Vue 2.x legacy | 🛑 已停止维护；安装 `@liaogn/vue-drag-resize-rotate@^1` |
 
-v1 → v2 迁移指南见 [CHANGELOG](./CHANGELOG.md#迁移指南v1--v2)。
+v1 → v2 的主要破坏性变更见 [CHANGELOG 2.0.0](./CHANGELOG.md#200)。
 
 ## 开发
 
@@ -227,7 +227,9 @@ pnpm install
 pnpm dev          # playground
 pnpm docs:dev     # 文档站
 pnpm type-check
+pnpm lint
 pnpm build        # 产出 dist/
+pnpm docs:build
 ```
 
 参与贡献请见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
