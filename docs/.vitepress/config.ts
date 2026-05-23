@@ -68,6 +68,7 @@ export default defineConfig({
               text: '示例',
               items: [
                 { text: '基础', link: '/examples/basic' },
+                { text: '移动端', link: '/examples/mobile' },
                 { text: '锁定比例', link: '/examples/lock-ratio' },
                 { text: 'min / max', link: '/examples/min-max' },
                 { text: '翻转', link: '/examples/flip' },
@@ -140,6 +141,7 @@ export default defineConfig({
               text: 'Examples',
               items: [
                 { text: 'Basic', link: '/en/examples/basic' },
+                { text: 'Mobile', link: '/en/examples/mobile' },
                 { text: 'Lock Ratio', link: '/en/examples/lock-ratio' },
                 { text: 'Min / Max', link: '/en/examples/min-max' },
                 { text: 'Flip', link: '/en/examples/flip' },

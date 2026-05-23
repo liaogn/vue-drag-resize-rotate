@@ -1,21 +1,21 @@
 # Events
 
-All event callbacks use the same signature: `(pos: PosData, event: MouseEvent) => void`.
+All event callbacks use the same signature: `(pos: PosData, event: PointerEvent) => void`.
 
 ## Event List
 
 | Event          | When it fires |
 | -------------- | ------------- |
-| `activated`    | The element is activated by mousedown |
+| `activated`    | The element is activated by pointerdown |
 | `dragStart`    | Drag starts |
 | `dragging`     | Dragging, emitted continuously |
-| `dragStop`     | Drag ends on mouseup |
+| `dragStop`     | Drag ends on pointerup / pointercancel |
 | `resizeStart`  | Resize starts |
 | `resizing`     | Resizing, emitted continuously |
-| `resizeStop`   | Resize ends on mouseup |
+| `resizeStop`   | Resize ends on pointerup / pointercancel |
 | `rotateStart`  | Rotate starts |
 | `rotating`     | Rotating, emitted continuously |
-| `rotateStop`   | Rotate ends on mouseup |
+| `rotateStop`   | Rotate ends on pointerup / pointercancel |
 | `fliped`       | Resize crosses the opposite edge and flips |
 
 ## `pos` Payload

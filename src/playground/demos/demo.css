@@ -79,6 +79,40 @@
   background: #52c41a;
 }
 
+.vdr-demo-mobile-stage {
+  width: 100%;
+  max-width: 360px;
+  height: 520px;
+  margin: 0 auto;
+  border: 1px solid #d9d9d9;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.15)),
+    repeating-conic-gradient(#e8edf2 0% 25%, #f7f8fa 0% 50%) 0 / 18px 18px;
+}
+
+.vdr-demo-mobile-tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vdr-demo-mobile-readout {
+  color: #555;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.vdr-demo-mobile-boundary {
+  position: absolute;
+  pointer-events: none;
+  border: 2px dashed #13c2c2;
+  border-radius: 4px;
+}
+
+.vdr-demo-mobile-card {
+  background: #13c2c2;
+}
+
 .vdr-demo-boundary-hint {
   position: absolute;
   pointer-events: none;

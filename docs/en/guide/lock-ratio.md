@@ -10,7 +10,7 @@ Set `lock` to `true` to keep the current aspect ratio while resizing. This is us
 
 ## How the Ratio Is Calculated
 
-The locked ratio is based on the component's width and height at mousedown. If external state changes `w` / `h`, the next resize uses the updated ratio.
+The locked ratio is based on the component's width and height at pointerdown. If external state changes `w` / `h`, the next resize uses the updated ratio.
 
 ## Combining with Size Limits
 

@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
       : {
           server: {
             port: 5173,
-            open: true,
+            open: mode !== 'test',
           },
         }),
   }

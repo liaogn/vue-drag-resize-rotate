@@ -4,7 +4,9 @@
     :class="_class"
     :style="_style"
     @click.stop
-    @mousedown.stop="bodyDown($event)"
+    @pointerdown.stop="bodyDown($event)"
+    @pointerup.stop="up($event)"
+    @pointercancel.stop="cancel($event)"
     ref="vdr"
   >
     <i v-if="active && activeable" class="vdr-outline" aria-hidden="true"></i>
@@ -16,7 +18,7 @@
         :key="stickIndex"
         :class="`vdr-stick-${stick}`"
         :style="{ zIndex: activeStickIndex === stickIndex ? 10 : 9 }"
-        @mousedown.stop.prevent="stickDown($event, stick, stickIndex)"
+        @pointerdown.stop.prevent="stickDown($event, stick, stickIndex)"
         @mouseenter="onStickMouseenter($event, stick)"
         @mouseout="onStickMouseout($event, stick)"
         class="vdr-stick"
@@ -27,7 +29,7 @@
       <template v-if="_sticks.indexOf('angle') > -1">
         <span class="vdr-stick-rotate-line"></span>
         <span
-          @mousedown.stop.prevent="rotateDown($event)"
+          @pointerdown.stop.prevent="rotateDown($event)"
           :style="{ cursor: !rotateable ? 'no-drop' : '' }"
           class="vdr-stick vdr-angle"
           ref="stick_angle"
@@ -207,6 +209,8 @@ export default defineComponent({
       activeStickIndex: -1,
       flipSign: '' as FlipSign,
       stickDrag: false,
+      activePointerId: null as number | null,
+      pointerCaptureTarget: null as HTMLElement | null,
       isMiddlePoint: null as null | RegExpMatchArray,
       // 以下字段在 mounted / stickDown 之后才会被赋值，使用前一定已存在
       RectDrager: null as unknown as RectDrager,
@@ -306,18 +310,64 @@ export default defineComponent({
     })
   },
   beforeUnmount() {
-    document.documentElement.removeEventListener('mousemove', this.move)
-    document.documentElement.removeEventListener('mouseup', this.up)
+    document.documentElement.removeEventListener('pointermove', this.move)
+    document.documentElement.removeEventListener('pointerup', this.up)
+    document.documentElement.removeEventListener('pointercancel', this.cancel)
   },
   methods: {
     init() {
       this.cacheRectDomInfo(this.$el)
       this.RectDrager = new RectDrager()
       this.RectRotator = new RectRotator()
-      document.documentElement.addEventListener('mousemove', this.move)
-      document.documentElement.addEventListener('mouseup', this.up)
+      document.documentElement.addEventListener('pointermove', this.move, { passive: false })
+      document.documentElement.addEventListener('pointerup', this.up)
+      document.documentElement.addEventListener('pointercancel', this.cancel)
     },
-    move(ev: MouseEvent) {
+    isUsablePointerDown(ev: PointerEvent) {
+      if (this.activePointerId !== null) return false
+      if (ev.pointerType === 'mouse' && ev.button !== 0) return false
+      return ev.isPrimary
+    },
+    isActivePointer(ev: PointerEvent) {
+      return this.activePointerId === ev.pointerId
+    },
+    capturePointer(ev: PointerEvent) {
+      const target = ev.currentTarget
+      if (!(target instanceof HTMLElement) || typeof target.setPointerCapture !== 'function') return
+      try {
+        target.setPointerCapture(ev.pointerId)
+        this.pointerCaptureTarget = target
+      } catch {
+        this.pointerCaptureTarget = null
+      }
+    },
+    releasePointer() {
+      if (
+        this.pointerCaptureTarget &&
+        this.activePointerId !== null &&
+        typeof this.pointerCaptureTarget.releasePointerCapture === 'function'
+      ) {
+        try {
+          this.pointerCaptureTarget.releasePointerCapture(this.activePointerId)
+        } catch {
+          // The browser may have already released capture after pointercancel.
+        }
+      }
+      this.pointerCaptureTarget = null
+      this.activePointerId = null
+    },
+    startPointerInteraction(ev: PointerEvent) {
+      if (!this.isUsablePointerDown(ev)) return false
+      this.activePointerId = ev.pointerId
+      this.capturePointer(ev)
+      ev.preventDefault()
+      return true
+    },
+    move(ev: PointerEvent) {
+      if (!this.isActivePointer(ev)) return
+      if (this.RectDrager.isDrag || this.stickDrag || this.RectRotator.isDrag) {
+        ev.preventDefault()
+      }
       if (this.draggable && this.RectDrager.isDrag && !this.stickDrag) {
         this.bodyMove(ev)
       }
@@ -328,23 +378,39 @@ export default defineComponent({
         this.rotateMove(ev)
       }
     },
-    up(ev: MouseEvent) {
-      if (this.draggable && this.RectDrager.isDrag) {
+    stopPointerInteraction(ev: PointerEvent) {
+      if (this.RectDrager.isDrag) {
         this.RectDrager.upHandle()
-        this.$emit('dragStop', this.posData, ev)
+        if (this.draggable) {
+          this.$emit('dragStop', this.posData, ev)
+        }
       }
-      if (this.resizeable && this.stickDrag) {
+      if (this.stickDrag) {
         this.stickDrag = false
-        this.$emit('resizeStop', this.posData, ev)
+        if (this.resizeable) {
+          this.$emit('resizeStop', this.posData, ev)
+        }
       }
-      if (this.rotateable && this.RectRotator.isDrag) {
+      if (this.RectRotator.isDrag) {
         this.RectRotator.upHandle()
-        this.$emit('rotateStop', this.posData, ev)
+        if (this.rotateable) {
+          this.$emit('rotateStop', this.posData, ev)
+        }
       }
+      this.releasePointer()
       this.syncWhRatio()
     },
-    bodyDown(ev: MouseEvent) {
+    up(ev: PointerEvent) {
+      if (!this.isActivePointer(ev)) return
+      this.stopPointerInteraction(ev)
+    },
+    cancel(ev: PointerEvent) {
+      if (!this.isActivePointer(ev)) return
+      this.stopPointerInteraction(ev)
+    },
+    bodyDown(ev: PointerEvent) {
       if (!this.activeable) return
+      if (!this.startPointerInteraction(ev)) return
       this.currentStick = ''
       this.RectDrager.downHandle(ev, [this.left, this.top], this.$el)
       if (this.activeable) {
@@ -352,7 +418,7 @@ export default defineComponent({
         this.$emit('dragStart', this.posData, ev)
       }
     },
-    bodyMove(ev: MouseEvent) {
+    bodyMove(ev: PointerEvent) {
       const moveInfo = this.RectDrager.moveHandle(ev)
       let nextLeft = moveInfo[0]
       let nextTop = moveInfo[1]
@@ -380,13 +446,14 @@ export default defineComponent({
       this.top = nextTop
       this.$emit('dragging', this.posData, ev)
     },
-    rotateDown(ev: MouseEvent) {
+    rotateDown(ev: PointerEvent) {
       if (!this.activeable) return
+      if (!this.startPointerInteraction(ev)) return
       this.currentStick = 'angle'
       this.RectRotator.downHandle(ev, this.$el, this.rotate)
       this.$emit('rotateStart', this.posData, ev)
     },
-    rotateMove(ev: MouseEvent) {
+    rotateMove(ev: PointerEvent) {
       const nextRotate = this.RectRotator.moveHandle(ev)
       if (hasBoundary(this._limitX, this._limitY)) {
         const clamped = clampPositionWithinLimits(
@@ -429,8 +496,9 @@ export default defineComponent({
       el.style.height = `${this.height}px`
       el.style.transform = `translate3d(${this.left}px,${this.top}px,0) rotateZ(${this.rotate}deg)`
     },
-    stickDown(ev: MouseEvent, stick: string, index: number) {
+    stickDown(ev: PointerEvent, stick: string, index: number) {
       if (!this.activeable || !this.resizeable) return
+      if (!this.startPointerInteraction(ev)) return
       this.activeStickIndex = index
       this.syncWhRatio()
       this.stickDownHandle(stick)
@@ -465,7 +533,7 @@ export default defineComponent({
 
       this.RectFliper = new RectFliper(this.elementInfo, stickKey)
     },
-    stickMove(ev: MouseEvent) {
+    stickMove(ev: PointerEvent) {
       let mousePoint: number[] = [ev.clientX, ev.clientY]
 
       if (this.lock || this.isMiddlePoint) {

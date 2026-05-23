@@ -1,15 +1,15 @@
 # Events
 
-所有事件回调签名一致：`(pos: PosData, event: MouseEvent) => void`。
+所有事件回调签名一致：`(pos: PosData, event: PointerEvent) => void`。
 
 ## 事件列表
 
 | 事件名         | 触发时机                       |
 | -------------- | ------------------------------ |
-| `activated`    | 元素被激活（mousedown 选中）   |
+| `activated`    | 元素被激活（pointerdown 选中） |
 | `dragStart`    | 拖拽开始                       |
 | `dragging`     | 拖拽中（持续触发）             |
-| `dragStop`     | 拖拽结束（mouseup）            |
+| `dragStop`     | 拖拽结束（pointerup / pointercancel） |
 | `resizeStart`  | 缩放开始                       |
 | `resizing`     | 缩放中（持续触发）             |
 | `resizeStop`   | 缩放结束                       |

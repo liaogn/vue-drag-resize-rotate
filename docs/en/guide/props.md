@@ -31,7 +31,7 @@
 ## Notes
 
 - When `min-width` or `min-height` is set, dragging past the opposite edge will **not** flip; min takes over.
-- `lock` ratio is based on the snapshot at mousedown.
+- `lock` ratio is based on the snapshot at pointerdown.
 - `sticks: []` hides every handle.
 - `r` is both a prop and a watch source; external updates sync to internal state.
 - `limit-x` and `limit-y` can be used independently. The array must be `[min, max]`, with `min <= max`.

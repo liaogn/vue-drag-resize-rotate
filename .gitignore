@@ -1,5 +1,6 @@
 .DS_Store
 node_modules/
+.pnpm-store/
 .codex/
 tmp/
 
@@ -10,6 +11,8 @@ docs/.vitepress/cache/
 docs/.vitepress/.temp/
 playgrounds/**/dist/
 playgrounds/**/node_modules/
+playwright-report/
+test-results/
 
 # 仅使用 pnpm 作为包管理器，禁止其他工具的 lock 文件入库
 package-lock.json

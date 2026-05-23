@@ -50,10 +50,13 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:test": "vite --mode test --host 127.0.0.1 --port 5173 --strictPort",
     "build": "vue-tsc --noEmit && vite build --mode lib",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .js,.ts,.vue",
+    "test:mobile": "playwright test",
+    "test:mobile:headed": "playwright test --headed",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
@@ -67,6 +70,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^22.10.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitepress-demo-preview/component": "^2.6.2",
