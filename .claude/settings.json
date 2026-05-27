@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx vue-tsc *)",
-      "Bash(echo \"exit=$?\")"
-    ]
+      "Bash(npm run *)",
+      "Bash(npx playwright *)"
+    ],
+    "defaultMode": "auto"
   }
 }

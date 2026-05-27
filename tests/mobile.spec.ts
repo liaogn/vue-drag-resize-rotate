@@ -192,3 +192,122 @@ test('mobile demo supports single-pointer drag, resize, rotate, and cancel recov
   )
   await expect.poll(async () => (await readState(page)).x).toBeLessThan(afterCancel.x - 15)
 })
+
+test('pointercancel rolls back position to pre-interaction state', async ({ page }) => {
+  await page.goto('/')
+
+  const demo = page.getByTestId('mobile-demo')
+  const card = demo.getByTestId('mobile-card')
+  await demo.scrollIntoViewIfNeeded()
+  await expect(card).toBeVisible()
+
+  const before = await readState(page)
+  const start = await centerOf(card)
+
+  await card.dispatchEvent('pointerdown', pointerInit(start, 20, 1))
+  await page
+    .locator('html')
+    .dispatchEvent(
+      'pointermove',
+      pointerInit({ x: start.x + 50, y: start.y + 40 }, 20, 1)
+    )
+
+  await card.dispatchEvent(
+    'pointercancel',
+    pointerInit({ x: start.x + 50, y: start.y + 40 }, 20, 0)
+  )
+
+  const after = await readState(page)
+  expect(after.x).toBeCloseTo(before.x, 0)
+  expect(after.y).toBeCloseTo(before.y, 0)
+  expect(after.w).toBeCloseTo(before.w, 0)
+  expect(after.h).toBeCloseTo(before.h, 0)
+})
+
+test('second pointer is ignored during active interaction', async ({ page }) => {
+  await page.goto('/')
+
+  const demo = page.getByTestId('mobile-demo')
+  const card = demo.getByTestId('mobile-card')
+  await demo.scrollIntoViewIfNeeded()
+  await expect(card).toBeVisible()
+
+  const start = await centerOf(card)
+
+  // First pointer starts drag
+  await card.dispatchEvent('pointerdown', pointerInit(start, 30, 1))
+  await page
+    .locator('html')
+    .dispatchEvent(
+      'pointermove',
+      pointerInit({ x: start.x + 30, y: start.y }, 30, 1)
+    )
+
+  const duringFirst = await readState(page)
+
+  // Second pointer tries to start — should be ignored
+  await card.dispatchEvent(
+    'pointerdown',
+    {
+      ...pointerInit({ x: start.x, y: start.y + 50 }, 31, 1),
+      isPrimary: false,
+    }
+  )
+  await page
+    .locator('html')
+    .dispatchEvent(
+      'pointermove',
+      {
+        ...pointerInit({ x: start.x, y: start.y + 100 }, 31, 1),
+        isPrimary: false,
+      }
+    )
+
+  const afterSecond = await readState(page)
+  expect(afterSecond.x).toBeCloseTo(duringFirst.x, 0)
+  expect(afterSecond.y).toBeCloseTo(duringFirst.y, 0)
+
+  // Clean up first pointer
+  await page
+    .locator('html')
+    .dispatchEvent('pointerup', pointerInit({ x: start.x + 30, y: start.y }, 30, 0))
+})
+
+test('resize cancel rolls back dimensions', async ({ page }) => {
+  await page.goto('/')
+
+  const demo = page.getByTestId('mobile-demo')
+  const card = demo.getByTestId('mobile-card')
+  const resizeHandle = demo.locator('.vdr-stick-br')
+  await demo.scrollIntoViewIfNeeded()
+  await expect(card).toBeVisible()
+
+  // Activate the element first
+  const cardCenter = await centerOf(card)
+  await dragPointer(page, card, cardCenter, { x: cardCenter.x + 1, y: cardCenter.y }, 40)
+
+  const before = await readState(page)
+  const resizeStart = await centerOf(resizeHandle)
+
+  await resizeHandle.dispatchEvent('pointerdown', pointerInit(resizeStart, 41, 1))
+  await page
+    .locator('html')
+    .dispatchEvent(
+      'pointermove',
+      pointerInit({ x: resizeStart.x + 40, y: resizeStart.y + 30 }, 41, 1)
+    )
+
+  // Verify resize happened
+  const duringResize = await readState(page)
+  expect(duringResize.w).toBeGreaterThan(before.w)
+
+  // Cancel should roll back
+  await resizeHandle.dispatchEvent(
+    'pointercancel',
+    pointerInit({ x: resizeStart.x + 40, y: resizeStart.y + 30 }, 41, 0)
+  )
+
+  const after = await readState(page)
+  expect(after.w).toBeCloseTo(before.w, 0)
+  expect(after.h).toBeCloseTo(before.h, 0)
+})

@@ -27,8 +27,8 @@ export function getElementRotate(element: Element | null | undefined): number {
  * @param ev 鼠标事件
  * @param boundary 累加从该元素的下一项开始；不传则只跳过 ev.target
  */
-export function getParentsRotate(ev: MouseEvent, boundary?: Element): number {
-  const eventWithPath = ev as MouseEvent & { path?: EventTarget[] }
+export function getParentsRotate(ev: PointerEvent | MouseEvent, boundary?: Element): number {
+  const eventWithPath = ev as (PointerEvent | MouseEvent) & { path?: EventTarget[] }
   const path: EventTarget[] =
     eventWithPath.path || (typeof ev.composedPath === 'function' && ev.composedPath()) || []
   if (path.length < 2) return 0

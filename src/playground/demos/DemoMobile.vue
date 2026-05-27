@@ -39,8 +39,11 @@
       :limit-y="[limit.y0, limit.y1]"
       overflow="hidden"
       @dragging="updateMobile"
+      @dragStop="updateMobile"
       @resizing="updateMobile"
+      @resizeStop="updateMobile"
       @rotating="updateMobile"
+      @rotateStop="updateMobile"
       @fliped="updateMobile"
     >
       <div class="vdr-demo-card vdr-demo-mobile-card" data-testid="mobile-card">

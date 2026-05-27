@@ -18,7 +18,7 @@ export default class RectDrager {
     parentsRotate: 0,
   }
 
-  downHandle(ev: MouseEvent, curPosition: [number, number], boundary: Element): void {
+  downHandle(ev: PointerEvent, curPosition: [number, number], boundary: Element): void {
     this.isDrag = true
     this.startPos.mx = ev.clientX
     this.startPos.my = ev.clientY
@@ -27,7 +27,7 @@ export default class RectDrager {
     this.startPos.parentsRotate = getParentsRotate(ev, boundary)
   }
 
-  moveHandle(ev: MouseEvent): [number, number] {
+  moveHandle(ev: PointerEvent): [number, number] {
     const { mx, my, left, top, parentsRotate } = this.startPos
     const vector = { x: ev.clientX - mx, y: ev.clientY - my }
     // 父元素旋转后的坐标系转换：x'=x·cos(θ)+y·sin(θ)，y'=y·cos(θ)-x·sin(θ)

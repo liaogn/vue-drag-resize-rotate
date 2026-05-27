@@ -5,8 +5,6 @@
     :style="_style"
     @click.stop
     @pointerdown.stop="bodyDown($event)"
-    @pointerup.stop="up($event)"
-    @pointercancel.stop="cancel($event)"
     ref="vdr"
   >
     <i v-if="active && activeable" class="vdr-outline" aria-hidden="true"></i>
@@ -211,6 +209,7 @@ export default defineComponent({
       stickDrag: false,
       activePointerId: null as number | null,
       pointerCaptureTarget: null as HTMLElement | null,
+      interactionSnapshot: null as { left: number; top: number; width: number; height: number; rotate: number } | null,
       isMiddlePoint: null as null | RegExpMatchArray,
       // 以下字段在 mounted / stickDown 之后才会被赋值，使用前一定已存在
       RectDrager: null as unknown as RectDrager,
@@ -310,18 +309,23 @@ export default defineComponent({
     })
   },
   beforeUnmount() {
-    document.documentElement.removeEventListener('pointermove', this.move)
-    document.documentElement.removeEventListener('pointerup', this.up)
-    document.documentElement.removeEventListener('pointercancel', this.cancel)
+    this.removeDocumentListeners()
   },
   methods: {
     init() {
       this.cacheRectDomInfo(this.$el)
       this.RectDrager = new RectDrager()
       this.RectRotator = new RectRotator()
+    },
+    addDocumentListeners() {
       document.documentElement.addEventListener('pointermove', this.move, { passive: false })
       document.documentElement.addEventListener('pointerup', this.up)
       document.documentElement.addEventListener('pointercancel', this.cancel)
+    },
+    removeDocumentListeners() {
+      document.documentElement.removeEventListener('pointermove', this.move)
+      document.documentElement.removeEventListener('pointerup', this.up)
+      document.documentElement.removeEventListener('pointercancel', this.cancel)
     },
     isUsablePointerDown(ev: PointerEvent) {
       if (this.activePointerId !== null) return false
@@ -355,11 +359,21 @@ export default defineComponent({
       }
       this.pointerCaptureTarget = null
       this.activePointerId = null
+      this.interactionSnapshot = null
+      this.removeDocumentListeners()
     },
     startPointerInteraction(ev: PointerEvent) {
       if (!this.isUsablePointerDown(ev)) return false
       this.activePointerId = ev.pointerId
+      this.interactionSnapshot = {
+        left: this.left,
+        top: this.top,
+        width: this.width,
+        height: this.height,
+        rotate: this.rotate,
+      }
       this.capturePointer(ev)
+      this.addDocumentListeners()
       ev.preventDefault()
       return true
     },
@@ -406,17 +420,42 @@ export default defineComponent({
     },
     cancel(ev: PointerEvent) {
       if (!this.isActivePointer(ev)) return
-      this.stopPointerInteraction(ev)
+      // 回滚到交互开始前的状态
+      if (this.interactionSnapshot) {
+        this.left = this.interactionSnapshot.left
+        this.top = this.interactionSnapshot.top
+        this.width = this.interactionSnapshot.width
+        this.height = this.interactionSnapshot.height
+        this.rotate = this.interactionSnapshot.rotate
+      }
+      if (this.RectDrager.isDrag) {
+        this.RectDrager.upHandle()
+        if (this.draggable) {
+          this.$emit('dragStop', this.posData, ev)
+        }
+      }
+      if (this.stickDrag) {
+        this.stickDrag = false
+        if (this.resizeable) {
+          this.$emit('resizeStop', this.posData, ev)
+        }
+      }
+      if (this.RectRotator.isDrag) {
+        this.RectRotator.upHandle()
+        if (this.rotateable) {
+          this.$emit('rotateStop', this.posData, ev)
+        }
+      }
+      this.releasePointer()
+      this.syncWhRatio()
     },
     bodyDown(ev: PointerEvent) {
       if (!this.activeable) return
       if (!this.startPointerInteraction(ev)) return
       this.currentStick = ''
       this.RectDrager.downHandle(ev, [this.left, this.top], this.$el)
-      if (this.activeable) {
-        this.$emit('activated', this.posData, ev)
-        this.$emit('dragStart', this.posData, ev)
-      }
+      this.$emit('activated', this.posData, ev)
+      this.$emit('dragStart', this.posData, ev)
     },
     bodyMove(ev: PointerEvent) {
       const moveInfo = this.RectDrager.moveHandle(ev)

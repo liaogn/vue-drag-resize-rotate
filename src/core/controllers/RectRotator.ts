@@ -10,7 +10,7 @@ export default class RectRotator {
   private pointB: RotatePoint = { X: 0, Y: 0 }
   private pointC: RotatePoint = { X: 0, Y: 0 }
 
-  downHandle(ev: MouseEvent, target: HTMLElement, rotate: number): void {
+  downHandle(ev: PointerEvent, target: HTMLElement, rotate: number): void {
     if (!ev || !target) return
     const { left, top, width, height } = target.getBoundingClientRect()
     this.isDrag = true
@@ -19,7 +19,7 @@ export default class RectRotator {
     this.pointA = { X: left + width / 2, Y: top + height / 2 }
   }
 
-  moveHandle(ev: MouseEvent): number {
+  moveHandle(ev: PointerEvent): number {
     this.pointC = { X: ev.clientX, Y: ev.clientY }
     const AB = { X: this.pointB.X - this.pointA.X, Y: this.pointB.Y - this.pointA.Y }
     const AC = { X: this.pointC.X - this.pointA.X, Y: this.pointC.Y - this.pointA.Y }

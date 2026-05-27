@@ -46,7 +46,7 @@ export interface BuildStickCursorOptions {
  * @returns 'default' | css-cursor 字符串 | null（angle 触点不处理）
  */
 export function buildStickCursor(
-  ev: MouseEvent,
+  ev: PointerEvent | MouseEvent,
   stick: string,
   state: StickCursorState,
   options: BuildStickCursorOptions = {}
