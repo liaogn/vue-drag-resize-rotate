@@ -101,18 +101,37 @@ const nestedPanel = computed(() => {
 })
 
 function syncPanelLimit() {
-  if (!stageRef.value) return
+  if (!stageRef.value || !heroRef.value) return
 
   const stageRect = stageRef.value.getBoundingClientRect()
-  const stageScaleX = stageRect.width / (stageRef.value.offsetWidth || stageRect.width || 1) || 1
-  const stageScaleY = stageRect.height / (stageRef.value.offsetHeight || stageRect.height || 1) || 1
+  const heroRect = heroRef.value.getBoundingClientRect()
+  const offsetW = stageRef.value.offsetWidth || stageRect.width
+  const offsetH = stageRef.value.offsetHeight || stageRect.height
+  const stageScaleX = stageRect.width / (offsetW || 1) || 1
+  const stageScaleY = stageRect.height / (offsetH || 1) || 1
 
-  stageSize.width = Math.round(stageRef.value.offsetWidth || stageRect.width)
-  stageSize.height = Math.round(stageRef.value.offsetHeight || stageRect.height)
-  panelLimit.lx0 = 0
-  panelLimit.lx1 = Math.ceil(stageRect.width / stageScaleX)
-  panelLimit.ly0 = 0
-  panelLimit.ly1 = Math.ceil(stageRect.height / stageScaleY)
+  stageSize.width = Math.round(offsetW)
+  stageSize.height = Math.round(offsetH)
+
+  const vpW = window.innerWidth
+  const vpH = window.innerHeight
+
+  // 限制区域：左右屏幕边界 / 首屏顶部 / min(屏幕底部, 首屏底部)
+  const leftBound = 0
+  const rightBound = vpW
+  const topBound = Math.max(0, heroRect.top)
+  const bottomBound = Math.min(vpH, heroRect.bottom)
+
+  // 转到 stage 自身坐标系（允许超出 [0, stageSize] 以延伸到 stage 之外）
+  const lx0 = Math.round((leftBound - stageRect.left) / stageScaleX)
+  const lx1 = Math.round((rightBound - stageRect.left) / stageScaleX)
+  const ly0 = Math.round((topBound - stageRect.top) / stageScaleY)
+  const ly1 = Math.round((bottomBound - stageRect.top) / stageScaleY)
+
+  panelLimit.lx0 = lx0
+  panelLimit.lx1 = Math.max(lx0, lx1)
+  panelLimit.ly0 = ly0
+  panelLimit.ly1 = Math.max(ly0, ly1)
   panelLimit.ready = true
 }
 
@@ -131,6 +150,7 @@ function setupPanelLimitObserver(retryCount = 0) {
   panelLimitResizeObserver.observe(heroRef.value)
   panelLimitResizeObserver.observe(stageRef.value)
   window.addEventListener('resize', syncPanelLimit)
+  window.addEventListener('scroll', syncPanelLimit, { passive: true })
 }
 
 onMounted(() => {
@@ -140,6 +160,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   panelLimitResizeObserver?.disconnect()
   window.removeEventListener('resize', syncPanelLimit)
+  window.removeEventListener('scroll', syncPanelLimit)
   if (panelLimitFrame) window.cancelAnimationFrame(panelLimitFrame)
 })
 
@@ -226,7 +247,7 @@ const features = computed(() =>
         <div class="vdr-hero__copy">
           <p class="vdr-eyebrow">{{ copy.eyebrow }}</p>
           <h1><span class="vdr-hero__title-line">{{ copy.titlePrefix }} <span class="vdr-hero__accent">{{ copy.titleAccent }}</span></span><br />{{ copy.titleSuffix }}</h1>
-         
+
           <div>
             <p class="vdr-hero__lead">
               {{ copy.lead }}
@@ -320,10 +341,6 @@ const features = computed(() =>
 :global(.vdr-home-page .VPDoc .content-container) {
   max-width: none !important;
   padding: 0 !important;
-}
-
-:global(.vdr-home-page .VPContent) {
-  padding-top: var(--vp-nav-height) !important;
 }
 
 .vdr-home {

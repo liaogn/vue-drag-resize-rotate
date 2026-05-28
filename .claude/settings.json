@@ -3,7 +3,13 @@
     "allow": [
       "Bash(npx vue-tsc *)",
       "Bash(npm run *)",
-      "Bash(npx playwright *)"
+      "Bash(npx playwright *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(Start-Sleep -Seconds 8)",
+      "Bash(Get-Content \"C:\\\\Users\\\\35483\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Project-vue-drag-resize-rotate\\\\00c7887f-c727-435a-a35c-0d646258dab8\\\\tasks\\\\bg71r32zs.output\")",
+      "Bash(git -C \"d:/Project/vue-drag-resize-rotate\" diff HEAD -- docs/.vitepress/components/HomePage.vue)",
+      "Bash(pnpm docs:dev)"
     ],
     "defaultMode": "auto"
   }
