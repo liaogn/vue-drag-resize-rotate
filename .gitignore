@@ -4,6 +4,9 @@ node_modules/
 .codex/
 tmp/
 
+# Claude Code local (personal) settings
+.claude/settings.local.json
+
 # build artifacts
 dist/
 docs/.vitepress/dist/
