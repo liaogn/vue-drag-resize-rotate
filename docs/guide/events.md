@@ -1,6 +1,6 @@
 # Events
 
-所有事件回调签名一致：`(pos: PosData, event: PointerEvent) => void`。
+除 `snapping` 外，事件回调签名一致：`(pos: PosData, event: PointerEvent) => void`。
 
 ## 事件列表
 
@@ -17,6 +17,7 @@
 | `rotating`     | 旋转中（持续触发）             |
 | `rotateStop`   | 旋转结束                       |
 | `fliped`       | 缩放越过对边触发翻转时         |
+| `snapping`     | 拖拽吸附参考线变化时           |
 
 ## `pos` 参数结构
 
@@ -34,6 +35,23 @@ interface PosData {
   lock: boolean            // 是否锁定比例
   active: boolean          // 是否处于激活态
   flipSign: '' | '+' | '-' // 上一次翻转方向（'+' 正向、'-' 反向）
+}
+```
+
+## `snapping` 参数结构
+
+`snapping` 的第一个参数不是 `PosData`，而是当前命中的参考线集合：`(payload: { guides: SnapGuide[] }, event: PointerEvent) => void`。拖拽结束或吸附取消时会回传空数组。
+
+```ts
+type SnapAxis = 'x' | 'y'
+type SnapSource = 'parent' | 'sibling' | 'custom' | 'grid'
+
+interface SnapGuide {
+  axis: SnapAxis
+  value: number
+  source: SnapSource
+  start: number
+  end: number
 }
 ```
 

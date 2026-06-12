@@ -21,6 +21,8 @@ import DemoNestedBoundary from './DemoNestedBoundary.vue'
 import DemoNestedBoundarySource from './DemoNestedBoundary.vue?raw'
 import DemoNestedClip from './DemoNestedClip.vue'
 import DemoNestedClipSource from './DemoNestedClip.vue?raw'
+import DemoSnap from './DemoSnap.vue'
+import DemoSnapSource from './DemoSnap.vue?raw'
 import DemoSticks from './DemoSticks.vue'
 import DemoSticksSource from './DemoSticks.vue?raw'
 import DemoTheming from './DemoTheming.vue'
@@ -198,10 +200,23 @@ const demoDefinitions: DemoDefinition[] = [
     source: DemoBoundarySource,
   },
   {
+    key: 'snap',
+    title: {
+      zh: '13. 吸附 / 网格 / 旋转步进',
+      en: '13. Snap / grid / rotate step',
+    },
+    description: {
+      zh: '拖拽时吸附父级、同级、自定义参考线和网格；旋转可按 15° 吸附。',
+      en: 'Drag snapping can target parent, siblings, custom guides, and grid; rotation snaps by 15deg.',
+    },
+    component: DemoSnap,
+    source: DemoSnapSource,
+  },
+  {
     key: 'nested-boundary',
     title: {
-      zh: '13. 嵌套 + limit（父子各自的坐标系）',
-      en: '13. Nesting + limit (separate coordinate systems)',
+      zh: '14. 嵌套 + limit（父子各自的坐标系）',
+      en: '14. Nesting + limit (separate coordinate systems)',
     },
     description: {
       zh: '外层 limit 使用操作区边界；子元素 limit 在父 vdr 内独立生效。',

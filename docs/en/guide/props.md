@@ -27,6 +27,13 @@
 | `stick-hover-render` | `(cursorRotate: number) => { x: number; y: number; htmlText: string }` | `undefined` | Custom cursor renderer for sticks (returns an SVG string with offsets) |
 | `limit-x`           | `[number, number] \| null`                                            | `null`     | Limit the transformed rectangle's bounding box on the x axis in parent coordinates |
 | `limit-y`           | `[number, number] \| null`                                            | `null`     | Limit the transformed rectangle's bounding box on the y axis in parent coordinates |
+| `snap`              | `Boolean`                                                             | `false`    | Enable drag snapping |
+| `snap-threshold`    | `Number`                                                              | `5`        | Drag snapping threshold in px |
+| `snap-targets`      | `Array<'parent' \| 'siblings'>`                                       | `['parent', 'siblings']` | Drag snap targets: parent edges/center lines and sibling vdr edges/center lines |
+| `snap-lines`        | `Array<{ x?: number; y?: number }>`                                   | `undefined` | Custom guide lines. `x` is a vertical line, `y` is a horizontal line, both in parent coordinates |
+| `grid`              | `[number, number] \| null`                                            | `null`     | Grid snap size `[x, y]`; values must be greater than 0 to affect an axis |
+| `rotate-snap`       | `Number`                                                              | `0`        | Rotation snap step in degrees. `0` disables it |
+| `rotate-snap-threshold` | `Number`                                                          | `5`        | Rotation snap threshold in degrees |
 
 ## Notes
 
@@ -35,5 +42,8 @@
 - `sticks: []` hides every handle.
 - `r` is both a prop and a watch source; external updates sync to internal state.
 - `limit-x` and `limit-y` can be used independently. The array must be `[min, max]`, with `min <= max`.
+- `snap` only applies while dragging the body; resizing does not snap. When snapping changes, the component emits `snapping` so you can render guide lines.
+- `snap-lines` and `grid` are not controlled by `snap-targets`; `snap-targets` only controls parent and sibling candidates.
+- When `rotate-snap-threshold >= rotate-snap / 2`, rotation behaves like a hard step.
 
 See [Events](./events) for the `pos` payload structure.

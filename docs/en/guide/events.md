@@ -1,6 +1,6 @@
 # Events
 
-All event callbacks use the same signature: `(pos: PosData, event: PointerEvent) => void`.
+Except for `snapping`, event callbacks use the same signature: `(pos: PosData, event: PointerEvent) => void`.
 
 ## Event List
 
@@ -17,6 +17,7 @@ All event callbacks use the same signature: `(pos: PosData, event: PointerEvent)
 | `rotating`     | Rotating, emitted continuously |
 | `rotateStop`   | Rotate ends on pointerup / pointercancel |
 | `fliped`       | Resize crosses the opposite edge and flips |
+| `snapping`     | Drag snap guide lines changed |
 
 ## `pos` Payload
 
@@ -33,6 +34,23 @@ interface PosData {
   lock: boolean
   active: boolean
   flipSign: '' | '+' | '-'
+}
+```
+
+## `snapping` Payload
+
+The first argument of `snapping` is not `PosData`; it is the current guide line set: `(payload: { guides: SnapGuide[] }, event: PointerEvent) => void`. The component emits an empty array when dragging ends or snapping is cleared.
+
+```ts
+type SnapAxis = 'x' | 'y'
+type SnapSource = 'parent' | 'sibling' | 'custom' | 'grid'
+
+interface SnapGuide {
+  axis: SnapAxis
+  value: number
+  source: SnapSource
+  start: number
+  end: number
 }
 ```
 

@@ -27,6 +27,13 @@
 | `stick-hover-render` | `(cursorRotate: number) => { x: number; y: number; htmlText: string }` | `undefined` | 自定义触点 hover 时的 cursor 图标。返回 svg 字符串与偏移 |
 | `limit-x`           | `[number, number] \| null`      | `null`     | 限制旋转后矩形包围盒在父坐标系内的 x 轴范围 |
 | `limit-y`           | `[number, number] \| null`      | `null`     | 限制旋转后矩形包围盒在父坐标系内的 y 轴范围 |
+| `snap`              | `Boolean`                       | `false`    | 是否启用拖拽吸附 |
+| `snap-threshold`    | `Number`                        | `5`        | 拖拽吸附触发距离（px） |
+| `snap-targets`      | `Array<'parent' \| 'siblings'>` | `['parent', 'siblings']` | 拖拽吸附目标：父容器边缘/中线、同级 vdr 边缘/中线 |
+| `snap-lines`        | `Array<{ x?: number; y?: number }>` | `undefined` | 自定义吸附线，`x` 为竖线，`y` 为横线（父坐标系） |
+| `grid`              | `[number, number] \| null`      | `null`     | 网格吸附步长 `[x, y]`；值需大于 0 才参与对应轴吸附 |
+| `rotate-snap`       | `Number`                        | `0`        | 旋转角度吸附步长（度），`0` 表示关闭 |
+| `rotate-snap-threshold` | `Number`                    | `5`        | 旋转吸附触发距离（度） |
 
 ## 注意
 
@@ -35,5 +42,8 @@
 - `sticks` 传 `[]` 表示完全不显示控件。
 - `r` 既是 prop 也是 watch 入口；外部修改 `r` 会同步内部 `rotate`。
 - `limit-x` / `limit-y` 可以单独使用；传入的数组必须是 `[最小值, 最大值]`，且最小值不能大于最大值。
+- `snap` 仅在拖拽主体时生效；缩放不会执行吸附。命中吸附时会触发 `snapping` 事件，用于绘制参考线。
+- `snap-lines` 和 `grid` 不受 `snap-targets` 控制；`snap-targets` 只控制父容器与同级元素。
+- `rotate-snap-threshold >= rotate-snap / 2` 时，旋转会表现为硬步进。
 
 参见 [Events](./events) 了解事件回传的 `pos` 字段含义。

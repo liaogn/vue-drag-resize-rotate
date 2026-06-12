@@ -27,6 +27,7 @@ export {
   fitResizeWithinLimits,
   type LimitRange,
   type AABB,
+  type RotatedRectInput,
 } from './geometry/boundary'
 
 export {
@@ -35,7 +36,7 @@ export {
   getParentsRotate,
   getAbsoluteRotate,
 } from './dom/rotate'
-export { getElementGeometricInfo } from './dom/element'
+export { getElementGeometricInfo, getVdrRectFromElement } from './dom/element'
 
 export { default as RectDrager } from './controllers/RectDrager'
 export { default as RectRotator } from './controllers/RectRotator'
@@ -50,6 +51,20 @@ export {
   computeResize,
   type ComputeResizeInput,
 } from './resize/computeResize'
+
+export {
+  buildSnapCandidates,
+  computeSnap,
+  snapRotation,
+  type SnapAxis,
+  type SnapSource,
+  type SnapTarget,
+  type SnapLineInput,
+  type SnapCandidate,
+  type SnapGuide,
+  type SnapResult,
+  type BuildSnapCandidatesInput,
+} from './snap/computeSnap'
 
 export {
   defaultCursorIconRender,

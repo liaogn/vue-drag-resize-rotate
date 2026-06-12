@@ -65,6 +65,7 @@ import {
   RectRotator,
   RectFliper,
   getElementGeometricInfo,
+  getVdrRectFromElement,
   calcVerticalCrossPoint,
   calcRotatedPoint,
   calcRotatedContactor,
@@ -80,10 +81,18 @@ import {
   clampPositionWithinLimits,
   isRectInsideLimits,
   fitResizeWithinLimits,
+  buildSnapCandidates,
+  computeSnap,
+  snapRotation,
   type LimitRange,
   type ElementGeometricInfo,
   type FlipSign,
   type Point,
+  type RotatedRectInput,
+  type SnapCandidate,
+  type SnapGuide,
+  type SnapLineInput,
+  type SnapTarget,
   type StickHoverRender,
   type StickType,
 } from '../core'
@@ -180,6 +189,40 @@ export default defineComponent({
           typeof val[1] === 'number' &&
           val[0] <= val[1]),
     },
+    snap: { type: Boolean, default: false },
+    snapThreshold: {
+      type: Number,
+      default: 5,
+      validator: (val: number) => val >= 0,
+    },
+    snapTargets: {
+      type: Array as PropType<SnapTarget[]>,
+      default: () => ['parent', 'siblings'],
+    },
+    snapLines: {
+      type: Array as PropType<SnapLineInput[]>,
+      default: undefined,
+    },
+    grid: {
+      type: Array as unknown as PropType<[number, number] | null>,
+      default: null,
+      validator: (val: unknown) =>
+        val === null ||
+        (Array.isArray(val) &&
+          val.length === 2 &&
+          typeof val[0] === 'number' &&
+          typeof val[1] === 'number'),
+    },
+    rotateSnap: {
+      type: Number,
+      default: 0,
+      validator: (val: number) => val >= 0,
+    },
+    rotateSnapThreshold: {
+      type: Number,
+      default: 5,
+      validator: (val: number) => val >= 0,
+    },
   },
   emits: [
     'activated',
@@ -193,6 +236,7 @@ export default defineComponent({
     'rotating',
     'rotateStop',
     'fliped',
+    'snapping',
   ],
   data() {
     return {
@@ -211,6 +255,8 @@ export default defineComponent({
       pointerCaptureTarget: null as HTMLElement | null,
       interactionSnapshot: null as { left: number; top: number; width: number; height: number; rotate: number } | null,
       isMiddlePoint: null as null | RegExpMatchArray,
+      snapCandidates: [] as SnapCandidate[],
+      lastSnapSignature: '',
       // 以下字段在 mounted / stickDown 之后才会被赋值，使用前一定已存在
       RectDrager: null as unknown as RectDrager,
       RectRotator: null as unknown as RectRotator,
@@ -393,6 +439,7 @@ export default defineComponent({
       }
     },
     stopPointerInteraction(ev: PointerEvent) {
+      this.clearSnapGuides(ev)
       if (this.RectDrager.isDrag) {
         this.RectDrager.upHandle()
         if (this.draggable) {
@@ -420,6 +467,7 @@ export default defineComponent({
     },
     cancel(ev: PointerEvent) {
       if (!this.isActivePointer(ev)) return
+      this.clearSnapGuides(ev)
       // 回滚到交互开始前的状态
       if (this.interactionSnapshot) {
         this.left = this.interactionSnapshot.left
@@ -454,6 +502,7 @@ export default defineComponent({
       if (!this.startPointerInteraction(ev)) return
       this.currentStick = ''
       this.RectDrager.downHandle(ev, [this.left, this.top], this.$el)
+      if (this.snap) this.collectSnapCandidates()
       this.$emit('activated', this.posData, ev)
       this.$emit('dragStart', this.posData, ev)
     },
@@ -461,6 +510,24 @@ export default defineComponent({
       const moveInfo = this.RectDrager.moveHandle(ev)
       let nextLeft = moveInfo[0]
       let nextTop = moveInfo[1]
+      let guides: SnapGuide[] = []
+      if (this.snap) {
+        const snapped = computeSnap(
+          {
+            left: nextLeft,
+            top: nextTop,
+            width: this.width,
+            height: this.height,
+            rotate: this.rotate,
+          },
+          this.snapCandidates,
+          this.snapThreshold,
+          this.grid
+        )
+        nextLeft += snapped.dx
+        nextTop += snapped.dy
+        guides = snapped.guides
+      }
       if (hasBoundary(this._limitX, this._limitY)) {
         const clamped = clampPositionWithinLimits(
           {
@@ -474,16 +541,55 @@ export default defineComponent({
           this._limitY
         )
         if (clamped.fits) {
+          // 边界钳制改变了位置 → 吸附结果已失效，参考线一并取消
+          if (clamped.left !== nextLeft || clamped.top !== nextTop) guides = []
           nextLeft = clamped.left
           nextTop = clamped.top
         } else {
           nextLeft = this.left
           nextTop = this.top
+          guides = []
         }
       }
       this.left = nextLeft
       this.top = nextTop
+      if (this.snap) this.emitSnapping(guides, ev)
       this.$emit('dragging', this.posData, ev)
+    },
+    /** 拖拽开始时缓存候选吸附线（父容器 + 同级 vdr + 自定义线），拖拽中不再读 DOM */
+    collectSnapCandidates() {
+      const el = this.$el as HTMLElement
+      const parent = el.parentElement
+      const siblings: RotatedRectInput[] = []
+      if (parent && this.snapTargets.includes('siblings')) {
+        for (const child of Array.from(parent.children)) {
+          if (child === el || !(child instanceof HTMLElement)) continue
+          if (!child.classList.contains('vdr')) continue
+          const rect = getVdrRectFromElement(child)
+          if (rect) siblings.push(rect)
+        }
+      }
+      this.snapCandidates = buildSnapCandidates({
+        parentSize: parent
+          ? { width: parent.clientWidth, height: parent.clientHeight }
+          : null,
+        siblings,
+        lines: this.snapLines,
+        targets: this.snapTargets,
+      })
+    },
+    emitSnapping(guides: SnapGuide[], ev: PointerEvent) {
+      const signature = guides
+        .map((g) => `${g.axis}:${g.value}:${g.start}:${g.end}`)
+        .join('|')
+      if (signature === this.lastSnapSignature) return
+      this.lastSnapSignature = signature
+      this.$emit('snapping', { guides }, ev)
+    },
+    clearSnapGuides(ev: PointerEvent) {
+      if (this.lastSnapSignature === '') return
+      this.lastSnapSignature = ''
+      this.$emit('snapping', { guides: [] }, ev)
     },
     rotateDown(ev: PointerEvent) {
       if (!this.activeable) return
@@ -493,7 +599,14 @@ export default defineComponent({
       this.$emit('rotateStart', this.posData, ev)
     },
     rotateMove(ev: PointerEvent) {
-      const nextRotate = this.RectRotator.moveHandle(ev)
+      let nextRotate = this.RectRotator.moveHandle(ev)
+      if (this.rotateSnap > 0) {
+        nextRotate = snapRotation(
+          nextRotate,
+          this.rotateSnap,
+          this.rotateSnapThreshold
+        ).angle
+      }
       if (hasBoundary(this._limitX, this._limitY)) {
         const clamped = clampPositionWithinLimits(
           {
@@ -668,6 +781,10 @@ export default defineComponent({
       this.width = width
       this.height = height
     },
+    limitCurrentSizeAndBoundary() {
+      this.limitCurrentSize()
+      this.applyBoundaryToCurrent()
+    },
     applyBoundaryToCurrent() {
       if (!hasBoundary(this._limitX, this._limitY)) return
       const clamped = clampPositionWithinLimits(
@@ -723,6 +840,7 @@ export default defineComponent({
         limits: this.sizeLimits,
         whRatio: getValidWhRatio(this.whRatio),
       }).width
+      this.applyBoundaryToCurrent()
     },
     h(value: number) {
       this.height = getLimitedSize({
@@ -733,18 +851,19 @@ export default defineComponent({
         limits: this.sizeLimits,
         whRatio: getValidWhRatio(this.whRatio),
       }).height
+      this.applyBoundaryToCurrent()
     },
     minWidth() {
-      this.limitCurrentSize()
+      this.limitCurrentSizeAndBoundary()
     },
     minHeight() {
-      this.limitCurrentSize()
+      this.limitCurrentSizeAndBoundary()
     },
     maxWidth() {
-      this.limitCurrentSize()
+      this.limitCurrentSizeAndBoundary()
     },
     maxHeight() {
-      this.limitCurrentSize()
+      this.limitCurrentSizeAndBoundary()
     },
     r(value: number) {
       this.rotate = value
@@ -764,6 +883,9 @@ export default defineComponent({
         this.applyBoundaryToCurrent()
       },
       deep: true,
+    },
+    snap(value: boolean) {
+      if (!value) this.clearSnapGuides(new PointerEvent('pointercancel'))
     },
   },
 })
