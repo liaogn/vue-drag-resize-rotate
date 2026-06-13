@@ -27,9 +27,10 @@ export default class RectDrager {
     this.startPos.parentsRotate = getParentsRotate(ev, boundary)
   }
 
-  moveHandle(ev: PointerEvent): [number, number] {
+  moveHandle(ev: PointerEvent, scale = 1): [number, number] {
     const { mx, my, left, top, parentsRotate } = this.startPos
-    const vector = { x: ev.clientX - mx, y: ev.clientY - my }
+    const s = scale > 0 ? scale : 1
+    const vector = { x: (ev.clientX - mx) / s, y: (ev.clientY - my) / s }
     // 父元素旋转后的坐标系转换：x'=x·cos(θ)+y·sin(θ)，y'=y·cos(θ)-x·sin(θ)
     const rad = angleToRadian(parentsRotate)
     const x = vector.x * Math.cos(rad) + vector.y * Math.sin(rad)

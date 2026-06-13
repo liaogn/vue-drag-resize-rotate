@@ -138,6 +138,27 @@
   line-height: 1.4;
 }
 
+.vdr-demo-scale-canvas {
+  position: absolute;
+  inset: 0;
+  transform: scale(0.6);
+  transform-origin: top left;
+}
+
+.vdr-demo-scale-readout {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 20;
+  padding: 5px 8px;
+  border: 1px solid rgb(0 0 0 / 0.08);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.88);
+  color: #555;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .vdr-demo-mobile-stage {
   width: 100%;
   max-width: 360px;

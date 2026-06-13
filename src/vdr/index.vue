@@ -223,6 +223,11 @@ export default defineComponent({
       default: 5,
       validator: (val: number) => val >= 0,
     },
+    scale: {
+      type: Number,
+      default: 1,
+      validator: (val: number) => val > 0,
+    },
   },
   emits: [
     'activated',
@@ -329,6 +334,9 @@ export default defineComponent({
     },
     _limitY(): LimitRange {
       return this.limitY as LimitRange
+    },
+    _scale(): number {
+      return this.scale > 0 ? this.scale : 1
     },
     posData() {
       return {
@@ -507,7 +515,7 @@ export default defineComponent({
       this.$emit('dragStart', this.posData, ev)
     },
     bodyMove(ev: PointerEvent) {
-      const moveInfo = this.RectDrager.moveHandle(ev)
+      const moveInfo = this.RectDrager.moveHandle(ev, this._scale)
       let nextLeft = moveInfo[0]
       let nextTop = moveInfo[1]
       let guides: SnapGuide[] = []
@@ -632,9 +640,9 @@ export default defineComponent({
       this.$emit('rotating', this.posData, ev)
     },
     cacheRectDomInfo(element: HTMLElement) {
-      this.elementInfo = getElementGeometricInfo(element)
+      this.elementInfo = getElementGeometricInfo(element, this._scale)
       this.parentElement = element.parentNode as HTMLElement
-      this.parentInfo = getElementGeometricInfo(this.parentElement)
+      this.parentInfo = getElementGeometricInfo(this.parentElement, this._scale)
     },
     /**
      * 翻转触发的 stickDownHandle 紧跟 data 修改而来，但 Vue 的 DOM patch 是异步的，
@@ -686,7 +694,7 @@ export default defineComponent({
       this.RectFliper = new RectFliper(this.elementInfo, stickKey)
     },
     stickMove(ev: PointerEvent) {
-      let mousePoint: number[] = [ev.clientX, ev.clientY]
+      let mousePoint: number[] = [ev.clientX / this._scale, ev.clientY / this._scale]
 
       if (this.lock || this.isMiddlePoint) {
         mousePoint = calcVerticalCrossPoint(

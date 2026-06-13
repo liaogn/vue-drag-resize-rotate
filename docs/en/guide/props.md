@@ -34,6 +34,7 @@
 | `grid`              | `[number, number] \| null`                                            | `null`     | Grid snap size `[x, y]`; values must be greater than 0 to affect an axis |
 | `rotate-snap`       | `Number`                                                              | `0`        | Rotation snap step in degrees. `0` disables it |
 | `rotate-snap-threshold` | `Number`                                                          | `5`        | Rotation snap threshold in degrees |
+| `scale`             | `Number`                                                             | `1`        | Canvas zoom factor. When the vdr lives inside a transform: scale() container, pass the cumulative scale factor to correct mouse displacement during drag/resize |
 
 ## Notes
 
@@ -45,5 +46,6 @@
 - `snap` only applies while dragging the body; resizing does not snap. When snapping changes, the component emits `snapping` so you can render guide lines.
 - `snap-lines` and `grid` are not controlled by `snap-targets`; `snap-targets` only controls parent and sibling candidates.
 - When `rotate-snap-threshold >= rotate-snap / 2`, rotation behaves like a hard step.
+- `scale` only affects the mouse-coordinate conversion for drag and resize; rotation is unaffected by scale and needs no correction. Pass the cumulative product of all ancestor `transform: scale()` values applied to the vdr.
 
 See [Events](./events) for the `pos` payload structure.

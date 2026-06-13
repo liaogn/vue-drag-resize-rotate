@@ -21,6 +21,8 @@ import DemoNestedBoundary from './DemoNestedBoundary.vue'
 import DemoNestedBoundarySource from './DemoNestedBoundary.vue?raw'
 import DemoNestedClip from './DemoNestedClip.vue'
 import DemoNestedClipSource from './DemoNestedClip.vue?raw'
+import DemoScale from './DemoScale.vue'
+import DemoScaleSource from './DemoScale.vue?raw'
 import DemoSnap from './DemoSnap.vue'
 import DemoSnapSource from './DemoSnap.vue?raw'
 import DemoSticks from './DemoSticks.vue'
@@ -224,6 +226,19 @@ const demoDefinitions: DemoDefinition[] = [
     },
     component: DemoNestedBoundary,
     source: DemoNestedBoundarySource,
+  },
+  {
+    key: 'scale',
+    title: {
+      zh: '15. 画布缩放 scale',
+      en: '15. Canvas scale',
+    },
+    description: {
+      zh: '在 transform: scale() 缩放过的画布中，传入 scale 校正拖拽与缩放的鼠标位移。',
+      en: 'Inside a transform: scale() canvas, pass scale to correct mouse displacement on drag and resize.',
+    },
+    component: DemoScale,
+    source: DemoScaleSource,
   },
 ]
 

@@ -3,13 +3,19 @@ import type { ElementGeometricInfo } from '../types'
 import type { RotatedRectInput } from '../geometry/boundary'
 
 /** 获取元素的几何信息（位置 / 尺寸 / 中心点 / 旋转角） */
-export function getElementGeometricInfo(element: HTMLElement): ElementGeometricInfo {
+export function getElementGeometricInfo(element: HTMLElement, scale = 1): ElementGeometricInfo {
   const { offsetWidth, offsetHeight } = element
   const rotate = getElementRotate(element)
   const absoluteRotate = getAbsoluteRotate(element)
 
   const rect = element.getBoundingClientRect()
-  const { x, y, width, height } = rect
+  // getBoundingClientRect 返回的是已被祖先 scale 缩放的屏幕像素，
+  // 除以 scale 还原到未缩放坐标系，与 offsetWidth/offsetHeight 保持一致
+  const s = scale > 0 ? scale : 1
+  const x = rect.x / s
+  const y = rect.y / s
+  const width = rect.width / s
+  const height = rect.height / s
   const cx = width / 2 + x
   const cy = height / 2 + y
 
